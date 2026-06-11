@@ -1,0 +1,7 @@
+# STM32CubeIDE build output
+STM32CubeIDE/Debug/
+STM32CubeIDE/Release/
+
+# CubeMX / MC Workbench backups and generation logs
+*.ioc.bak
+Ropetow.log

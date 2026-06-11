@@ -1,0 +1,6 @@
+#
+#Thu Jun 11 11:08:45 NPT 2026
+selected.firmware_ver=Latest
+selected.toolchain=ST STM32CubeIDE
+selected.cubemx=6.17.0
+selected.driver=HAL - Hardware Abstraction Layer

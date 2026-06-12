@@ -674,12 +674,17 @@ static void motor_status_log(void)
   last_state  = state;
   last_faults = faults;
 
-  LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%.1fA Vbus=%uV enc=%s\r\n",
+  /* newlib-nano printf has no %f support (no -u _printf_float), so format the
+     current with integer math: round to tenths of an amp, then split into the
+     whole and fractional digit. Amplitude is non-negative, so % stays positive. */
+  int32_t i_tenths = (int32_t)(((float)MC_GetPhaseCurrentAmplitudeMotor1() *
+                                (float)CURRENT_CONV_FACTOR_INV) * 10.0f + 0.5f);
+
+  LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%ld.%ldA Vbus=%uV enc=%s\r\n",
              mc_state_name(state),
              (int32_t)MC_GetMecSpeedAverageMotor1()   * U_RPM / SPEED_UNIT,
              (int32_t)MC_GetMecSpeedReferenceMotor1() * U_RPM / SPEED_UNIT,
-             (double)((float)MC_GetPhaseCurrentAmplitudeMotor1() *
-                      (float)CURRENT_CONV_FACTOR_INV),
+             i_tenths / 10, i_tenths % 10,
              (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
              MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD");
 

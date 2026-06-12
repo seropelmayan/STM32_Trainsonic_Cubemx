@@ -51,7 +51,7 @@ static const ApplicationConfig_reg_t M1_ApplicationConfig_reg =
 //cstat !MISRAC2012-Rule-9.2
 static const MotorConfig_reg_t M1_MotorConfig_reg =
 {
-  .polePairs  = 40,
+  .polePairs  = 20,
   .ratedFlux  = 0.1,
   .rs         = 0.74,
   .ls         = 0.002*0.700,

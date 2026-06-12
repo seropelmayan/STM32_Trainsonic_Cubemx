@@ -136,7 +136,7 @@
         <define key="M1_PID_TORQUE_KD_DEFAULT" value="100" />
         <define key="M1_PID_TORQUE_KI_DEFAULT" value="14" />
         <define key="M1_PID_TORQUE_KP_DEFAULT" value="590" />
-        <define key="M1_POLE_PAIR_NUM" value="40" />
+        <define key="M1_POLE_PAIR_NUM" value="20" />
         <define key="M1_POSITION_CTRL_ENABLING" value="DISABLE" />
         <define key="M1_POTENTIOMETER_ENABLE" value="FALSE" />
         <define key="M1_POWERBOARD_NAME" value="RopeTow" />

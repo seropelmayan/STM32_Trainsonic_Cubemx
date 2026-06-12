@@ -35,7 +35,7 @@
    "inverted" setting to give a positive speed sign for positive torque. If the
    SDK reports inverted speed or encoder alignment fails during bring-up, flip
    this (0 <-> 1) and rebuild. */
-#define AS5047_INVERT_DIR     0
+#define AS5047_INVERT_DIR     1
 
 /* ------------------------------------------------------------------------- */
 /* Status                                                                    */

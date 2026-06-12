@@ -55,24 +55,28 @@
 #define ISR_FREQUENCY_HZ                    (PWM_FREQUENCY/REGULATION_EXECUTION_RATE) /*!< @brief FOC execution rate in Hz */
 
 /* Gains values for torque and flux control loops */
-#define PID_TORQUE_KP_DEFAULT               590
-#define PID_TORQUE_KI_DEFAULT               14
+/* Rescaled x200 for AMPLIFICATION_GAIN 20 -> 0.1 V/A (1986 counts/A instead
+   of 397188): divider 16384 -> 128 (=x128) and numerators x1.5625. */
+#define PID_TORQUE_KP_DEFAULT               922
+#define PID_TORQUE_KI_DEFAULT               22
 #define PID_TORQUE_KD_DEFAULT               100
-#define PID_FLUX_KP_DEFAULT                 413
-#define PID_FLUX_KI_DEFAULT                 14
+#define PID_FLUX_KP_DEFAULT                 645
+#define PID_FLUX_KI_DEFAULT                 22
 #define PID_FLUX_KD_DEFAULT                 100
 
 /* Torque/Flux control loop gains dividers*/
-#define TF_KPDIV                            16384
-#define TF_KIDIV                            16384
+#define TF_KPDIV                            128
+#define TF_KIDIV                            128
 #define TF_KDDIV                            8192
-#define TF_KPDIV_LOG                        LOG2((16384))
-#define TF_KIDIV_LOG                        LOG2((16384))
+#define TF_KPDIV_LOG                        LOG2((128))
+#define TF_KIDIV_LOG                        LOG2((128))
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-#define PID_SPEED_KP_DEFAULT                2560590/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
-#define PID_SPEED_KI_DEFAULT                7170/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+/* Speed PI rescaled /200 for the same reason; 2560590 also silently
+   truncated in the int16_t PID field (became 4686) -- 12803 fits. */
+#define PID_SPEED_KP_DEFAULT                12803/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KI_DEFAULT                36/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
 /* Speed control loop */
@@ -120,7 +124,7 @@
 /* Encoder alignment */
 #define M1_ALIGNMENT_DURATION               700 /*!< milliseconds */
 #define M1_ALIGNMENT_ANGLE_DEG              90 /*!< degrees [0...359] */
-#define FINAL_I_ALIGNMENT_A                 2.5 /*!< limited for safe bring-up */
+#define FINAL_I_ALIGNMENT_A                 1 /*!< limited for safe bring-up */
 /* With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment */
 /* phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt) */
 /* being Av the voltage gain between Rshunt and A/D input */

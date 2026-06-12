@@ -37,12 +37,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOOT_TARGET_SPEED_RPM   50      /* automatic start target speed       */
-#define BOOT_SPEED_RAMP_MS      2000    /* 0 -> target ramp duration (ms)      */
+#define BOOT_TARGET_SPEED_RPM   100     /* automatic start target speed       */
+#define BOOT_SPEED_RAMP_MS      500     /* 0 -> target ramp duration (ms)      */
 /* Torque-mode bring-up test. With AMPLIFICATION_GAIN = 0.1 V/A (5 mOhm shunt
    * CSA 20 V/V), CURRENT_CONV_FACTOR = 1986 counts/A and full scale is
    +/-16.5 A, so amps are expressible through the macro again. */
-#define BOOT_TORQUE_REF_A       2       /* q-current test reference, amps      */
+#define BOOT_TORQUE_REF_A       1       /* q-current test reference, amps      */
 #define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)      */
 #define MOTOR_LOG_PERIOD_MS     1000U   /* periodic motor status log interval  */
 /* USER CODE END PD */
@@ -155,23 +155,20 @@ int main(void)
    *
    * Only start if the gate driver and encoder configured cleanly. The start
    * is asynchronous: alignment briefly energises and may twitch the rotor,
-   * then the torque ramp runs. The MC tasks advance from interrupts. */
+   * then the speed ramp runs. The MC tasks advance from interrupts. */
   if ((drv_st == DRV8353_OK) && (enc_st == AS5047_OK))
   {
     HAL_Delay(500);                          /* let the supply settle         */
     (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
 
-    /* Torque-mode test: bypass the speed loop entirely. If Iq tracks the
-       reference here, the current loop / PWM / sensing are alive and any
-       remaining zero-speed symptom is in the speed loop / encoder path. */
-    MC_ProgramTorqueRampMotor1((int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
-                               BOOT_TORQUE_RAMP_MS);
+    /* Speed-mode test: closed speed loop via the encoder. The speed PI output
+       (Iqref in the status log) is clamped to +/-IQMAX (16 A). */
+    MC_ProgramSpeedRampMotor1((int16_t)(BOOT_TARGET_SPEED_RPM * SPEED_UNIT / U_RPM),
+                              BOOT_SPEED_RAMP_MS);
     if (MC_StartMotor1())
     {
-      LOG_Printf("Motor start commanded -> torque ref %d A (%d s16A) over %d ms\r\n",
-                 BOOT_TORQUE_REF_A,
-                 (int)(int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
-                 BOOT_TORQUE_RAMP_MS);
+      LOG_Printf("Motor start commanded -> %d rpm over %d ms\r\n",
+                 BOOT_TARGET_SPEED_RPM, BOOT_SPEED_RAMP_MS);
       drv_post_start_log_tick = HAL_GetTick() + 200U;
       drv_post_start_log_armed = true;
     }

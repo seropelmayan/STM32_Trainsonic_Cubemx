@@ -43,9 +43,9 @@
 
 #define MOTOR_VOLTAGE_CONSTANT  0.1 /*!< Volts RMS ph-ph /kRPM */
 #define MOTOR_MAX_SPEED_RPM     700 /*!< Maximum rated speed  */
-#define NOMINAL_CURRENT_A       29
+#define NOMINAL_CURRENT_A       16 /* derated: 5 mOhm * CSA 20 V/V senses max 16.5 A (motor itself is rated 29 A) */
 
-#define ID_DEMAG_A              -29 /*!< Demagnetization current */
+#define ID_DEMAG_A              -16 /*!< Demagnetization current (derated with sensing range) */
 
 /***************** MOTOR SENSORS PARAMETERS  ******************************/
 /* Motor sensors parameters are always generated but really meaningful only

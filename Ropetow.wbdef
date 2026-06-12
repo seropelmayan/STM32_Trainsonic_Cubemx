@@ -54,7 +54,7 @@
         <define key="LOW_SIDE_SIGNALS_ENABLING" value="LS_PWM_TIMER" />
         <define key="M1_ALIGNMENT_ANGLE_DEG" value="90" />
         <define key="M1_ALIGNMENT_DURATION" value="700" />
-        <define key="M1_AMPLIFICATION_GAIN" value="20" />
+        <define key="M1_AMPLIFICATION_GAIN" value="0.1" />
         <define key="M1_ANGC" value="{0,0,0,0,0,0,0,0}" />
         <define key="M1_AUXILIARY_SPEED_SENSOR" value="NONE" />
         <define key="M1_BOARD_MAX_CURRENT" value="29" />
@@ -92,7 +92,7 @@
         <define key="M1_ENC_USE_CH3" value="FALSE" />
         <define key="M1_ENCODER_PPR" value="1024" />
         <define key="M1_FEED_FORWARD_CURRENT_REG_ENABLING" value="DISABLE" />
-        <define key="M1_FINAL_I_ALIGNMENT" value="29" />
+        <define key="M1_FINAL_I_ALIGNMENT" value="2.5" />
         <define key="M1_FLUX_WEAKENING_ENABLING" value="DISABLE" />
         <define key="M1_FW_KI_GAIN" value="5000" />
         <define key="M1_FW_KIDIV" value="32768" />
@@ -104,8 +104,8 @@
         <define key="M1_HIGH_SIDE_IDLE_STATE" value="TURN_OFF" />
         <define key="M1_HW_DEAD_TIME_NS" value="400" />
         <define key="M1_ICL_ENABLED" value="FALSE" />
-        <define key="M1_ID_DEMAG" value="-29" />
-        <define key="M1_IQMAX" value="29" />
+        <define key="M1_ID_DEMAG" value="-16" />
+        <define key="M1_IQMAX" value="16" />
         <define key="M1_LDLQ_RATIO" value="0.700" />
         <define key="M1_LOW_SIDE_IDLE_STATE" value="TURN_OFF" />
         <define key="M1_LOW_SIDE_SIGNALS_ENABLING" value="LS_PWM_TIMER" />
@@ -119,7 +119,7 @@
         <define key="M1_MOTOR_VOLTAGE_CONSTANT" value="0.1" />
         <define key="M1_MTPA_ENABLING" value="DISABLE" />
         <define key="M1_NOMINAL_BUS_VOLTAGE_V" value="55" />
-        <define key="M1_NOMINAL_CURRENT" value="29" />
+        <define key="M1_NOMINAL_CURRENT" value="16" />
         <define key="M1_OCP_TOPOLOGY" value="NONE" />
         <define key="M1_OFST" value="{0,0,0,0,0,0,0,0}" />
         <define key="M1_ON_OVER_VOLTAGE" value="TURN_OFF_PWM" />
@@ -171,8 +171,8 @@
         <define key="M1_VBUS_ADC" value="ADC1" />
         <define key="M1_VBUS_ADC_SAMPLING_TIME" value="47" />
         <define key="M1_VBUS_CHANNEL" value="ADC_Channel_1" />
-        <define key="M1_VBUS_PARTITIONING_FACTOR" value="0.034782608695652174" />
-        <define key="MAX_READABLE_CURRENT" value="0.082" />
+        <define key="M1_VBUS_PARTITIONING_FACTOR" value="0.0410958904109589" />
+        <define key="MAX_READABLE_CURRENT" value="16.5" />
         <define key="MC_WORKBENCH_VERSION" value="6.4.2" />
         <define key="MCP_EN" value="FALSE" />
         <define key="MCU" value="STM32G431CB" />

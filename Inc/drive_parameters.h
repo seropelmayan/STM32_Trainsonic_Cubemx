@@ -91,7 +91,7 @@
 /* USER CODE END PID_SPEED_INTEGRAL_INIT_DIV */
 
 #define SPD_DIFFERENTIAL_TERM_ENABLING      DISABLE
-#define IQMAX_A                             29
+#define IQMAX_A                             16 /* derated: sensing full scale is 16.5 A */
 
 /* Default settings */
 #define DEFAULT_CONTROL_MODE                MCM_TORQUE_MODE
@@ -120,7 +120,7 @@
 /* Encoder alignment */
 #define M1_ALIGNMENT_DURATION               700 /*!< milliseconds */
 #define M1_ALIGNMENT_ANGLE_DEG              90 /*!< degrees [0...359] */
-#define FINAL_I_ALIGNMENT_A                 29 /*!< s16A */
+#define FINAL_I_ALIGNMENT_A                 2.5 /*!< limited for safe bring-up */
 /* With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment */
 /* phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt) */
 /* being Av the voltage gain between Rshunt and A/D input */

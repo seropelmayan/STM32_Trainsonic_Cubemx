@@ -27,6 +27,7 @@
 #include "log.h"
 #include "mc_api.h"
 #include "mc_config_common.h"   /* BusVoltageSensor_M1 for Vbus logging */
+#include "mc_config.h"          /* FOCVars / pwmcHandle for loop diagnostics */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,6 +39,11 @@
 /* USER CODE BEGIN PD */
 #define BOOT_TARGET_SPEED_RPM   50      /* automatic start target speed       */
 #define BOOT_SPEED_RAMP_MS      2000    /* 0 -> target ramp duration (ms)      */
+/* Torque-mode bring-up test. With AMPLIFICATION_GAIN = 0.1 V/A (5 mOhm shunt
+   * CSA 20 V/V), CURRENT_CONV_FACTOR = 1986 counts/A and full scale is
+   +/-16.5 A, so amps are expressible through the macro again. */
+#define BOOT_TORQUE_REF_A       2       /* q-current test reference, amps      */
+#define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)      */
 #define MOTOR_LOG_PERIOD_MS     1000U   /* periodic motor status log interval  */
 /* USER CODE END PD */
 
@@ -57,7 +63,11 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
-
+/* One-shot DRV8353 status dump ~200 ms after motor start, so a fault latched
+   by the alignment current pulse (OCP/GDF) is captured -- the boot-time
+   snapshot runs before any current is commanded and cannot see it. */
+static uint32_t drv_post_start_log_tick = 0U;
+static bool     drv_post_start_log_armed = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -145,17 +155,25 @@ int main(void)
    *
    * Only start if the gate driver and encoder configured cleanly. The start
    * is asynchronous: alignment briefly energises and may twitch the rotor,
-   * then the speed ramp runs. The MC tasks advance from interrupts. */
+   * then the torque ramp runs. The MC tasks advance from interrupts. */
   if ((drv_st == DRV8353_OK) && (enc_st == AS5047_OK))
   {
     HAL_Delay(500);                          /* let the supply settle         */
     (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
-    MC_ProgramSpeedRampMotor1((int16_t)(BOOT_TARGET_SPEED_RPM * SPEED_UNIT / U_RPM),
-                              BOOT_SPEED_RAMP_MS);
+
+    /* Torque-mode test: bypass the speed loop entirely. If Iq tracks the
+       reference here, the current loop / PWM / sensing are alive and any
+       remaining zero-speed symptom is in the speed loop / encoder path. */
+    MC_ProgramTorqueRampMotor1((int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
+                               BOOT_TORQUE_RAMP_MS);
     if (MC_StartMotor1())
     {
-      LOG_Printf("Motor start commanded -> %d rpm over %d ms\r\n",
-                 BOOT_TARGET_SPEED_RPM, BOOT_SPEED_RAMP_MS);
+      LOG_Printf("Motor start commanded -> torque ref %d A (%d s16A) over %d ms\r\n",
+                 BOOT_TORQUE_REF_A,
+                 (int)(int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
+                 BOOT_TORQUE_RAMP_MS);
+      drv_post_start_log_tick = HAL_GetTick() + 200U;
+      drv_post_start_log_armed = true;
     }
     else
     {
@@ -178,6 +196,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if (drv_post_start_log_armed &&
+        ((int32_t)(HAL_GetTick() - drv_post_start_log_tick) >= 0))
+    {
+      drv_post_start_log_armed = false;
+      LOG_Printf("--- DRV8353 status %lu ms after start (post-alignment) ---\r\n",
+                 (unsigned long)(HAL_GetTick() - (drv_post_start_log_tick - 200U)));
+      DRV8353_LogStatus();
+    }
     motor_status_log();
     LOG_Process();
   }
@@ -680,13 +706,23 @@ static void motor_status_log(void)
   int32_t i_tenths = (int32_t)(((float)MC_GetPhaseCurrentAmplitudeMotor1() *
                                 (float)CURRENT_CONV_FACTOR_INV) * 10.0f + 0.5f);
 
-  LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%ld.%ldA Vbus=%uV enc=%s\r\n",
+  /* Iqref: q-axis current reference out of the speed PI (s16A). Vq: q-axis
+     voltage commanded by the current PI (s16V). cnt: raw TIM3 encoder count.
+     pwm: PWMC output state. Together these locate a zero-speed condition:
+     Iqref=0 -> speed loop not asking, Vq=0 -> current loop not driving,
+     cnt frozen -> shaft (or encoder) not moving, pwm=0 -> gates not switching. */
+  LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%ld.%ldA Vbus=%uV enc=%s "
+             "Iqref=%d Vq=%d cnt=%lu pwm=%u\r\n",
              mc_state_name(state),
              (int32_t)MC_GetMecSpeedAverageMotor1()   * U_RPM / SPEED_UNIT,
              (int32_t)MC_GetMecSpeedReferenceMotor1() * U_RPM / SPEED_UNIT,
              i_tenths / 10, i_tenths % 10,
              (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
-             MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD");
+             MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",
+             (int)FOCVars[M1].Iqdref.q,
+             (int)FOCVars[M1].Vqd.q,
+             (unsigned long)TIM3->CNT,
+             (unsigned)PWMC_GetPWMState(pwmcHandle[M1]));
 
   if (changed && ((faults != 0U) || (MC_GetOccurredFaultsMotor1() != 0U)))
   {

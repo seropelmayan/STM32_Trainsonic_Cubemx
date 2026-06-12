@@ -17,7 +17,8 @@
   * The driver is configured once at boot, before the motor is started:
   *   - 6x PWM mode (STM32 supplies 6 signals with its own dead time)
   *   - 1 A peak source / 2 A peak sink gate drive current
-  *   - CSA gain 20 V/V (matches firmware AMPLIFICATION_GAIN)
+  *   - CSA gain 20 V/V (firmware AMPLIFICATION_GAIN = 20 V/V * 5 mOhm shunt
+  *     = 0.1 V/A; do NOT put the bare V/V number in the MC config)
   *   - VDS overcurrent protection (threshold MUST be reviewed for the MOSFETs)
   ******************************************************************************
   */
@@ -47,7 +48,8 @@
 #define DRV8353_IDRIVEN_CODE   0x0FU   /* sink:   1111 = 2000 mA (2 A)        */
 
 /* Current-sense-amplifier gain. 00=5, 01=10, 10=20, 11=40 V/V.
-   Must equal firmware AMPLIFICATION_GAIN (=20) -> code 0b10. */
+   Firmware AMPLIFICATION_GAIN must equal this gain TIMES the 5 mOhm shunt
+   (V/A): 20 V/V -> 0.1 V/A, full scale +/-16.5 A. Change both together. */
 #define DRV8353_CSA_GAIN_CODE  0x2U
 
 /* !!! REVIEW BEFORE POWERING THE STAGE !!!

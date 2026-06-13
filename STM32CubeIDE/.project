@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Ropetow</name>
+	<name>Trainsonic</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -31,14 +31,29 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Ropetow.ioc</name>
+			<name>Trainsonic.ioc</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Ropetow.ioc</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Trainsonic.ioc</locationURI>
+		</link>
+		<link>
+			<name>Application/User/app_freertos.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/app_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/drv8353.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/drv8353.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/log.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/log.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/mc_api.c</name>
@@ -124,6 +139,11 @@
 			<name>Application/User/stm32g4xx_hal_msp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/stm32g4xx_hal_msp.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/stm32g4xx_hal_timebase_tim.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/stm32g4xx_hal_timebase_tim.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32g4xx_it.c</name>
@@ -251,16 +271,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/STM32G4xx_HAL_Driver/stm32g4xx_hal_spi.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/STM32G4xx_HAL_Driver/stm32g4xx_hal_spi_ex.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi_ex.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/STM32G4xx_HAL_Driver/stm32g4xx_hal_tim.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c</locationURI>
@@ -279,6 +289,56 @@
 			<name>Drivers/STM32G4xx_HAL_Driver/stm32g4xx_ll_usb.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usb.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/cmsis_os.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/croutine.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/croutine.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/event_groups.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/heap_4.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/list.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/list.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/port.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/queue.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/queue.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/stream_buffer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/tasks.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/tasks.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS/timers.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/MotorControl/bus_voltage_sensor.c</name>
@@ -306,11 +366,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/encoder_speed_pos_fdbk.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/MotorControl/ics_g4xx_pwm_curr_fdbk.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/G4xx/Src/ics_g4xx_pwm_curr_fdbk.c</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/MotorControl/ntc_temperature_sensor.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/ntc_temperature_sensor.c</locationURI>
@@ -331,9 +386,9 @@
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/pqd_motor_power_measurement.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/MotorControl/r_divider_bus_voltage_sensor.c</name>
+			<name>Middlewares/MotorControl/r3_2_g4xx_pwm_curr_fdbk.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/r_divider_bus_voltage_sensor.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/G4xx/Src/r3_2_g4xx_pwm_curr_fdbk.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/MotorControl/ramp_ext_mngr.c</name>
@@ -349,6 +404,11 @@
 			<name>Middlewares/MotorControl/speed_pos_fdbk.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/speed_pos_fdbk.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/MotorControl/virtual_bus_voltage_sensor.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/virtual_bus_voltage_sensor.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/MotorControl/virtual_speed_sensor.c</name>
@@ -374,21 +434,6 @@
 			<name>Middlewares/USB_Device_Library/usbd_ioreq.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c</locationURI>
-		</link>
-		<link>
-			<name>Application/User/drv8353.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/drv8353.c</locationURI>
-		</link>
-		<link>
-			<name>Application/User/as5047.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/as5047.c</locationURI>
-		</link>
-		<link>
-			<name>Application/User/log.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Src/log.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

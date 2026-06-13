@@ -27,6 +27,7 @@
 #include "mc_math.h"
 #include "motorcontrol.h"
 #include "regular_conversion_manager.h"
+#include "cmsis_os.h"
 #include "mc_interface.h"
 #include "digital_output.h"
 #include "pwm_common.h"
@@ -46,7 +47,7 @@
 
 /* USER CODE END Private define */
 
-#define VBUS_TEMP_ERR_MASK ~(0 | 0 | MC_OVER_TEMP)
+#define VBUS_TEMP_ERR_MASK ~(MC_OVER_VOLT | MC_UNDER_VOLT | MC_OVER_TEMP)
 /* Private variables----------------------------------------------------------*/
 
 static uint16_t hMFTaskCounterM1 = 0; //cstat !MISRAC2012-Rule-8.9_a
@@ -109,11 +110,10 @@ __weak void MCboot( MCI_Handle_t* pMCIList[NBR_OF_MOTORS] )
     /****************************************************/
     VSS_Init(&VirtualSpeedSensorM1);
 
-    /********************************************************/
-    /*   Bus voltage sensor component initialization        */
-    /********************************************************/
-    (void)RCM_RegisterRegConv(&VbusRegConv_M1);
-    RVBS_Init(&BusVoltageSensor_M1);
+    /**********************************************************/
+    /*   Virtual bus voltage sensor component initialization  */
+    /**********************************************************/
+    VVBS_Init(&BusVoltageSensor_M1);
 
     /*******************************************************/
     /*   Temperature measurement component initialization  */
@@ -200,10 +200,6 @@ __weak void MC_RunMotorControlTasks(void)
   /* USER CODE BEGIN MC_Scheduler 2 */
 
   /* USER CODE END MC_Scheduler 2 */
-
-    /* Safety task is run after Medium Frequency task so that
-     * it can overcome actions they initiated if needed */
-    TSK_SafetyTask();
   }
 }
 
@@ -330,22 +326,12 @@ __weak void TSK_SafetyTask_PWMOFF(uint8_t bMotor)
   /* USER CODE END TSK_SafetyTask_PWMOFF 0 */
   uint16_t CodeReturn = MC_NO_ERROR;
   uint8_t lbmotor = M1;
-  const uint16_t errMask[NBR_OF_MOTORS] = {VBUS_TEMP_ERR_MASK};
   /* Check for fault if FW protection is activated. It returns MC_OVER_TEMP or MC_NO_ERROR */
 
 /* Due to warning array subscript 1 is above array bounds of PWMC_Handle_t *[1] [-Warray-bounds] */
    CodeReturn |= PWMC_IsFaultOccurred(pwmcHandle[lbmotor]);     /* check for fault. It return MC_OVER_CURR or MC_NO_FAULTS
                                                      (for STM32F30x can return MC_OVER_VOLT in case of HW Overvoltage) */
 
-  if (M1 == bMotor)
-  {
-    uint16_t rawValueM1 =  RCM_GetRegularConv(&VbusRegConv_M1);
-    CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
-  }
-  else
-  {
-    /* Nothing to do */
-  }
   MCI_FaultProcessing(&Mci[bMotor], CodeReturn, ~CodeReturn); /* Process faults */
 
   if (MCI_GetFaultState(&Mci[bMotor]) != (uint32_t)MC_NO_FAULTS)
@@ -394,11 +380,45 @@ __weak void TSK_HardwareFaultTask(void)
   /* USER CODE END TSK_HardwareFaultTask 1 */
 }
 
+/* startMediumFrequencyTask function */
+void startMediumFrequencyTask(void const * argument)
+{
+  /* USER CODE BEGIN MF task 1 */
+
+  /* Infinite loop */
+  for(;;)
+  {
+    /* Delay of 500us */
+    vTaskDelay(1);
+
+    /* Buffer is ready by the HW layer to be processed */
+    /* NO DMA interrupt */
+
+    MC_RunMotorControlTasks();
+  }
+  /* USER CODE END MF task 1 */
+}
+
+/* startSafetyTask function */
+void StartSafetyTask(void const * argument)
+{
+  /* USER CODE BEGIN SF task 1 */
+  /* Infinite loop */
+  for(;;)
+  {
+    /* Delay of 500us */
+    vTaskDelay(1);
+    TSK_SafetyTask();
+  }
+  /* USER CODE END SF task 1 */
+}
+
  /**
   * @brief  Locks GPIO pins used for Motor Control to prevent accidental reconfiguration.
   */
 __weak void mc_lock_pins (void)
 {
+LL_GPIO_LockPin(M1_CURR_AMPL_W_GPIO_Port, M1_CURR_AMPL_W_Pin);
 LL_GPIO_LockPin(M1_ENCODER_A_GPIO_Port, M1_ENCODER_A_Pin);
 LL_GPIO_LockPin(M1_ENCODER_B_GPIO_Port, M1_ENCODER_B_Pin);
 LL_GPIO_LockPin(M1_PWM_UH_GPIO_Port, M1_PWM_UH_Pin);
@@ -408,7 +428,8 @@ LL_GPIO_LockPin(M1_PWM_WH_GPIO_Port, M1_PWM_WH_Pin);
 LL_GPIO_LockPin(M1_PWM_WL_GPIO_Port, M1_PWM_WL_Pin);
 LL_GPIO_LockPin(M1_PWM_UL_GPIO_Port, M1_PWM_UL_Pin);
 LL_GPIO_LockPin(M1_EN_DRIVER_GPIO_Port, M1_EN_DRIVER_Pin);
-LL_GPIO_LockPin(M1_BUS_VOLTAGE_GPIO_Port, M1_BUS_VOLTAGE_Pin);
+LL_GPIO_LockPin(M1_CURR_AMPL_V_GPIO_Port, M1_CURR_AMPL_V_Pin);
+LL_GPIO_LockPin(M1_CURR_AMPL_U_GPIO_Port, M1_CURR_AMPL_U_Pin);
 }
 /* USER CODE BEGIN mc_task 0 */
 

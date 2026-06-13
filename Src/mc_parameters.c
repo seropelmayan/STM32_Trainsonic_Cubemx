@@ -25,7 +25,7 @@
 #include "main.h" //cstat !MISRAC2012-Rule-21.1
 //cstat +MISRAC2012-Rule-21.1
 #include "parameters_conversion.h"
-#include "ics_g4xx_pwm_curr_fdbk.h"
+#include "r3_2_g4xx_pwm_curr_fdbk.h"
 
 /* USER CODE BEGIN Additional include */
 
@@ -34,23 +34,96 @@
 #define FREQ_RATIO 1                /* Dummy value for single drive */
 #define FREQ_RELATION HIGHEST_FREQ  /* Dummy value for single drive */
 
-  const ICS_Params_t ICS_ParamsM1 =
+      /**
+  * @brief  Current sensor parameters Motor 1 - three shunt - G4
+  */
+//cstat !MISRAC2012-Rule-8.4
+const R3_2_Params_t R3_2_ParamsM1 =
 {
 /* Dual MC parameters --------------------------------------------------------*/
-  .FreqRatio         = FREQ_RATIO,
-  .IsHigherFreqTim   = FREQ_RELATION,
+  .FreqRatio             = FREQ_RATIO,
+  .IsHigherFreqTim       = FREQ_RELATION,
 
 /* Current reading A/D Conversions initialization -----------------------------*/
-  .ADCx_1 = ADC1,
-  .ADCx_2 = ADC2,
-  .ADCConfig1        = (uint32_t)(MC_ADC_CHANNEL_15 << ADC_JSQR_JSQ1_Pos) | LL_ADC_INJ_TRIG_EXT_RISING
-                     | LL_ADC_INJ_TRIG_EXT_TIM1_TRGO,
-  .ADCConfig2        = (uint32_t)(MC_ADC_CHANNEL_12 << ADC_JSQR_JSQ1_Pos) | LL_ADC_INJ_TRIG_EXT_RISING
-                     | LL_ADC_INJ_TRIG_EXT_TIM1_TRGO,
+  .ADCConfig1 = {
+                  (uint32_t)(2U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(15U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(15U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(15U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(15U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(2U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                },
+  .ADCConfig2 = {
+                  (uint32_t)(12U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(12U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(12U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(2U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(2U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                 ,(uint32_t)(12U << ADC_JSQR_JSQ1_Pos)
+                | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
+                },
 
-/* PWM generation parameters --------------------------------------------------*/
-  .RepetitionCounter = REP_COUNTER,
-  .TIMx              = TIM1
+  .ADCDataReg1 = {
+                   ADC1
+                  ,ADC1
+                  ,ADC1
+                  ,ADC1
+                  ,ADC1
+                  ,ADC1
+                 },
+  .ADCDataReg2 = {
+                   ADC2
+                  ,ADC2
+                  ,ADC2
+                  ,ADC2
+                  ,ADC2
+                  ,ADC2
+                  },
+ //cstat +MISRAC2012-Rule-12.1 +MISRAC2012-Rule-10.1_R6
+
+  /* PWM generation parameters --------------------------------------------------*/
+  .RepetitionCounter     = REP_COUNTER,
+  .Tafter                = TW_AFTER,
+  .Tbefore               = TW_BEFORE,
+  .Tcase2                = ((uint16_t)TDEAD + (uint16_t)TNOISE + (uint16_t)TW_BEFORE) / 2u,
+  .Tcase3                = (uint16_t)TW_BEFORE + (uint16_t)TDEAD + (uint16_t)TRISE,
+  .TIMx                  = TIM1,
+
+/* Internal OPAMP common settings --------------------------------------------*/
+  .OPAMPParams           = MC_NULL,
+
+/* Internal COMP settings ----------------------------------------------------*/
+  .CompOCPASelection     = MC_NULL,
+  .CompOCPAInvInput_MODE = NONE,
+  .CompOCPBSelection     = MC_NULL,
+  .CompOCPBInvInput_MODE = NONE,
+  .CompOCPCSelection     = MC_NULL,
+  .CompOCPCInvInput_MODE = NONE,
+  .DAC_OCP_ASelection    = MC_NULL,
+  .DAC_OCP_BSelection    = MC_NULL,
+  .DAC_OCP_CSelection    = MC_NULL,
+  .DAC_Channel_OCPA      = (uint32_t)0,
+  .DAC_Channel_OCPB      = (uint32_t)0,
+  .DAC_Channel_OCPC      = (uint32_t)0,
+  .CompOVPSelection      = MC_NULL,
+  .CompOVPInvInput_MODE  = NONE,
+  .DAC_OVP_Selection     = MC_NULL,
+  .DAC_Channel_OVP       = (uint32_t)0,
+
+/* DAC settings --------------------------------------------------------------*/
+  .DAC_OCP_Threshold     = 0,
+  .DAC_OVP_Threshold     = 23830,
 
 };
 

@@ -119,7 +119,7 @@ __weak void FOC_Init(void)
     /*    PWM and current sensing component initialization    */
     /**********************************************************/
     pwmcHandle[M1] = &PWM_Handle_M1._Super;
-    ICS_Init(&PWM_Handle_M1);
+    R3_2_Init(&PWM_Handle_M1);
 
     /* USER CODE BEGIN MCboot 1 */
 
@@ -167,7 +167,8 @@ __weak void FOC_Init(void)
     FOCVars[M1].Iqdref = STC_GetDefaultIqdref(pSTC[M1]);
     FOCVars[M1].UserIdref = STC_GetDefaultIqdref(pSTC[M1]).d;
 
-    MCI_ExecTorqueRamp(&Mci[M1], STC_GetDefaultIqdref(pSTC[M1]).q, 0);
+    MCI_ExecSpeedRamp(&Mci[M1],
+    STC_GetMecSpeedRefUnitDefault(pSTC[M1]),0); /* First command to STC */
 
     /* USER CODE BEGIN MCboot 2 */
 
@@ -180,7 +181,7 @@ __weak void FOC_Init(void)
  */
 void TSK_MF_StopProcessing(uint8_t motor)
 {
-  ICS_SwitchOffPWM(pwmcHandle[motor]);
+  R3_2_SwitchOffPWM(pwmcHandle[motor]);
 
   FOC_Clear(motor);
   STC_Clear(pSTC[motor]);
@@ -229,7 +230,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
               pwmcHandle[M1]->OffCalibrWaitTimeCounter = 1u;
               (void)PWMC_CurrentReadingCalibr(pwmcHandle[M1], CRC_EXEC);
 
-              ICS_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
+              R3_2_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
               TSK_SetChargeBootCapDelayM1(M1_CHARGE_BOOT_CAP_TICKS);
               Mci[M1].State = CHARGE_BOOT_CAP;
             }
@@ -260,7 +261,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
               }
               else
               {
-                ICS_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
+                R3_2_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
                 TSK_SetChargeBootCapDelayM1(M1_CHARGE_BOOT_CAP_TICKS);
                 Mci[M1].State = CHARGE_BOOT_CAP;
               }
@@ -283,7 +284,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
           {
             if (TSK_ChargeBootCapDelayHasElapsedM1())
             {
-              ICS_SwitchOffPWM(pwmcHandle[M1]);
+              R3_2_SwitchOffPWM(pwmcHandle[M1]);
               FOCVars[M1].bDriveInput = EXTERNAL;
               STC_SetSpeedSensor( pSTC[M1], &VirtualSpeedSensorM1._Super );
 
@@ -335,12 +336,12 @@ __weak void TSK_MediumFrequencyTaskM1(void)
             }
             else
             {
-              ICS_SwitchOffPWM( pwmcHandle[M1] );
+              R3_2_SwitchOffPWM( pwmcHandle[M1] );
               STC_Clear(pSTC[M1]);
               STC_SetControlMode(pSTC[M1], MCM_SPEED_MODE);
               STC_SetSpeedSensor(pSTC[M1], &ENCODER_M1._Super);
               FOC_Clear(M1);
-              ICS_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
+              R3_2_TurnOnLowSides(pwmcHandle[M1],M1_CHARGE_BOOT_CAP_DUTY_CYCLES);
               TSK_SetStopPermanencyTimeM1(STOPPERMANENCY_TICKS);
               Mci[M1].State = WAIT_STOP_MOTOR;
               /* USER CODE BEGIN MediumFrequencyTask M1 EndOfEncAlignment */
@@ -419,7 +420,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
             if (TSK_StopPermanencyTimeHasElapsedM1())
             {
               ENC_Clear(&ENCODER_M1);
-              ICS_SwitchOnPWM(pwmcHandle[M1]);
+              R3_2_SwitchOnPWM(pwmcHandle[M1]);
               FOC_InitAdditionalMethods(M1);
               STC_ForceSpeedReferenceToCurrentSpeed(pSTC[M1]); /* Init the reference speed to current speed */
               MCI_ExecBufferedCommands(&Mci[M1]); /* Exec the speed ramp after changing of the speed sensor */

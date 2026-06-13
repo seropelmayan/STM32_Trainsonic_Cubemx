@@ -33,23 +33,25 @@
                                                       by HW if low side signals
                                                       are not used */
 /*********** Bus voltage sensing section ****************/
-#define VBUS_PARTITIONING_FACTOR             0.0410958904109589 /*!< It expresses how
+#define VBUS_PARTITIONING_FACTOR             0.0526 /*!< It expresses how
                                                       much the Vbus is attenuated
                                                       before being converted into
                                                       digital value */
-#define NOMINAL_BUS_VOLTAGE_V                55U
+#define NOMINAL_BUS_VOLTAGE_V                60U
 /******** Current reading parameters section ******/
 /*** Topology ***/
-#define ICS_SENSORS
+#define THREE_SHUNT
+
+#define RSHUNT                               0.005
 
 /*  ICSs gains in case of isolated current sensors,
         amplification gain for shunts based sensing */
-#define AMPLIFICATION_GAIN                   0.1 /* V/A: 5 mOhm shunt * DRV8353 CSA 20 V/V */
+#define AMPLIFICATION_GAIN                   0.02
 
 /*** Noise parameters ***/
-#define TNOISE_NS                            500
-#define TRISE_NS                             400
-#define MAX_TNTR_NS                          TNOISE_NS
+#define TNOISE_NS                            100
+#define TRISE_NS                             100
+#define MAX_TNTR_NS                          TRISE_NS
 
 /************ Temperature sensing section ***************/
 /* V[V]=V0+dV/dT[V/Celsius]*(T-T0)[Celsius]*/

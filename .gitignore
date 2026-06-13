@@ -4,4 +4,8 @@ STM32CubeIDE/Release/
 
 # CubeMX / MC Workbench backups and generation logs
 *.ioc.bak
-Ropetow.log
+*.log
+
+# Local working artifacts (not part of the project)
+Backup/
+*.patch

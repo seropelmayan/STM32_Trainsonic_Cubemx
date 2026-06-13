@@ -1,0 +1,543 @@
+{
+  "version": 8,
+  "algorithm": "FOC",
+  "description": "",
+  "workBenchVersion": "6.4.2",
+  "workBenchVersionFileCreation": "6.4.2",
+  "hardwares": {
+    "type": "INVERTER",
+    "inverter": {
+      "hardwareFamily": "INVERTER",
+      "id": "user.Trainsonic1",
+      "label": "Trainsonic1",
+      "description": "",
+      "compatibility": [
+        "FOC",
+        "sixStep"
+      ],
+      "descVersion": 4,
+      "contentVersion": "1.0"
+    },
+    "control": {
+      "hardwareFamily": "CONTROL",
+      "mcu": {
+        "id": "STM32G431CBTx"
+      },
+      "clockSource": "24_crystal",
+      "clockFrequency": 170,
+      "connectors": [],
+      "features": [],
+      "id": "Trainsonic1",
+      "label": "Trainsonic1",
+      "contentVersion": "1.0",
+      "compatibility": [
+        "FOC",
+        "sixStep"
+      ],
+      "descVersion": 4,
+      "description": "",
+      "link": ""
+    },
+    "power": [
+      {
+        "motorDrives": [
+          {
+            "name": "M1",
+            "maxRatedVoltage": 70,
+            "minRatedVoltage": 20,
+            "maxRatedCurrent": 15,
+            "maxRatedPower": 500,
+            "resistorOffset": 0.1,
+            "features": [
+              {
+                "type": "CurrentSensing",
+                "name": "CurrentSensing",
+                "hwVariants": [
+                  {
+                    "type": "ThreeShunt_AmplifiedCurrents",
+                    "signals": {
+                      "CURRENT_AMPL_U": [
+                        {
+                          "name": "PB0",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "CURRENT_AMPL_V": [
+                        {
+                          "name": "PA1",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "CURRENT_AMPL_W": [
+                        {
+                          "name": "PB2",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ]
+                    },
+                    "shuntResistor": 0.005,
+                    "amplifyingNetworkImax": 15,
+                    "amplifyingNetworkVm": 1.65,
+                    "amplifyingNetworkPrating": 2,
+                    "opAmpGain": 20,
+                    "offsetNetworkAttenuation": 0.001,
+                    "polarizationOffset": 0,
+                    "cost": 0
+                  }
+                ],
+                "tRise": 100
+              },
+              {
+                "type": "SpeedAndPositionSensing",
+                "name": "SpeedAndPositionSensing",
+                "hwVariants": [
+                  {
+                    "type": "QuadratureEncoderAbsolute",
+                    "signals": {
+                      "QENC_A": [
+                        {
+                          "name": "PB4",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "QENC_B": [
+                        {
+                          "name": "PB5",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "QENC_Z": [
+                        {
+                          "name": "PB3",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ]
+                    },
+                    "cost": 0
+                  }
+                ]
+              },
+              {
+                "type": "PhaseVoltageGeneration",
+                "name": "PhaseVoltageGeneration",
+                "hwVariants": [
+                  {
+                    "type": "DrivingHighAndLowSidesAndMasterEnable",
+                    "signals": {
+                      "PWM_CHU_H": [
+                        {
+                          "name": "PA8",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_CHV_H": [
+                        {
+                          "name": "PA9",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_CHW_H": [
+                        {
+                          "name": "PA10",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_CHU_L": [
+                        {
+                          "name": "PB13",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_CHV_L": [
+                        {
+                          "name": "PB14",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_CHW_L": [
+                        {
+                          "name": "PB15",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ],
+                      "PWM_EN": [
+                        {
+                          "name": "PB12",
+                          "help": {},
+                          "cost": 0
+                        }
+                      ]
+                    },
+                    "deadTime": 400,
+                    "highSideSwitchesDrivingPolarity": "Active high",
+                    "lowSideSwitchesDrivingPolarity": "Active high",
+                    "enableDrivingPolarity": "Active high",
+                    "cost": 0
+                  }
+                ],
+                "driverName": "DRV8353S",
+                "driverPN": "DRV8353S",
+                "tNoise": 100,
+                "minDeadTime": 400,
+                "maxSwitchingFreq": 25
+              }
+            ]
+          }
+        ],
+        "hardwareFamily": "POWER",
+        "id": "Trainsonic1",
+        "compatibility": [
+          "FOC",
+          "sixStep"
+        ],
+        "descVersion": 4,
+        "description": "",
+        "contentVersion": "1.0",
+        "label": "Trainsonic1",
+        "link": ""
+      }
+    ],
+    "motor": [
+      {
+        "polePairs": 20,
+        "id": "user.Trainsonic",
+        "label": "Trainsonic",
+        "hardwareFamily": "MOTOR",
+        "description": "BLDC 48V",
+        "compatibility": [
+          "FOC",
+          "sixStep"
+        ],
+        "nominalCurrent": 15,
+        "nominalDCVoltage": 60,
+        "rs": 0.74,
+        "ls": 1.4,
+        "magneticStructure": {
+          "type": "SM-PMSM"
+        },
+        "BEmfConstant": 28.5,
+        "inertia": 0.55,
+        "friction": 0.49,
+        "maxRatedSpeed": 700,
+        "quadratureEncoder": {
+          "pulsesPerMechanicalRevolution": 1024,
+          "hasIndexPin": true
+        }
+      }
+    ],
+    "connections": [
+      {
+        "ctrlConn": 0,
+        "power": 0,
+        "drive": 0,
+        "motor": 0
+      }
+    ],
+    "constrains": {
+      "motors": [
+        {
+          "motor": "M1",
+          "features": [
+            {
+              "name": "CurrentSensing",
+              "type": "CurrentSensing",
+              "hwVariants": [
+                {
+                  "name": "ThreeShunt_AmplifiedCurrents",
+                  "swVariants": [
+                    {
+                      "name": "DualADCs",
+                      "solutions": [
+                        {
+                          "ip": [
+                            "ADC1",
+                            "ADC2"
+                          ],
+                          "sharedSignal": "CURRENT_AMPL_V",
+                          "signals": [
+                            {
+                              "name": "CURRENT_AMPL_U",
+                              "pin": "PB0",
+                              "peripheral": "ADC1_IN15",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_W",
+                              "pin": "PB2",
+                              "peripheral": "ADC2_IN12",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_V",
+                              "pin": "PA1",
+                              "peripheral": "ADC2_IN2",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_V",
+                              "pin": "PA1",
+                              "peripheral": "ADC1_IN2",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        }
+                      ]
+                    },
+                    {
+                      "name": "DualADCsNoSharedPhase",
+                      "solutions": [
+                        {
+                          "ip": [
+                            "ADC2",
+                            "ADC1"
+                          ],
+                          "signals": [
+                            {
+                              "name": "CURRENT_AMPL_U",
+                              "pin": "PB0",
+                              "peripheral": "ADC1_IN15",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_V",
+                              "pin": "PA1",
+                              "peripheral": "ADC1_IN2",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_W",
+                              "pin": "PB2",
+                              "peripheral": "ADC2_IN12",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        },
+                        {
+                          "ip": [
+                            "ADC2",
+                            "ADC1"
+                          ],
+                          "signals": [
+                            {
+                              "name": "CURRENT_AMPL_U",
+                              "pin": "PB0",
+                              "peripheral": "ADC1_IN15",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_V",
+                              "pin": "PA1",
+                              "peripheral": "ADC2_IN2",
+                              "help": ""
+                            },
+                            {
+                              "name": "CURRENT_AMPL_W",
+                              "pin": "PB2",
+                              "peripheral": "ADC2_IN12",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "SpeedAndPositionSensing",
+              "type": "SpeedAndPositionSensing",
+              "hwVariants": [
+                {
+                  "name": "QuadratureEncoderAbsolute",
+                  "swVariants": [
+                    {
+                      "name": "SingleTimerAndGPIOs",
+                      "solutions": [
+                        {
+                          "ip": [
+                            "TIM3"
+                          ],
+                          "signals": [
+                            {
+                              "name": "QENC_A",
+                              "pin": "PB4",
+                              "peripheral": "TIM3_CH1",
+                              "help": ""
+                            },
+                            {
+                              "name": "QENC_B",
+                              "pin": "PB5",
+                              "peripheral": "TIM3_CH2",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        }
+                      ],
+                      "independentWires": {
+                        "QENC_Z": [
+                          {
+                            "ip": "GPIO",
+                            "pin": "PB3",
+                            "peripheral": "GPIO_Output",
+                            "help": "",
+                            "cost": 0
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "QuadratureEncoderRelative",
+                  "swVariants": [
+                    {
+                      "name": "SingleTimer",
+                      "solutions": [
+                        {
+                          "ip": [
+                            "TIM3"
+                          ],
+                          "signals": [
+                            {
+                              "name": "QENC_A",
+                              "pin": "PB4",
+                              "peripheral": "TIM3_CH1",
+                              "help": ""
+                            },
+                            {
+                              "name": "QENC_B",
+                              "pin": "PB5",
+                              "peripheral": "TIM3_CH2",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "PhaseVoltageGeneration",
+              "type": "PhaseVoltageGeneration",
+              "hwVariants": [
+                {
+                  "name": "DrivingHighAndLowSidesAndMasterEnable",
+                  "swVariants": [
+                    {
+                      "name": "SingleTimerAndGPIOs",
+                      "solutions": [
+                        {
+                          "ip": [
+                            "TIM1"
+                          ],
+                          "signals": [
+                            {
+                              "name": "PWM_CHU_H",
+                              "pin": "PA8",
+                              "peripheral": "TIM1_CH1",
+                              "help": ""
+                            },
+                            {
+                              "name": "PWM_CHV_H",
+                              "pin": "PA9",
+                              "peripheral": "TIM1_CH2",
+                              "help": ""
+                            },
+                            {
+                              "name": "PWM_CHW_H",
+                              "pin": "PA10",
+                              "peripheral": "TIM1_CH3",
+                              "help": ""
+                            },
+                            {
+                              "name": "PWM_CHU_L",
+                              "pin": "PB13",
+                              "peripheral": "TIM1_CH1N",
+                              "help": ""
+                            },
+                            {
+                              "name": "PWM_CHV_L",
+                              "pin": "PB14",
+                              "peripheral": "TIM1_CH2N",
+                              "help": ""
+                            },
+                            {
+                              "name": "PWM_CHW_L",
+                              "pin": "PB15",
+                              "peripheral": "TIM1_CH3N",
+                              "help": ""
+                            }
+                          ],
+                          "cost": 0
+                        }
+                      ],
+                      "independentWires": {
+                        "PWM_EN": [
+                          {
+                            "ip": "GPIO",
+                            "pin": "PB12",
+                            "peripheral": "GPIO_Output",
+                            "help": "",
+                            "cost": 0
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "features": [],
+      "errors": [],
+      "warnings": [
+        "CSConnect: ThreeShunt_AmplifiedCurrents SingleADC No_Unique_ADC CURRENT_AMPL_U, CURRENT_AMPL_V, CURRENT_AMPL_W"
+      ],
+      "info": [],
+      "critical": []
+    }
+  },
+  "checkList": {},
+  "details": {
+    "steps": {
+      "speedSensingSel_0": {
+        "mainSensorParams": {
+          "speedSensorMode": "encoder"
+        }
+      },
+      "applicationConfig": {
+        "freeRTOS": {
+          "enabled": true
+        },
+        "dacDebug": {
+          "enabled": false
+        },
+        "lowMemoryFootprintReg": false,
+        "motorProfiler": false,
+        "dbgMcuLoadMeasure": false
+      }
+    }
+  }
+}

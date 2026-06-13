@@ -18,16 +18,22 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "drv8353.h"
-#include "as5047.h"
-#include "log.h"
-#include "mc_api.h"
-#include "mc_config_common.h"   /* BusVoltageSensor_M1 for Vbus logging */
-#include "mc_config.h"          /* FOCVars / pwmcHandle for loop diagnostics */
+#include "drv8353.h"             /* DRV8353RS gate driver (bit-banged SPI)     */
+#include "log.h"                 /* USB-CDC logging                            */
+#include "mc_api.h"              /* motor command API                          */
+#include "parameters_conversion.h" /* CURRENT_CONV_FACTOR(_INV), SPEED_UNIT    */
+#include "mc_config_common.h"    /* BusVoltageSensor_M1 for Vbus logging       */
+#include "mc_config.h"           /* FOCVars / pwmcHandle for loop diagnostics  */
+/* NOTE: the AS5047 driver uses hardware SPI1, which this regenerated project
+   DISABLED (HAL_SPI module off, no MX_SPI1_Init). It is intentionally NOT
+   built/initialised here. The encoder still feeds FOC through the TIM3 ABI
+   input. To restore SPI configuration of the AS5047 (1024 PPR / DIR): enable
+   SPI1 in CubeMX, add as5047.c to the build, then call AS5047_Init(&hspi1). */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,14 +43,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOOT_TARGET_SPEED_RPM   100     /* automatic start target speed       */
-#define BOOT_SPEED_RAMP_MS      500     /* 0 -> target ramp duration (ms)      */
-/* Torque-mode bring-up test. With AMPLIFICATION_GAIN = 0.1 V/A (5 mOhm shunt
-   * CSA 20 V/V), CURRENT_CONV_FACTOR = 1986 counts/A and full scale is
-   +/-16.5 A, so amps are expressible through the macro again. */
-#define BOOT_TORQUE_REF_A       1       /* q-current test reference, amps      */
-#define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)      */
-#define MOTOR_LOG_PERIOD_MS     1000U   /* periodic motor status log interval  */
+#define BOOT_TARGET_SPEED_RPM   100     /* automatic start target speed        */
+#define BOOT_SPEED_RAMP_MS      500     /* 0 -> target ramp duration (ms)       */
+#define MOTOR_LOG_PERIOD_MS     100U    /* periodic motor status log interval   */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -54,33 +55,37 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 CORDIC_HandleTypeDef hcordic;
-
-SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
+osThreadId mediumFrequencyHandle;
+osThreadId safetyHandle;
 /* USER CODE BEGIN PV */
-/* One-shot DRV8353 status dump ~200 ms after motor start, so a fault latched
-   by the alignment current pulse (OCP/GDF) is captured -- the boot-time
-   snapshot runs before any current is commanded and cannot see it. */
-static uint32_t drv_post_start_log_tick = 0U;
-static bool     drv_post_start_log_armed = false;
+osThreadId appTaskHandle;        /* boot diagnostics + auto-start + status log  */
+static void StartAppTask(void const *argument);
+static const char *mc_state_name(MCI_State_t state);
+static void log_mc_faults(const char *label, uint16_t faults);
+static void motor_status_log(void);
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_ADC2_Init(void);
 static void MX_CORDIC_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
-static void MX_SPI1_Init(void);
+void startMediumFrequencyTask(void const * argument);
+extern void StartSafetyTask(void const * argument);
+
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
-static void motor_status_log(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -118,73 +123,56 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
+  MX_ADC2_Init();
   MX_CORDIC_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_MotorControl_Init();
-  MX_SPI1_Init();
-  MX_USB_Device_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  LOG_Init();
 
-  /* Configure the DRV8353RS gate driver (6x PWM, 1 A gate drive, CSA gain 20,
-     OCP) before any PWM is generated. Bit-banged SPI on PA15/PB9/PB10/PB11. */
-  DRV8353_Status drv_st = DRV8353_Init();
-
-  /* Configure the AS5047P ABI output (1024 PPR) before the motor is started.
-     SPI1 (line above) is now initialised. */
-  AS5047_Status enc_st = AS5047_Init(&hspi1);
-
-  /* Dump boot diagnostics over USB CDC. We do NOT halt on error here: the motor
-     never auto-starts, and halting would freeze USB so the log could not drain.
-     Read the log to see why init failed; gate the motor start on these codes. */
-  LOG_Printf("\r\n=== Ropetow boot ===\r\n");
-  LOG_Printf("DRV8353_Init=%d  AS5047_Init=%d\r\n", (int)drv_st, (int)enc_st);
-  DRV8353_LogStatus();
-  AS5047_LogStatus(&hspi1);
-  LOG_Printf("=== end boot diagnostics ===\r\n");
-
-  /* --- Automatic motor start ---------------------------------------------
-   * WARNING: this spins the drive to BOOT_TARGET_SPEED_RPM on EVERY power-up,
-   * with no operator interlock. On a rope-tow that physically moves a load,
-   * an unconditional power-on start is a safety hazard -- add an enable
-   * switch / e-stop interlock before field use.
-   *
-   * Only start if the gate driver and encoder configured cleanly. The start
-   * is asynchronous: alignment briefly energises and may twitch the rotor,
-   * then the speed ramp runs. The MC tasks advance from interrupts. */
-  if ((drv_st == DRV8353_OK) && (enc_st == AS5047_OK))
-  {
-    HAL_Delay(500);                          /* let the supply settle         */
-    (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
-
-    /* Speed-mode test: closed speed loop via the encoder. The speed PI output
-       (Iqref in the status log) is clamped to +/-IQMAX (16 A). */
-    MC_ProgramSpeedRampMotor1((int16_t)(BOOT_TARGET_SPEED_RPM * SPEED_UNIT / U_RPM),
-                              BOOT_SPEED_RAMP_MS);
-    if (MC_StartMotor1())
-    {
-      LOG_Printf("Motor start commanded -> %d rpm over %d ms\r\n",
-                 BOOT_TARGET_SPEED_RPM, BOOT_SPEED_RAMP_MS);
-      drv_post_start_log_tick = HAL_GetTick() + 200U;
-      drv_post_start_log_armed = true;
-    }
-    else
-    {
-      LOG_Printf("Motor start REJECTED: state=%d faults=0x%04X\r\n",
-                 (int)MC_GetSTMStateMotor1(),
-                 (unsigned)MC_GetCurrentFaultsMotor1());
-    }
-  }
-  else
-  {
-    LOG_Printf("Motor start SKIPPED: drv_st=%d enc_st=%d\r\n",
-               (int)drv_st, (int)enc_st);
-  }
   /* USER CODE END 2 */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of mediumFrequency */
+  osThreadDef(mediumFrequency, startMediumFrequencyTask, osPriorityNormal, 0, 128);
+  mediumFrequencyHandle = osThreadCreate(osThread(mediumFrequency), NULL);
+
+  /* definition and creation of safety */
+  osThreadDef(safety, StartSafetyTask, osPriorityAboveNormal, 0, 128);
+  safetyHandle = osThreadCreate(osThread(safety), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* Application task: configures the DRV8353, dumps boot diagnostics, starts
+     the motor, and streams periodic status over USB CDC. Low priority so it
+     never disturbs the medium-frequency / safety MC tasks. Larger stack for
+     the printf-style formatting in the logger. */
+  osThreadDef(appTask, StartAppTask, osPriorityLow, 0, 512);
+  appTaskHandle = osThreadCreate(osThread(appTask), NULL);
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -193,16 +181,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    if (drv_post_start_log_armed &&
-        ((int32_t)(HAL_GetTick() - drv_post_start_log_tick) >= 0))
-    {
-      drv_post_start_log_armed = false;
-      LOG_Printf("--- DRV8353 status %lu ms after start (post-alignment) ---\r\n",
-                 (unsigned long)(HAL_GetTick() - (drv_post_start_log_tick - 200U)));
-      DRV8353_LogStatus();
-    }
-    motor_status_log();
-    LOG_Process();
   }
   /* USER CODE END 3 */
 }
@@ -280,7 +258,7 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* TIM1_BRK_TIM15_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 4, 1);
+  HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 4, 0);
   HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
   /* TIM1_UP_TIM16_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 0, 0);
@@ -307,7 +285,6 @@ static void MX_ADC1_Init(void)
 
   ADC_MultiModeTypeDef multimode = {0};
   ADC_InjectionConfTypeDef sConfigInjected = {0};
-  ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -320,14 +297,12 @@ static void MX_ADC1_Init(void)
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_LEFT;
   hadc1.Init.GainCompensation = 0;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.OversamplingMode = DISABLE;
@@ -346,13 +321,13 @@ static void MX_ADC1_Init(void)
 
   /** Configure Injected Channel
   */
-  sConfigInjected.InjectedChannel = ADC_CHANNEL_1;
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_15;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
   sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_6CYCLES_5;
   sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
   sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
   sConfigInjected.InjectedOffset = 0;
-  sConfigInjected.InjectedNbrOfConversion = 1;
+  sConfigInjected.InjectedNbrOfConversion = 2;
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.QueueInjectedContext = DISABLE;
@@ -364,21 +339,90 @@ static void MX_ADC1_Init(void)
     Error_Handler();
   }
 
-  /** Configure Regular Channel
+  /** Configure Injected Channel
   */
-  sConfig.Channel = ADC_CHANNEL_1;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_2;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC2_Init(void)
+{
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+
+  /* USER CODE END ADC2_Init 0 */
+
+  ADC_InjectionConfTypeDef sConfigInjected = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Common config
+  */
+  hadc2.Instance = ADC2;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc2.Init.DataAlign = ADC_DATAALIGN_LEFT;
+  hadc2.Init.GainCompensation = 0;
+  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc2.Init.LowPowerAutoWait = DISABLE;
+  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.NbrOfConversion = 1;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.DMAContinuousRequests = DISABLE;
+  hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc2.Init.OversamplingMode = DISABLE;
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Injected Channel
+  */
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_2;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_6CYCLES_5;
+  sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
+  sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
+  sConfigInjected.InjectedOffset = 0;
+  sConfigInjected.InjectedNbrOfConversion = 2;
+  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+  sConfigInjected.AutoInjectedConv = DISABLE;
+  sConfigInjected.QueueInjectedContext = DISABLE;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_TRGO;
+  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
+  sConfigInjected.InjecOversamplingMode = DISABLE;
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc2, &sConfigInjected) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Injected Channel
+  */
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_12;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc2, &sConfigInjected) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+
+  /* USER CODE END ADC2_Init 2 */
 
 }
 
@@ -405,46 +449,6 @@ static void MX_CORDIC_Init(void)
   /* USER CODE BEGIN CORDIC_Init 2 */
 
   /* USER CODE END CORDIC_Init 2 */
-
-}
-
-/**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI1_Init(void)
-{
-
-  /* USER CODE BEGIN SPI1_Init 0 */
-
-  /* USER CODE END SPI1_Init 0 */
-
-  /* USER CODE BEGIN SPI1_Init 1 */
-
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 7;
-  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI1_Init 2 */
-
-  /* USER CODE END SPI1_Init 2 */
 
 }
 
@@ -619,6 +623,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PA5 PA6 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PB10 PB11 PB9 */
   GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -632,6 +644,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(M1_EN_DRIVER_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -675,9 +693,9 @@ static void log_mc_faults(const char *label, uint16_t faults)
 }
 
 /* Periodic motor status over USB CDC: one line per MOTOR_LOG_PERIOD_MS, plus
-   an immediate line whenever the MC state or the fault flags change. Runs in
-   the idle loop; LOG_Printf only fills the ring buffer, so nothing here can
-   block or disturb the FOC interrupts. */
+   an immediate line whenever the MC state or the fault flags change. Called
+   from the low-priority app task; LOG_Printf only fills the ring buffer, so
+   nothing here blocks or disturbs the FOC interrupts. */
 static void motor_status_log(void)
 {
   static uint32_t    last_tick;
@@ -697,19 +715,15 @@ static void motor_status_log(void)
   last_state  = state;
   last_faults = faults;
 
-  /* newlib-nano printf has no %f support (no -u _printf_float), so format the
-     current with integer math: round to tenths of an amp, then split into the
-     whole and fractional digit. Amplitude is non-negative, so % stays positive. */
+  /* newlib-nano printf has no %f support, so format the current with integer
+     math: round to tenths of an amp, then split into whole/fractional digit. */
   int32_t i_tenths = (int32_t)(((float)MC_GetPhaseCurrentAmplitudeMotor1() *
                                 (float)CURRENT_CONV_FACTOR_INV) * 10.0f + 0.5f);
 
-  /* Iqref: q-axis current reference out of the speed PI (s16A). Vq: q-axis
-     voltage commanded by the current PI (s16V). cnt: raw TIM3 encoder count.
-     pwm: PWMC output state. Together these locate a zero-speed condition:
-     Iqref=0 -> speed loop not asking, Vq=0 -> current loop not driving,
-     cnt frozen -> shaft (or encoder) not moving, pwm=0 -> gates not switching. */
+  /* Iqref: q-axis current reference (s16A). Iq/Id: MEASURED dq currents.
+     Vq: commanded q-axis voltage. cnt: raw TIM3 encoder count. pwm: PWMC on. */
   LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%ld.%ldA Vbus=%uV enc=%s "
-             "Iqref=%d Vq=%d cnt=%lu pwm=%u\r\n",
+             "Iqref=%d Iq=%d Id=%d Vq=%d cnt=%lu pwm=%u\r\n",
              mc_state_name(state),
              (int32_t)MC_GetMecSpeedAverageMotor1()   * U_RPM / SPEED_UNIT,
              (int32_t)MC_GetMecSpeedReferenceMotor1() * U_RPM / SPEED_UNIT,
@@ -717,6 +731,8 @@ static void motor_status_log(void)
              (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
              MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",
              (int)FOCVars[M1].Iqdref.q,
+             (int)FOCVars[M1].Iqd.q,
+             (int)FOCVars[M1].Iqd.d,
              (int)FOCVars[M1].Vqd.q,
              (unsigned long)TIM3->CNT,
              (unsigned)PWMC_GetPWMState(pwmcHandle[M1]));
@@ -728,7 +744,104 @@ static void motor_status_log(void)
   }
 }
 
+/* Application thread. Runs after the scheduler starts (and after the medium-
+   frequency task has brought up USB CDC). Order matters: the DRV8353 must be
+   configured (6x PWM, CSA gain 20 V/V, OCP) BEFORE the motor is started, i.e.
+   before any PWM is generated. */
+static void StartAppTask(void const *argument)
+{
+  (void)argument;
+
+  /* Let USB CDC enumerate and the supply settle before talking to anything. */
+  osDelay(1000);
+  LOG_Init();
+
+  DRV8353_Status drv = DRV8353_Init();
+
+  LOG_Printf("\r\n=== Trainsonic boot ===\r\n");
+  LOG_Printf("DRV8353_Init=%d\r\n", (int)drv);
+  DRV8353_LogStatus();
+  /* AS5047 SPI config deferred (SPI1 disabled in this regen) -- see note in
+     the Includes section. Encoder feedback via TIM3 ABI is unaffected. */
+  LOG_Printf("=== end boot diagnostics ===\r\n");
+
+  /* --- Automatic motor start --------------------------------------------
+   * WARNING: spins the drive on every power-up with no operator interlock.
+   * On a rope-tow that moves a load this is a hazard -- add an enable / e-stop
+   * interlock before field use. Only start if the gate driver configured. */
+  if (drv == DRV8353_OK)
+  {
+    (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
+    MC_ProgramSpeedRampMotor1((int16_t)(BOOT_TARGET_SPEED_RPM * SPEED_UNIT / U_RPM),
+                              BOOT_SPEED_RAMP_MS);
+    if (MC_StartMotor1())
+    {
+      LOG_Printf("Motor start commanded -> %d rpm over %d ms\r\n",
+                 BOOT_TARGET_SPEED_RPM, BOOT_SPEED_RAMP_MS);
+    }
+    else
+    {
+      LOG_Printf("Motor start REJECTED: state=%d faults=0x%04X\r\n",
+                 (int)MC_GetSTMStateMotor1(),
+                 (unsigned)MC_GetCurrentFaultsMotor1());
+    }
+  }
+  else
+  {
+    LOG_Printf("Motor start SKIPPED: DRV8353_Init=%d\r\n", (int)drv);
+  }
+
+  for (;;)
+  {
+    motor_status_log();
+    LOG_Process();
+    osDelay(MOTOR_LOG_PERIOD_MS);
+  }
+}
+
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_startMediumFrequencyTask */
+/**
+  * @brief  Function implementing the mediumFrequency thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_startMediumFrequencyTask */
+__weak void startMediumFrequencyTask(void const * argument)
+{
+  /* init code for USB_Device */
+  MX_USB_Device_Init();
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

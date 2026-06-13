@@ -30,14 +30,14 @@
 #include "power_stage_parameters.h"
 
 /* Current conversion from Ampere unit to 16Bit Digit */
-#define CURRENT_CONV_FACTOR                 (uint16_t)((65536.0 * AMPLIFICATION_GAIN)/ADC_REFERENCE_VOLTAGE)
-#define CURRENT_CONV_FACTOR_INV             (1.0 / ((65536.0 * AMPLIFICATION_GAIN) / ADC_REFERENCE_VOLTAGE))
+#define CURRENT_CONV_FACTOR                 (uint16_t)((65536.0 * RSHUNT * AMPLIFICATION_GAIN)/ADC_REFERENCE_VOLTAGE)
+#define CURRENT_CONV_FACTOR_INV             (1.0 / ((65536.0 * RSHUNT * AMPLIFICATION_GAIN) / ADC_REFERENCE_VOLTAGE))
 
 /* Current conversion from Ampere unit to 16Bit Digit */
 
 #define NOMINAL_CURRENT                     (NOMINAL_CURRENT_A * CURRENT_CONV_FACTOR)
 #define ADC_REFERENCE_VOLTAGE               3.3
-#define M1_MAX_READABLE_CURRENT  (ADC_REFERENCE_VOLTAGE / (2 * AMPLIFICATION_GAIN))
+#define M1_MAX_READABLE_CURRENT  (ADC_REFERENCE_VOLTAGE / (2 * RSHUNT * AMPLIFICATION_GAIN))
 
 /************************* CONTROL FREQUENCIES & DELAIES **********************/
 #define TF_REGULATION_RATE                  (uint32_t)((uint32_t)(PWM_FREQUENCY) / (REGULATION_EXECUTION_RATE))
@@ -147,7 +147,7 @@
 /* USER CODE END temperature */
 
 #define PQD_CONVERSION_FACTOR               (float_t)(((1.732 * ADC_REFERENCE_VOLTAGE) /\
-                                            (AMPLIFICATION_GAIN)) / 65536.0f)
+                                            (RSHUNT * AMPLIFICATION_GAIN)) / 65536.0f)
 
 /****** Prepares the UI configurations according the MCconfxx settings ********/
 #define DAC_ENABLE
@@ -189,8 +189,8 @@
 
 #define LPF_FILT_CONST                      ((int16_t)(32767 * 0.5))
 
-/* MMI Table Motor 1 100% */
-#define MAX_MODULE                          32767
+/* MMI Table Motor 1 MAX_MODULATION_100_PER_CENT */
+#define MAX_MODULE                          (uint16_t)((100* 32767)/100)
 
 #define SAMPLING_CYCLE_CORRECTION           0.5 /* Add half cycle required by STM32G431CBTx ADC */
 #define LL_ADC_SAMPLINGTIME_1CYCLES_5       LL_ADC_SAMPLINGTIME_1CYCLE_5

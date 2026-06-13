@@ -121,13 +121,13 @@ typedef struct
 #define FLAG_MCP_OVER_UARTA        0U
 #define FLAG_MCP_OVER_UARTB        0U
 
-#define configurationFlag1_M1     (VBUS_SENSING_FLAG)
+#define configurationFlag1_M1     (0U)
 #define configurationFlag2_M1     (QUASI_SYNC_FLAG)
 
 #define DRIVE_TYPE_M1              0
 #define PRIM_SENSOR_M1            EENCODER
 #define AUX_SENSOR_M1             0
-#define TOPOLOGY_M1               3
+#define TOPOLOGY_M1               0
 
 extern const char_t FIRMWARE_NAME[]; //cstat !MISRAC2012-Rule-18.8 !MISRAC2012-Rule-8.11
 extern const char_t CTL_BOARD[]; //cstat !MISRAC2012-Rule-18.8 !MISRAC2012-Rule-8.11

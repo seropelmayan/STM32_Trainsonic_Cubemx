@@ -28,7 +28,7 @@
 #include "mc_config_common.h"
 #include "pwm_curr_fdbk.h"
 #include "pqd_motor_power_measurement.h"
-#include "ics_g4xx_pwm_curr_fdbk.h"
+#include "r3_2_g4xx_pwm_curr_fdbk.h"
 #include "ramp_ext_mngr.h"
 #include "circle_limitation.h"
 
@@ -38,7 +38,7 @@
 
 extern PID_Handle_t PIDIqHandle_M1;
 extern PID_Handle_t PIDIdHandle_M1;
-extern PWMC_ICS_Handle_t PWM_Handle_M1;
+extern PWMC_R3_2_Handle_t PWM_Handle_M1;
 extern PQD_MotorPowMeas_Handle_t PQD_MotorPowMeasM1;
 extern PQD_MotorPowMeas_Handle_t *pPQD_MotorPowMeasM1;
 

@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
+
 #include "motorcontrol.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -60,8 +61,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define M1_BUS_VOLTAGE_Pin GPIO_PIN_0
-#define M1_BUS_VOLTAGE_GPIO_Port GPIOA
+#define M1_CURR_AMPL_V_Pin GPIO_PIN_1
+#define M1_CURR_AMPL_V_GPIO_Port GPIOA
+#define M1_CURR_AMPL_U_Pin GPIO_PIN_0
+#define M1_CURR_AMPL_U_GPIO_Port GPIOB
+#define M1_CURR_AMPL_W_Pin GPIO_PIN_2
+#define M1_CURR_AMPL_W_GPIO_Port GPIOB
 #define M1_EN_DRIVER_Pin GPIO_PIN_12
 #define M1_EN_DRIVER_GPIO_Port GPIOB
 #define M1_PWM_UL_Pin GPIO_PIN_13

@@ -48,46 +48,42 @@
 #define PWM_FREQUENCY                       16000
 #define PWM_FREQ_SCALING                    1
 #define LOW_SIDE_SIGNALS_ENABLING           LS_PWM_TIMER
-#define SW_DEADTIME_NS                      250 /*!< Dead-time to be inserted by FW, only if low side signals are enabled */
+#define SW_DEADTIME_NS                      400 /*!< Dead-time to be inserted by FW, only if low side signals are enabled */
 
 /* Torque and flux regulation loops */
 #define REGULATION_EXECUTION_RATE           1 /*!< FOC execution rate in number of PWM cycles */
 #define ISR_FREQUENCY_HZ                    (PWM_FREQUENCY/REGULATION_EXECUTION_RATE) /*!< @brief FOC execution rate in Hz */
 
 /* Gains values for torque and flux control loops */
-/* Rescaled x200 for AMPLIFICATION_GAIN 20 -> 0.1 V/A (1986 counts/A instead
-   of 397188): divider 16384 -> 128 (=x128) and numerators x1.5625. */
-#define PID_TORQUE_KP_DEFAULT               922
-#define PID_TORQUE_KI_DEFAULT               22
+#define PID_TORQUE_KP_DEFAULT               4620
+#define PID_TORQUE_KI_DEFAULT               2442
 #define PID_TORQUE_KD_DEFAULT               100
-#define PID_FLUX_KP_DEFAULT                 645
-#define PID_FLUX_KI_DEFAULT                 22
+#define PID_FLUX_KP_DEFAULT                 4620
+#define PID_FLUX_KI_DEFAULT                 2442
 #define PID_FLUX_KD_DEFAULT                 100
 
 /* Torque/Flux control loop gains dividers*/
-#define TF_KPDIV                            128
-#define TF_KIDIV                            128
+#define TF_KPDIV                            1
+#define TF_KIDIV                            16
 #define TF_KDDIV                            8192
-#define TF_KPDIV_LOG                        LOG2((128))
-#define TF_KIDIV_LOG                        LOG2((128))
+#define TF_KPDIV_LOG                        LOG2((1))
+#define TF_KIDIV_LOG                        LOG2((16))
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-/* Speed PI rescaled /200 for the same reason; 2560590 also silently
-   truncated in the int16_t PID field (became 4686) -- 12803 fits. */
-#define PID_SPEED_KP_DEFAULT                12803/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
-#define PID_SPEED_KI_DEFAULT                36/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KP_DEFAULT                9/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KI_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
 /* Speed control loop */
 #define SPEED_LOOP_FREQUENCY_HZ             (uint16_t)1000 /*!<Execution rate of speed regulation loop (Hz) */
 
 /* Speed PID parameter dividers */
-#define SP_KPDIV                            1
-#define SP_KIDIV                            1
+#define SP_KPDIV                            16384
+#define SP_KIDIV                            16384
 #define SP_KDDIV                            16
-#define SP_KPDIV_LOG                        LOG2((1))
-#define SP_KIDIV_LOG                        LOG2((1))
+#define SP_KPDIV_LOG                        LOG2((16384))
+#define SP_KIDIV_LOG                        LOG2((16384))
 #define SP_KDDIV_LOG                        LOG2((16))
 
 /* USER CODE BEGIN PID_SPEED_INTEGRAL_INIT_DIV */
@@ -95,18 +91,18 @@
 /* USER CODE END PID_SPEED_INTEGRAL_INIT_DIV */
 
 #define SPD_DIFFERENTIAL_TERM_ENABLING      DISABLE
-#define IQMAX_A                             16 /* derated: sensing full scale is 16.5 A */
+#define IQMAX_A                             15
 
 /* Default settings */
-#define DEFAULT_CONTROL_MODE                MCM_TORQUE_MODE
+#define DEFAULT_CONTROL_MODE                MCM_SPEED_MODE
 #define DEFAULT_TARGET_SPEED_RPM            252
 #define DEFAULT_TARGET_SPEED_UNIT           (DEFAULT_TARGET_SPEED_RPM*SPEED_UNIT/U_RPM)
 #define DEFAULT_TORQUE_COMPONENT_A          0
 #define DEFAULT_FLUX_COMPONENT_A            0
 
 /**************************    FIRMWARE PROTECTIONS SECTION   *****************/
-#define OV_VOLTAGE_THRESHOLD_V              60.0 /*!< Over-voltage threshold */
-#define UD_VOLTAGE_THRESHOLD_V              25.0 /*!< Under-voltage threshold */
+#define OV_VOLTAGE_THRESHOLD_V              50 /*!< Over-voltage threshold */
+#define UD_VOLTAGE_THRESHOLD_V              8 /*!< Under-voltage threshold */
 #ifdef NOT_IMPLEMENTED
 #define ON_OVER_VOLTAGE                     TURN_OFF_PWM /*!< TURN_OFF_PWM, TURN_ON_R_BRAKE or TURN_ON_LOW_SIDES */
 #endif /* NOT_IMPLEMENTED */
@@ -124,15 +120,12 @@
 /* Encoder alignment */
 #define M1_ALIGNMENT_DURATION               700 /*!< milliseconds */
 #define M1_ALIGNMENT_ANGLE_DEG              90 /*!< degrees [0...359] */
-#define FINAL_I_ALIGNMENT_A                 1 /*!< limited for safe bring-up */
+#define FINAL_I_ALIGNMENT_A                 15 /*!< s16A */
 /* With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment */
 /* phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt) */
 /* being Av the voltage gain between Rshunt and A/D input */
 
 #define TRANSITION_DURATION                 25 /* Switch over duration, ms */
-
-/******************************   BUS VOLTAGE Motor 1  **********************/
-#define  M1_VBUS_SAMPLING_TIME              LL_ADC_SAMPLING_CYCLE(47)
 
 /******************************   Current sensing Motor 1   **********************/
 #define ADC_SAMPLING_CYCLES                 (6 + SAMPLING_CYCLE_CORRECTION)

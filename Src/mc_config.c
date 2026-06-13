@@ -120,25 +120,24 @@ SpeednTorqCtrl_Handle_t SpeednTorqCtrlM1 =
   .IdrefDefault               = (int16_t)DEFAULT_FLUX_COMPONENT,
 };
 
-/**
-  * @brief  Current sensor parameters Dual Drive Motor 1 - ICS.
-  */
-PWMC_ICS_Handle_t PWM_Handle_M1 =
+PWMC_R3_2_Handle_t PWM_Handle_M1 =
 {
+  ._Super =
   {
-    .pFctGetPhaseCurrents       = &ICS_GetPhaseCurrents,
-    .pFctSwitchOffPwm           = &ICS_SwitchOffPWM,
-    .pFctSwitchOnPwm            = &ICS_SwitchOnPWM,
-    .pFctCurrReadingCalib       = &ICS_CurrentReadingPolarization,
-    .pFctTurnOnLowSides         = &ICS_TurnOnLowSides,
-    .pFctSetADCSampPointSectX   = &ICS_WriteTIMRegisters,
-    .pFctSetOffsetCalib         = &ICS_SetOffsetCalib,
-    .pFctGetOffsetCalib         = &ICS_GetOffsetCalib,
+    .pFctGetPhaseCurrents       = &R3_2_GetPhaseCurrents,
+    .pFctSetADCSampPointSectX   = &R3_2_SetADCSampPointSectX,
+    .pFctSetOffsetCalib         = &R3_2_SetOffsetCalib,
+    .pFctGetOffsetCalib         = &R3_2_GetOffsetCalib,
+    .pFctSwitchOffPwm           = &R3_2_SwitchOffPWM,
+    .pFctSwitchOnPwm            = &R3_2_SwitchOnPWM,
+    .pFctCurrReadingCalib       = &R3_2_CurrentReadingPolarization,
+    .pFctTurnOnLowSides         = &R3_2_TurnOnLowSides,
     .pFctOCPSetReferenceVoltage = MC_NULL,
-    .pFctRLDetectionModeEnable  = &ICS_RLDetectionModeEnable,
-    .pFctRLDetectionModeDisable = &ICS_RLDetectionModeDisable,
-    .pFctRLDetectionModeSetDuty = &ICS_RLDetectionModeSetDuty,
-    .pFctRLTurnOnLowSidesAndStart = &ICS_RLTurnOnLowSidesAndStart,
+    .pFctRLDetectionModeEnable  = &R3_2_RLDetectionModeEnable,
+    .pFctRLDetectionModeDisable = &R3_2_RLDetectionModeDisable,
+    .pFctRLDetectionModeSetDuty = &R3_2_RLDetectionModeSetDuty,
+    .pFctRLTurnOnLowSidesAndStart = &R3_2_RLTurnOnLowSidesAndStart,
+    .hT_Sqrt3                   = (PWM_PERIOD_CYCLES*SQRT3FACTOR)/16384u,
     .LowSideOutputs    = (LowSideOutputsFunction_t)LOW_SIDE_SIGNALS_ENABLING,
     .pwm_en_u_port     = MC_NULL,
     .pwm_en_u_pin      = (uint16_t)0,
@@ -146,8 +145,10 @@ PWMC_ICS_Handle_t PWM_Handle_M1 =
     .pwm_en_v_pin      = (uint16_t)0,
     .pwm_en_w_port     = MC_NULL,
     .pwm_en_w_pin      = (uint16_t)0,
-    .hT_Sqrt3                   = (PWM_PERIOD_CYCLES * SQRT3FACTOR) / 16384u,
     .Sector                     = 0,
+    .lowDuty                    = (uint16_t)0,
+    .midDuty                    = (uint16_t)0,
+    .highDuty                   = (uint16_t)0,
     .CntPhA                     = 0,
     .CntPhB                     = 0,
     .CntPhC                     = 0,
@@ -171,12 +172,13 @@ PWMC_ICS_Handle_t PWM_Handle_M1 =
     .driverProtectionFlag       = false,
   },
 
+  .Half_PWMPeriod               = PWM_PERIOD_CYCLES/2u,
   .PhaseAOffset                 = 32767,
   .PhaseBOffset                 = 32767,
-  .Half_PWMPeriod               = PWM_PERIOD_CYCLES / 2u,
-  .PolarizationCounter          = 0,
-
-  .pParams_str = &ICS_ParamsM1
+  .PhaseCOffset                 = 32767,
+  .PolarizationCounter          = (uint8_t)0,
+  .PolarizationSector           = (uint8_t)0,
+  .pParams_str                  = &R3_2_ParamsM1
 };
 
 /** RAMP for Motor1

@@ -25,8 +25,8 @@
 
 #define FIRMWARE_NAME_STR "ST MC SDK\tVer.6.4.2"
 
-const char_t CTL_BOARD[] = "RopeTow";
-static const char_t M1_PWR_BOARD[] = "RopeTow";
+const char_t CTL_BOARD[] = "Trainsonic1";
+static const char_t M1_PWR_BOARD[] = "Trainsonic1";
 const char_t FIRMWARE_NAME [] = FIRMWARE_NAME_STR;
 
 const GlobalConfig_reg_t globalConfig_reg =
@@ -43,8 +43,8 @@ static const ApplicationConfig_reg_t M1_ApplicationConfig_reg =
 {
   .maxMechanicalSpeed = 700,
   .maxReadableCurrent = M1_MAX_READABLE_CURRENT,
-  .nominalCurrent     = 29,
-  .nominalVoltage     = 55,
+  .nominalCurrent     = 15,
+  .nominalVoltage     = 60,
   .driveType          = DRIVE_TYPE_M1,
 };
 
@@ -52,12 +52,12 @@ static const ApplicationConfig_reg_t M1_ApplicationConfig_reg =
 static const MotorConfig_reg_t M1_MotorConfig_reg =
 {
   .polePairs  = 20,
-  .ratedFlux  = 0.1,
+  .ratedFlux  = 28.5,
   .rs         = 0.74,
-  .ls         = 0.002*0.700,
-  .ld         = 0.002,
-  .maxCurrent = 29,
-  .name = "RopeTow"
+  .ls         = 0.0014*1.000,
+  .ld         = 0.0014,
+  .maxCurrent = 15,
+  .name = "Trainsonic"
 };
 
 static const FOCFwConfig_reg_t M1_FOCConfig_reg =

@@ -100,6 +100,7 @@ MCI_Handle_t *GetMCI(uint8_t bMotor);
 static uint16_t FOC_CurrControllerM1(void);
 
 void TSK_SafetyTask_PWMOFF(uint8_t motor);
+void TSK_SafetyTask_LSON(uint8_t motor);
 
 /* USER CODE BEGIN Private Functions */
 

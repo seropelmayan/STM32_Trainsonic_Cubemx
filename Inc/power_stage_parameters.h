@@ -33,7 +33,7 @@
                                                       by HW if low side signals
                                                       are not used */
 /*********** Bus voltage sensing section ****************/
-#define VBUS_PARTITIONING_FACTOR             0.0526 /*!< It expresses how
+#define VBUS_PARTITIONING_FACTOR             0.0411 /*!< It expresses how
                                                       much the Vbus is attenuated
                                                       before being converted into
                                                       digital value */
@@ -46,7 +46,7 @@
 
 /*  ICSs gains in case of isolated current sensors,
         amplification gain for shunts based sensing */
-#define AMPLIFICATION_GAIN                   0.02
+#define AMPLIFICATION_GAIN                   20
 
 /*** Noise parameters ***/
 #define TNOISE_NS                            100

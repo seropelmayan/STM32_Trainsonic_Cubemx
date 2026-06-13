@@ -96,6 +96,31 @@ Boot code contents (transplant from this repo's `Src/main.c` USER CODE):
 - `DRV8353_Init()` + `DRV8353_LogStatus()` boot dump
 - auto-start: `MC_AcknowledgeFaultMotor1(); MC_ProgramSpeedRampMotor1(...); MC_StartMotor1();`
   (gated on `DRV8353_OK`)
+- **`MX_USB_Device_Init()` MUST be called from the app task** (before `LOG_Init()`),
+  with `#include "usb_device.h"`. CubeMX emits this call inside the *weak*
+  `startMediumFrequencyTask` in main.c, but the MCSDK's *strong*
+  `startMediumFrequencyTask` (mc_tasks.c) overrides it, so the generated USB init
+  NEVER runs → no CDC device enumerates. This bit us on the FreeRTOS build; the
+  bare-metal build didn't have it because USB was init'd in `main()`.
+- **Bump `configTOTAL_HEAP_SIZE`** in `FreeRTOSConfig.h` (CubeMX default 3072 is too
+  small once the ~512-word appTask is added → `osThreadCreate` silently returns NULL,
+  appTask never runs, so NO USB + motor never started). Set to **8192**. Symptom looks
+  like a boot crash but is really a silent task-creation failure. (Bare-metal avoids
+  this entirely — no per-task heap.)
+
+### 6b. RE-APPLY the current-sense polarity negation (vendor MCLib)
+The board's DRV8353 low-side CSA reads the OPPOSITE sign to the MCSDK
+`Ia = offset - ADC` convention → the current loop runs on POSITIVE feedback
+(rails Vq during alignment, draws huge current, trips UNDER_VOLT via supply sag).
+Fix lives in `MCSDK_v6.4.2-Full/.../MCLib/G4xx/Src/r3_2_g4xx_pwm_curr_fdbk.c`: in
+`R3_2_GetPhaseCurrents` (and the `_OVM` variant), just before
+`pHandle->_Super.Ia = Iab->a;`, negate `Iab->a`/`Iab->b`. A regen may overwrite
+MCLib — re-apply. (Diagnosed by a gain-detune test: ÷8 gains made the overdraw
+WORSE, proving it's a sign/polarity issue, not tuning.) Long-term: confirm shunt
+SP/SN orientation and fix polarity in hardware/Workbench instead of this patch.
+Also note: the c4fda24-era empirical current-PI gains and the `/8` diagnostic
+detune were both compensating for THIS — once polarity is correct, the Workbench
+autotune gains (2365/512, 2501/16384) should be restored.
 
 ### 7. Verify / confirm the freelancer's config values (flag, don't silently keep)
 - `VBUS_PARTITIONING_FACTOR`: confirm against real divider (91k/3.9k → 0.0411). A regen had 0.0526.

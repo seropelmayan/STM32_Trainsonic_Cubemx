@@ -55,34 +55,37 @@
 #define ISR_FREQUENCY_HZ                    (PWM_FREQUENCY/REGULATION_EXECUTION_RATE) /*!< @brief FOC execution rate in Hz */
 
 /* Gains values for torque and flux control loops */
-#define PID_TORQUE_KP_DEFAULT               4620
-#define PID_TORQUE_KI_DEFAULT               2442
+/* Workbench autotune values (for AMPLIFICATION_GAIN=20 / LS=1.4 mH). Restored
+   after the current-sense polarity fix in r3_2_g4xx_pwm_curr_fdbk.c -- the /8
+   diagnostic detune is no longer needed now the loop has negative feedback. */
+#define PID_TORQUE_KP_DEFAULT               2365
+#define PID_TORQUE_KI_DEFAULT               2501
 #define PID_TORQUE_KD_DEFAULT               100
-#define PID_FLUX_KP_DEFAULT                 4620
-#define PID_FLUX_KI_DEFAULT                 2442
+#define PID_FLUX_KP_DEFAULT                 2365
+#define PID_FLUX_KI_DEFAULT                 2501
 #define PID_FLUX_KD_DEFAULT                 100
 
 /* Torque/Flux control loop gains dividers*/
-#define TF_KPDIV                            1
-#define TF_KIDIV                            16
+#define TF_KPDIV                            512
+#define TF_KIDIV                            16384
 #define TF_KDDIV                            8192
-#define TF_KPDIV_LOG                        LOG2((1))
-#define TF_KIDIV_LOG                        LOG2((16))
+#define TF_KPDIV_LOG                        LOG2((512))
+#define TF_KIDIV_LOG                        LOG2((16384))
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-#define PID_SPEED_KP_DEFAULT                9/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
-#define PID_SPEED_KI_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KP_DEFAULT                2601/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KI_DEFAULT                5/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
 /* Speed control loop */
 #define SPEED_LOOP_FREQUENCY_HZ             (uint16_t)1000 /*!<Execution rate of speed regulation loop (Hz) */
 
 /* Speed PID parameter dividers */
-#define SP_KPDIV                            16384
+#define SP_KPDIV                            8192
 #define SP_KIDIV                            16384
 #define SP_KDDIV                            16
-#define SP_KPDIV_LOG                        LOG2((16384))
+#define SP_KPDIV_LOG                        LOG2((8192))
 #define SP_KIDIV_LOG                        LOG2((16384))
 #define SP_KDDIV_LOG                        LOG2((16))
 
@@ -91,7 +94,7 @@
 /* USER CODE END PID_SPEED_INTEGRAL_INIT_DIV */
 
 #define SPD_DIFFERENTIAL_TERM_ENABLING      DISABLE
-#define IQMAX_A                             15
+#define IQMAX_A                             8.2
 
 /* Default settings */
 #define DEFAULT_CONTROL_MODE                MCM_SPEED_MODE
@@ -101,10 +104,10 @@
 #define DEFAULT_FLUX_COMPONENT_A            0
 
 /**************************    FIRMWARE PROTECTIONS SECTION   *****************/
-#define OV_VOLTAGE_THRESHOLD_V              50 /*!< Over-voltage threshold */
-#define UD_VOLTAGE_THRESHOLD_V              8 /*!< Under-voltage threshold */
+#define OV_VOLTAGE_THRESHOLD_V              60.0 /*!< Over-voltage threshold */
+#define UD_VOLTAGE_THRESHOLD_V              20.0 /*!< Under-voltage threshold */
 #ifdef NOT_IMPLEMENTED
-#define ON_OVER_VOLTAGE                     TURN_OFF_PWM /*!< TURN_OFF_PWM, TURN_ON_R_BRAKE or TURN_ON_LOW_SIDES */
+#define ON_OVER_VOLTAGE                     TURN_ON_LOW_SIDES /*!< TURN_OFF_PWM, TURN_ON_R_BRAKE or TURN_ON_LOW_SIDES */
 #endif /* NOT_IMPLEMENTED */
 #define OV_TEMPERATURE_THRESHOLD_C          70 /*!< Celsius degrees */
 #define OV_TEMPERATURE_HYSTERESIS_C         10 /*!< Celsius degrees */
@@ -120,12 +123,15 @@
 /* Encoder alignment */
 #define M1_ALIGNMENT_DURATION               700 /*!< milliseconds */
 #define M1_ALIGNMENT_ANGLE_DEG              90 /*!< degrees [0...359] */
-#define FINAL_I_ALIGNMENT_A                 15 /*!< s16A */
+#define FINAL_I_ALIGNMENT_A                 0.5 /*!< reduced to protect the bench supply during the overdraw diagnostic */
 /* With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment */
 /* phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt) */
 /* being Av the voltage gain between Rshunt and A/D input */
 
 #define TRANSITION_DURATION                 25 /* Switch over duration, ms */
+
+/******************************   BUS VOLTAGE Motor 1  **********************/
+#define  M1_VBUS_SAMPLING_TIME              LL_ADC_SAMPLING_CYCLE(47)
 
 /******************************   Current sensing Motor 1   **********************/
 #define ADC_SAMPLING_CYCLES                 (6 + SAMPLING_CYCLE_CORRECTION)

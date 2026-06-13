@@ -734,6 +734,17 @@ __weak void R3_2_GetPhaseCurrents(PWMC_Handle_t *pHdl, ab_t *Iab)
         break;
     }
 
+    /* --- Board current-sense polarity correction (Ropetow) -----------------
+     * This board's DRV8353 low-side CSA outputs the OPPOSITE sign to the MCSDK
+     * "Ia = offset - ADC" convention, so the FOC current loop ran on POSITIVE
+     * feedback: during alignment Vq railed and it drew >4 A for a 0.5 A target
+     * (a gain-detune test made it worse, ruling out tuning). Negating the
+     * measured phase currents flips the loop to negative feedback.
+     * NOTE: vendor MCLib -- re-apply after any MC Workbench regen (see
+     * REGEN_INTEGRATION.md). The proper long-term fix is to confirm the shunt
+     * SP/SN orientation and handle polarity at the hardware/Workbench level. */
+    Iab->a = (int16_t)(-Iab->a);
+    Iab->b = (int16_t)(-Iab->b);
     pHandle->_Super.Ia = Iab->a;
     pHandle->_Super.Ib = Iab->b;
     pHandle->_Super.Ic = -Iab->a - Iab->b;
@@ -1066,6 +1077,17 @@ __weak void R3_2_GetPhaseCurrents_OVM(PWMC_Handle_t *pHdl, ab_t *Iab)
         break;
     }
 
+    /* --- Board current-sense polarity correction (Ropetow) -----------------
+     * This board's DRV8353 low-side CSA outputs the OPPOSITE sign to the MCSDK
+     * "Ia = offset - ADC" convention, so the FOC current loop ran on POSITIVE
+     * feedback: during alignment Vq railed and it drew >4 A for a 0.5 A target
+     * (a gain-detune test made it worse, ruling out tuning). Negating the
+     * measured phase currents flips the loop to negative feedback.
+     * NOTE: vendor MCLib -- re-apply after any MC Workbench regen (see
+     * REGEN_INTEGRATION.md). The proper long-term fix is to confirm the shunt
+     * SP/SN orientation and handle polarity at the hardware/Workbench level. */
+    Iab->a = (int16_t)(-Iab->a);
+    Iab->b = (int16_t)(-Iab->b);
     pHandle->_Super.Ia = Iab->a;
     pHandle->_Super.Ib = Iab->b;
     pHandle->_Super.Ic = -Iab->a - Iab->b;

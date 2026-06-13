@@ -43,7 +43,7 @@ static const ApplicationConfig_reg_t M1_ApplicationConfig_reg =
 {
   .maxMechanicalSpeed = 700,
   .maxReadableCurrent = M1_MAX_READABLE_CURRENT,
-  .nominalCurrent     = 15,
+  .nominalCurrent     = 8.2,
   .nominalVoltage     = 60,
   .driveType          = DRIVE_TYPE_M1,
 };
@@ -52,11 +52,11 @@ static const ApplicationConfig_reg_t M1_ApplicationConfig_reg =
 static const MotorConfig_reg_t M1_MotorConfig_reg =
 {
   .polePairs  = 20,
-  .ratedFlux  = 28.5,
+  .ratedFlux  = 49.4,
   .rs         = 0.74,
   .ls         = 0.0014*1.000,
   .ld         = 0.0014,
-  .maxCurrent = 15,
+  .maxCurrent = 8.2,
   .name = "Trainsonic"
 };
 

@@ -47,7 +47,7 @@
 
 /* USER CODE END Private define */
 
-#define VBUS_TEMP_ERR_MASK ~(MC_OVER_VOLT | MC_UNDER_VOLT | MC_OVER_TEMP)
+#define VBUS_TEMP_ERR_MASK ~(0 | 0 | MC_OVER_TEMP)
 /* Private variables----------------------------------------------------------*/
 
 static uint16_t hMFTaskCounterM1 = 0; //cstat !MISRAC2012-Rule-8.9_a
@@ -64,6 +64,7 @@ void TSK_MediumFrequencyTaskM1(void);
 void TSK_MF_StopProcessing(uint8_t motor);
 MCI_Handle_t *GetMCI(uint8_t bMotor);
 void TSK_SafetyTask_PWMOFF(uint8_t motor);
+void TSK_SafetyTask_LSON(uint8_t motor);
 
 /* USER CODE BEGIN Private Functions */
 
@@ -110,10 +111,11 @@ __weak void MCboot( MCI_Handle_t* pMCIList[NBR_OF_MOTORS] )
     /****************************************************/
     VSS_Init(&VirtualSpeedSensorM1);
 
-    /**********************************************************/
-    /*   Virtual bus voltage sensor component initialization  */
-    /**********************************************************/
-    VVBS_Init(&BusVoltageSensor_M1);
+    /********************************************************/
+    /*   Bus voltage sensor component initialization        */
+    /********************************************************/
+    (void)RCM_RegisterRegConv(&VbusRegConv_M1);
+    RVBS_Init(&BusVoltageSensor_M1);
 
     /*******************************************************/
     /*   Temperature measurement component initialization  */
@@ -303,7 +305,7 @@ __weak void TSK_SafetyTask(void)
   /* USER CODE END TSK_SafetyTask 0 */
   if (1U == bMCBootCompleted)
   {
-    TSK_SafetyTask_PWMOFF(M1);
+    TSK_SafetyTask_LSON(M1);
   /* USER CODE BEGIN TSK_SafetyTask 1 */
 
   /* USER CODE END TSK_SafetyTask 1 */
@@ -326,12 +328,22 @@ __weak void TSK_SafetyTask_PWMOFF(uint8_t bMotor)
   /* USER CODE END TSK_SafetyTask_PWMOFF 0 */
   uint16_t CodeReturn = MC_NO_ERROR;
   uint8_t lbmotor = M1;
+  const uint16_t errMask[NBR_OF_MOTORS] = {VBUS_TEMP_ERR_MASK};
   /* Check for fault if FW protection is activated. It returns MC_OVER_TEMP or MC_NO_ERROR */
 
 /* Due to warning array subscript 1 is above array bounds of PWMC_Handle_t *[1] [-Warray-bounds] */
    CodeReturn |= PWMC_IsFaultOccurred(pwmcHandle[lbmotor]);     /* check for fault. It return MC_OVER_CURR or MC_NO_FAULTS
                                                      (for STM32F30x can return MC_OVER_VOLT in case of HW Overvoltage) */
 
+  if (M1 == bMotor)
+  {
+    uint16_t rawValueM1 =  RCM_GetRegularConv(&VbusRegConv_M1);
+    CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
+  }
+  else
+  {
+    /* Nothing to do */
+  }
   MCI_FaultProcessing(&Mci[bMotor], CodeReturn, ~CodeReturn); /* Process faults */
 
   if (MCI_GetFaultState(&Mci[bMotor]) != (uint32_t)MC_NO_FAULTS)
@@ -359,6 +371,132 @@ __weak void TSK_SafetyTask_PWMOFF(uint8_t bMotor)
   /* USER CODE BEGIN TSK_SafetyTask_PWMOFF 3 */
 
   /* USER CODE END TSK_SafetyTask_PWMOFF 3 */
+}
+/**
+  * @brief  Safety task implementation if  MC.M1_ON_OVER_VOLTAGE == TURN_ON_LOW_SIDES.
+  * @param  bMotor Motor reference number defined
+  *         \link Motors_reference_number here \endlink.
+  */
+__weak void TSK_SafetyTask_LSON(uint8_t bMotor)
+{
+  /* USER CODE BEGIN TSK_SafetyTask_LSON 0 */
+
+  /* USER CODE END TSK_SafetyTask_LSON 0 */
+
+  if (bMotor <= NBR_OF_MOTORS - 1U)
+  {
+    uint16_t CodeReturn = MC_NO_ERROR;
+    uint16_t errMask[NBR_OF_MOTORS] = {VBUS_TEMP_ERR_MASK};
+    bool TurnOnLowSideAction;
+
+    TurnOnLowSideAction = PWMC_GetTurnOnLowSidesAction(pwmcHandle[bMotor]);
+    /* Check for fault if FW protection is activated */
+    CodeReturn |= PWMC_IsFaultOccurred(pwmcHandle[bMotor]); /* For fault. It return MC_OVER_CURR or MC_NO_FAULTS
+                                                   (for STM32F30x can return MC_OVER_VOLT in case of HW Overvoltage). */
+    /* USER CODE BEGIN TSK_SafetyTask_LSON 1 */
+
+    /* USER CODE END TSK_SafetyTask_LSON 1 */
+    if (M1 == bMotor)
+    {
+      uint16_t rawValueM1 =  RCM_GetRegularConv(&VbusRegConv_M1);
+      CodeReturn |= errMask[bMotor] & RVBS_CalcAvVbus(&BusVoltageSensor_M1, rawValueM1);
+    }
+    else
+    {
+      /* Nothing to do. */
+    }
+    MCI_FaultProcessing(&Mci[bMotor], CodeReturn, ~CodeReturn); /* Update the STM according error code. */
+
+    if ((MC_OVER_VOLT == (CodeReturn & MC_OVER_VOLT)) && (false == TurnOnLowSideAction))
+    {
+      /* Reset Encoder state */
+      if (pEAC[bMotor] != MC_NULL)
+      {
+        EAC_SetRestartState(pEAC[bMotor], false);
+      }
+      else
+      {
+        /* Nothing to do. */
+      }
+      /* Start turn on low side action */
+      PWMC_SwitchOffPWM(pwmcHandle[bMotor]); /* Required before PWMC_TurnOnLowSides. */
+      FOC_Clear(bMotor);
+      /* USER CODE BEGIN TSK_SafetyTask_LSON 2 */
+
+      /* USER CODE END TSK_SafetyTask_LSON 2 */
+      PWMC_TurnOnLowSides(pwmcHandle[bMotor], 0UL); /* Turn on Low side switches. */
+    }
+    else
+    {
+      switch (Mci[bMotor].State) /* Is state equal to FAULT_NOW or FAULT_OVER. */
+      {
+        case IDLE:
+        {
+          /* After a OV occurs the turn on low side action become active. It is released just after a fault acknowledge
+           * -> state == IDLE. */
+          if (true == TurnOnLowSideAction)
+          {
+            /* End of TURN_ON_LOW_SIDES action */
+            PWMC_SwitchOffPWM(pwmcHandle[bMotor]);  /* Switch off the PWM */
+          }
+          else
+          {
+            /* Nothing to do. */
+          }
+          /* USER CODE BEGIN TSK_SafetyTask_LSON 3 */
+
+          /* USER CODE END TSK_SafetyTask_LSON 3 */
+          break;
+        }
+
+        case FAULT_NOW:
+        {
+          if (TurnOnLowSideAction == false)
+          {
+            /* Reset Encoder state */
+            if (pEAC[bMotor] != MC_NULL)
+            {
+              EAC_SetRestartState(pEAC[bMotor], false);
+            }
+            else
+            {
+              /* Nothing to do. */
+          }
+            /* Switching off the PWM if fault occurs must be done just if TURN_ON_LOW_SIDES action is not in place. */
+            PWMC_SwitchOffPWM(pwmcHandle[bMotor]);
+            FOC_Clear(bMotor);
+          }
+          /* USER CODE BEGIN TSK_SafetyTask_LSON 4 */
+
+          /* USER CODE END TSK_SafetyTask_LSON 4 */
+          break;
+        }
+
+        case FAULT_OVER:
+        {
+          if (TurnOnLowSideAction == false)
+          {
+            /* Switching off the PWM if fault occurs must be done just if TURN_ON_LOW_SIDES action is not in place. */
+            PWMC_SwitchOffPWM(pwmcHandle[bMotor]);
+          }
+          /* USER CODE BEGIN TSK_SafetyTask_LSON 5 */
+
+          /* USER CODE END TSK_SafetyTask_LSON 5 */
+          break;
+        }
+
+        default:
+          break;
+      }
+    }
+  }
+  else
+  {
+    /* Nothing to do. */
+  }
+  /* USER CODE BEGIN TSK_SafetyTask_LSON 6 */
+
+  /* USER CODE END TSK_SafetyTask_LSON 6 */
 }
 
 /**
@@ -419,6 +557,10 @@ void StartSafetyTask(void const * argument)
 __weak void mc_lock_pins (void)
 {
 LL_GPIO_LockPin(M1_CURR_AMPL_W_GPIO_Port, M1_CURR_AMPL_W_Pin);
+LL_GPIO_LockPin(M1_EN_DRIVER_GPIO_Port, M1_EN_DRIVER_Pin);
+LL_GPIO_LockPin(M1_CURR_AMPL_V_GPIO_Port, M1_CURR_AMPL_V_Pin);
+LL_GPIO_LockPin(M1_BUS_VOLTAGE_GPIO_Port, M1_BUS_VOLTAGE_Pin);
+LL_GPIO_LockPin(M1_CURR_AMPL_U_GPIO_Port, M1_CURR_AMPL_U_Pin);
 LL_GPIO_LockPin(M1_ENCODER_A_GPIO_Port, M1_ENCODER_A_Pin);
 LL_GPIO_LockPin(M1_ENCODER_B_GPIO_Port, M1_ENCODER_B_Pin);
 LL_GPIO_LockPin(M1_PWM_UH_GPIO_Port, M1_PWM_UH_Pin);
@@ -427,9 +569,6 @@ LL_GPIO_LockPin(M1_PWM_VL_GPIO_Port, M1_PWM_VL_Pin);
 LL_GPIO_LockPin(M1_PWM_WH_GPIO_Port, M1_PWM_WH_Pin);
 LL_GPIO_LockPin(M1_PWM_WL_GPIO_Port, M1_PWM_WL_Pin);
 LL_GPIO_LockPin(M1_PWM_UL_GPIO_Port, M1_PWM_UL_Pin);
-LL_GPIO_LockPin(M1_EN_DRIVER_GPIO_Port, M1_EN_DRIVER_Pin);
-LL_GPIO_LockPin(M1_CURR_AMPL_V_GPIO_Port, M1_CURR_AMPL_V_Pin);
-LL_GPIO_LockPin(M1_CURR_AMPL_U_GPIO_Port, M1_CURR_AMPL_U_Pin);
 }
 /* USER CODE BEGIN mc_task 0 */
 

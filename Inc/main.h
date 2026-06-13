@@ -61,6 +61,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define M1_BUS_VOLTAGE_Pin GPIO_PIN_0
+#define M1_BUS_VOLTAGE_GPIO_Port GPIOA
 #define M1_CURR_AMPL_V_Pin GPIO_PIN_1
 #define M1_CURR_AMPL_V_GPIO_Port GPIOA
 #define M1_CURR_AMPL_U_Pin GPIO_PIN_0

@@ -101,17 +101,28 @@ NTC_Handle_t TempSensor_M1 =
 };
 
 /**
-  * Virtual bus voltage sensor parameters Motor 1.
+  * Bus voltage sensor parameters Motor 1.
   */
-VirtualBusVoltageSensor_Handle_t BusVoltageSensor_M1 =
+RegConv_t VbusRegConv_M1 =
+{
+  .regADC                   = ADC1,
+  .channel                  = MC_ADC_CHANNEL_1,
+  .samplingTime             = M1_VBUS_SAMPLING_TIME,
+  .data                     = 1 + (uint16_t)((NOMINAL_BUS_VOLTAGE_V * 65536) / (ADC_REFERENCE_VOLTAGE / VBUS_PARTITIONING_FACTOR))
+};
+
+RDivider_Handle_t BusVoltageSensor_M1 =
 {
   ._Super =
   {
-    .SensorType       = VIRTUAL_SENSOR,
-    .ConversionFactor = 500,
+    .SensorType               = REAL_SENSOR,
+    .ConversionFactor         = (uint16_t)(ADC_REFERENCE_VOLTAGE / VBUS_PARTITIONING_FACTOR),
   },
 
-  .ExpectedVbus_d     = 1 + ((NOMINAL_BUS_VOLTAGE_V * 65536) / 500),
+  .OverVoltageThreshold       = OVERVOLTAGE_THRESHOLD_d,
+  .OverVoltageThresholdLow    = OVERVOLTAGE_THRESHOLD_d,
+  .OverVoltageHysteresisUpDir = true,
+  .UnderVoltageThreshold      =  UNDERVOLTAGE_THRESHOLD_d,
 };
 
 EncAlign_Handle_t *pEAC[NBR_OF_MOTORS];

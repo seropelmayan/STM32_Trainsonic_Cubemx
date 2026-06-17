@@ -30,7 +30,7 @@
 #define DRV_GDLS_TDRIVE_500NS (0x1U << 8) /* bits[9:8] peak gate-current drive time     */
 
 /* OCP Control (0x05) */
-#define DRV_OCP_DEAD_TIME_100NS (0x1U << 8) /* bits[9:8]; only used in 1x/3x PWM modes  */
+#define DRV_OCP_DEAD_TIME_50NS  (0x0U << 8) /* bits[9:8]=00 -> 50ns; only used in 1x/3x PWM modes */
 #define DRV_OCP_MODE_LATCH      (0x0U << 6) /* bits[7:6] = 00 -> overcurrent latches off */
 #define DRV_OCP_DEG_4US         (0x2U << 4) /* bits[5:4] overcurrent deglitch time      */
 
@@ -166,7 +166,7 @@ DRV8353_Status DRV8353_Init(void)
                        ((uint16_t)DRV8353_IDRIVEP_CODE << 4) |
                         (uint16_t)DRV8353_IDRIVEN_CODE);
 
-  ocp_ctrl = (uint16_t)(DRV_OCP_DEAD_TIME_100NS | DRV_OCP_MODE_LATCH |
+  ocp_ctrl = (uint16_t)(DRV_OCP_DEAD_TIME_50NS | DRV_OCP_MODE_LATCH |
                         DRV_OCP_DEG_4US | (uint16_t)(DRV8353_VDS_LVL_CODE & 0x0FU));
 
   csa_ctrl = (uint16_t)(DRV_CSA_VREF_DIV |

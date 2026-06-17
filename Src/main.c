@@ -30,10 +30,7 @@
 #include "mc_config_common.h"    /* BusVoltageSensor_M1 for Vbus logging       */
 #include "mc_config.h"           /* FOCVars / pwmcHandle for loop diagnostics  */
 #include "usb_device.h"          /* MX_USB_Device_Init -- see appTask note      */
-/* AS5047 (as5047.h, hardware SPI1 on hspi1) is present in the tree but NOT yet
-   initialised here: SPI1 + USART2 init are now generated (kept), so enabling
-   it is a one-step change -- add as5047.c to the build and call
-   AS5047_Init(&hspi1) below. Encoder still feeds FOC via the TIM3 ABI input. */
+#include "as5047.h"              /* AS5047P absolute encoder (SPI1) -- now USED for the FOC angle */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,9 +40,31 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOOT_TORQUE_REF_A       0.5f    /* constant torque-mode test: q-current target (A) */
+#define BOOT_TORQUE_REF_A       0.0f    /* boot Iq target (A); 0 = rotor sits still, ready for the d-axis step test */
 #define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)       */
+#define STEP_MODE               1       /* 'g' test: 0 = current-loop step (Iq/Id), 1 = speed-loop step */
+/* --- current-loop step (STEP_MODE 0) --- */
+#define STEP_AXIS_Q             1       /* axis: 1 = q (torque, rotor spins), 0 = d (rotor holds) */
+#define STEP_FROM_A             0.2f    /* step start current (A) */
+#define STEP_TO_A               1.0f    /* step end current (A) */
+#define STEP_BASELINE_MS        3       /* current-step baseline before the step (ms) */
+#define STEP_DECIM              1       /* must match STEP_DECIM in mc_tasks_foc.c (log-rate display only) */
+/* --- speed-loop step (STEP_MODE 1) --- captured at 1 kHz over 512 ms --- */
+#define SPEED_BASE_RPM          50      /* speed-step baseline (rpm); moving baseline avoids standstill stiction */
+#define SPEED_STEP_RPM          150     /* speed-step target (rpm); keep < ~400 (30 V voltage wall) */
+#define SPEED_BASELINE_MS       40      /* speed-step baseline captured before the step (ms) */
+#define SPEED_CAP_DECIM         4       /* must match SPEED_CAP_DECIM in mc_tasks_foc.c: 1kHz/4 = 250 Hz -> 512 samp = ~2 s */
+#define BOOT_SPEED_RPM          60      /* speed-mode boot target (rpm); low for clean INL capture */
+#define BOOT_SPEED_RAMP_MS      2000    /* 0 -> target speed ramp duration (ms) */
 #define MOTOR_LOG_PERIOD_MS     100U    /* periodic motor status log interval   */
+
+/* Open-loop forced commutation for a CLEAN INL capture (method A). When 1, boot
+   in torque mode with a fixed holding current and rotate the electrical field at
+   a constant commanded speed -- the encoder is OUT of the loop, so the captured
+   angle vs the constant ramp is free of speed-loop ripple. Set 0 for normal run. */
+#define BOOT_OPENLOOP           0       /* 0 = normal closed-loop (encoder in loop)        */
+#define BOOT_OL_SPEED_RPM       30      /* commanded mech speed (rpm); low for clean INL  */
+#define BOOT_OL_IQ_A            4.0f    /* holding q-current (A); raise if the rotor slips */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,6 +93,12 @@ static void StartAppTask(void const *argument);
 static const char *mc_state_name(MCI_State_t state);
 static void log_mc_faults(const char *label, uint16_t faults);
 static void motor_status_log(void);
+/* Encoder index (Z) on PB3 -> reset TIM3 count once per mech rev (cancels ABI
+   miscount drift). Impl in Ropetow_IndexInit()/EXTI3_IRQHandler() (USER CODE 4). */
+static void Ropetow_IndexInit(void);
+static volatile uint16_t g_idx_cnt    = 0U;  /* TIM3 count captured at the index   */
+static volatile uint8_t  g_idx_have   = 0U;  /* index reference captured this run?  */
+static volatile uint32_t g_idx_events = 0U;  /* diag: index pulses handled          */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -762,6 +787,54 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+/* --- Encoder index (Z) on PB3 ---------------------------------------------
+ * The AS5047 index pulses once per MECHANICAL revolution. EMI miscounts on the
+ * ABI lines accumulate in TIM3->CNT and drift the commutation angle; this snaps
+ * the count back to its index-aligned value every rev. EXTI3 rising edge, NVIC
+ * priority below the FOC ISRs. The first index after each RUN captures the
+ * reference count (consistent with the startup alignment); later indexes correct
+ * only plausible drift (<~1/32 rev) so a spurious edge can't throw the angle. */
+static void Ropetow_IndexInit(void)
+{
+  GPIO_InitTypeDef gi = {0};
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  gi.Pin  = GPIO_PIN_3;
+  gi.Mode = GPIO_MODE_IT_RISING;          /* index idles low, pulses high */
+  gi.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOB, &gi);
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 5, 0); /* below TIM1/ADC/TIM3/BRK (prio 0..4) */
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+}
+
+void EXTI3_IRQHandler(void)
+{
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != 0U)
+  {
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+    if (MC_GetSTMStateMotor1() == RUN)
+    {
+      uint16_t cnt = (uint16_t)TIM3->CNT;
+      if (g_idx_have == 0U)
+      {
+        g_idx_cnt  = cnt;                 /* first index this run = reference */
+        g_idx_have = 1U;
+      }
+      else
+      {
+        int32_t period = (int32_t)M1_PULSE_NBR + 1;       /* TIM3 wraps 0..M1_PULSE_NBR */
+        int32_t d = (int32_t)cnt - (int32_t)g_idx_cnt;    /* shortest signed wrap diff  */
+        if (d >  (period / 2)) { d -= period; }
+        if (d < -(period / 2)) { d += period; }
+        if ((d > -128) && (d < 128))      /* correct small drift; reject spurious edges */
+        {
+          TIM3->CNT = (uint32_t)g_idx_cnt;
+        }
+      }
+      g_idx_events++;
+    }
+  }
+}
+
 static const char *mc_state_name(MCI_State_t state)
 {
   switch (state)
@@ -870,8 +943,10 @@ static void StartAppTask(void const *argument)
   LOG_Printf("\r\n=== Trainsonic boot ===\r\n");
   LOG_Printf("DRV8353_Init=%d\r\n", (int)drv);
   DRV8353_LogStatus();
-  /* AS5047 SPI config deferred (SPI1 is ready -- enable when desired). Encoder
-     feedback via TIM3 ABI is unaffected. */
+  {
+    AS5047_Status enc = AS5047_Init(&hspi1);   /* FOC now commutates on the AS5047 SPI angle */
+    LOG_Printf("AS5047_Init=%d\r\n", (int)enc);
+  }
   LOG_Printf("=== end boot diagnostics ===\r\n");
 
   /* --- Automatic motor start --------------------------------------------
@@ -880,18 +955,43 @@ static void StartAppTask(void const *argument)
    * interlock before field use. Only start if the gate driver configured. */
   if (drv == DRV8353_OK)
   {
+    Ropetow_IndexInit();                     /* arm PB3 index -> TIM3 count reset */
     (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
-    /* Constant torque mode: q-axis current reference held at BOOT_TORQUE_REF_A.
-       No speed regulation -- unloaded, the shaft accelerates until friction/
-       back-EMF balance (or the max-application-speed fault trips). */
-    MC_ProgramTorqueRampMotor1((int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
-                               BOOT_TORQUE_RAMP_MS);
+#if BOOT_OPENLOOP
+    {
+      /* Open-loop forced commutation (method A INL capture): encoder out of the
+         loop, torque mode + fixed Iq, electrical field rotated at a constant
+         commanded speed. After MCSDK alignment locks the rotor, the forced ramp
+         carries it around at BOOT_OL_SPEED_RPM. */
+      extern volatile uint8_t g_use_spi_commutation;
+      extern volatile uint8_t g_ol_enable;
+      extern volatile float   g_ol_step;
+      g_use_spi_commutation = 0U;            /* don't extrapolate the encoder      */
+      g_ol_step = (float)BOOT_OL_SPEED_RPM * (float)POLE_PAIR_NUM * 65536.0f
+                  / (60.0f * (float)ISR_FREQUENCY_HZ);
+      g_ol_enable = 1U;
+      MC_ProgramTorqueRampMotor1_F(BOOT_OL_IQ_A, BOOT_TORQUE_RAMP_MS);
+      if (MC_StartMotor1())
+      {
+        LOG_Printf("OPEN-LOOP start: forced %d rpm, Iq=%d mA (encoder out of loop)\r\n",
+                   (int)BOOT_OL_SPEED_RPM, (int)(BOOT_OL_IQ_A * 1000.0f));
+      }
+      else
+      {
+        LOG_Printf("Motor start REJECTED: state=%d faults=0x%04X\r\n",
+                   (int)MC_GetSTMStateMotor1(),
+                   (unsigned)MC_GetCurrentFaultsMotor1());
+      }
+    }
+#elif STEP_MODE == 1
+    /* Closed-loop SPEED mode: regulate to SPEED_BASE_RPM so the speed-loop step
+       test (press 'g') has a running baseline to step from. */
+    MC_ProgramSpeedRampMotor1((int16_t)((int32_t)SPEED_BASE_RPM * SPEED_UNIT / U_RPM),
+                              BOOT_SPEED_RAMP_MS);
     if (MC_StartMotor1())
     {
-      LOG_Printf("Motor start commanded -> torque %d mA (%d s16A) over %d ms\r\n",
-                 (int)(BOOT_TORQUE_REF_A * 1000.0f),
-                 (int)(int16_t)(BOOT_TORQUE_REF_A * CURRENT_CONV_FACTOR),
-                 BOOT_TORQUE_RAMP_MS);
+      LOG_Printf("Motor start commanded -> speed mode, base %d rpm over %d ms\r\n",
+                 (int)SPEED_BASE_RPM, BOOT_SPEED_RAMP_MS);
     }
     else
     {
@@ -899,6 +999,23 @@ static void StartAppTask(void const *argument)
                  (int)MC_GetSTMStateMotor1(),
                  (unsigned)MC_GetCurrentFaultsMotor1());
     }
+#else
+    /* Closed-loop TORQUE mode: encoder commutation (g_use_spi_commutation=1),
+       no speed regulation -- Iq ramps to BOOT_TORQUE_REF_A and the motor produces
+       that torque (unloaded it accelerates until friction/back-EMF balance). */
+    MC_ProgramTorqueRampMotor1_F(BOOT_TORQUE_REF_A, BOOT_TORQUE_RAMP_MS);
+    if (MC_StartMotor1())
+    {
+      LOG_Printf("Motor start commanded -> torque mode, Iq=%d mA over %d ms\r\n",
+                 (int)(BOOT_TORQUE_REF_A * 1000.0f), BOOT_TORQUE_RAMP_MS);
+    }
+    else
+    {
+      LOG_Printf("Motor start REJECTED: state=%d faults=0x%04X\r\n",
+                 (int)MC_GetSTMStateMotor1(),
+                 (unsigned)MC_GetCurrentFaultsMotor1());
+    }
+#endif
   }
   else
   {
@@ -907,7 +1024,145 @@ static void StartAppTask(void const *argument)
 
   for (;;)
   {
+    static uint32_t idx_log = 0U;
+    static uint32_t run_ticks = 0U;
+    extern uint16_t          g_cal_raw[];
+    extern volatile uint16_t g_cal_idx;
+    extern volatile uint8_t  g_cal_state;
+    extern int16_t           g_step_ref[];
+    extern int16_t           g_step_iq[];
+    extern volatile uint16_t g_step_idx;
+    extern volatile uint8_t  g_step_state;
+    extern volatile uint8_t  g_step_request;
+    extern volatile uint8_t  g_inj_override;
+    extern volatile int16_t  g_inj_s16;
+    extern volatile uint8_t  g_step_axis;
+    extern volatile uint8_t  g_step_mode;
+
+    if ((g_step_request != 0U) && (g_step_state == 0U) &&
+        (MC_GetSTMStateMotor1() == RUN))
+    {
+      g_step_request = 0U;
+#if STEP_MODE == 1
+      /* Speed-loop step: motor already runs at SPEED_BASE_RPM; capture a baseline
+         then step the speed reference to SPEED_STEP_RPM. Logged at 1 kHz (MF). */
+      g_step_mode = 1U;
+      g_step_idx = 0U; g_step_state = 1U;                /* arm (baseline @ SPEED_BASE) */
+      osDelay(SPEED_BASELINE_MS);
+      MC_ProgramSpeedRampMotor1((int16_t)((int32_t)SPEED_STEP_RPM * SPEED_UNIT / U_RPM), 0U);
+      LOG_Printf("step: speed %d -> %d rpm, capturing @ 1 kHz...\r\n",
+                 (int)SPEED_BASE_RPM, (int)SPEED_STEP_RPM);
+#else
+      /* Current-loop step: pin the chosen axis (q=torque or d=hold), short baseline
+         at STEP_FROM_A, then step to STEP_TO_A. HF ISR logs ref vs measured @25 kHz. */
+      g_step_mode = 0U;
+      g_step_axis = STEP_AXIS_Q;
+      g_inj_s16 = (int16_t)(STEP_FROM_A * (float)CURRENT_CONV_FACTOR); /* baseline */
+      g_inj_override = 1U;
+      osDelay(20U);                          /* settle baseline BEFORE arming */
+      g_step_idx = 0U; g_step_state = 1U;                              /* arm capture */
+      osDelay(STEP_BASELINE_MS);
+      g_inj_s16 = (int16_t)(STEP_TO_A * (float)CURRENT_CONV_FACTOR);   /* inject step */
+      LOG_Printf("step: %c-axis %d -> %d mA, capturing @ %u kHz...\r\n",
+                 (g_step_axis ? 'q' : 'd'),
+                 (int)(STEP_FROM_A * 1000.0f), (int)(STEP_TO_A * 1000.0f),
+                 (unsigned)(ISR_FREQUENCY_HZ / 1000U / STEP_DECIM));
+#endif
+    }
+
+    /* Step-response dump (drain-safe): idx,ref,meas (current=s16, speed=rpm). */
+    if (g_step_state == 2U)
+    {
+      static uint16_t sd = 0U;
+      uint16_t n = g_step_idx;
+      uint16_t end = (uint16_t)(sd + 8U);
+      char axc = (g_step_mode ? 's' : (g_step_axis ? 'q' : 'd'));
+      unsigned rate_hz = (g_step_mode ? (SPEED_LOOP_FREQUENCY_HZ / SPEED_CAP_DECIM)
+                                      : (ISR_FREQUENCY_HZ / STEP_DECIM));
+      if (end > n) { end = n; }
+      if (sd == 0U)
+      {
+        /* capture done -> stop driving the step IMMEDIATELY: current -> release,
+           speed -> ramp back to baseline. */
+        if (g_step_mode == 0U) { g_inj_s16 = 0; }
+        else { MC_ProgramSpeedRampMotor1((int16_t)((int32_t)SPEED_BASE_RPM * SPEED_UNIT / U_RPM), 0U); }
+        LOG_Printf("step_start n=%u hz=%u axis=%c\r\n", (unsigned)n, rate_hz, axc);
+      }
+      for (; sd < end; sd++)
+      { LOG_Printf("%u,%d,%d\r\n", (unsigned)sd, (int)g_step_ref[sd], (int)g_step_iq[sd]); }
+      if (sd >= n)
+      {
+        LOG_Printf("step_end\r\n");
+        sd = 0U; g_step_state = 0U;   /* re-arm: 'g' can trigger again (was stuck at 3 = once/boot) */
+        if (g_step_mode == 0U) { g_inj_override = 0U; }
+      }
+      for (uint16_t guard = 0U; (LOG_Pending() > 0U) && (guard < 200U); guard++)
+      {
+        LOG_Process();
+        osDelay(2U);
+      }
+      continue;
+    }
+
+#if BOOT_OPENLOOP
+    const int32_t cal_target_rpm = BOOT_OL_SPEED_RPM;
+#else
+    const int32_t cal_target_rpm = BOOT_SPEED_RPM;
+#endif
+    int32_t spd_now = (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT;
+    int32_t spd_err = spd_now - cal_target_rpm;
+    if (MC_GetSTMStateMotor1() != RUN) { g_idx_have = 0U; }
+
+    /* INL capture: trigger only after the speed has been STEADY at target
+       (within +/-15 rpm) for ~3 s, so the startup/overshoot transient is over. */
+    if ((MC_GetSTMStateMotor1() == RUN) && (spd_err > -15) && (spd_err < 15)) { run_ticks++; }
+    else { run_ticks = 0U; }
+    if ((run_ticks >= 30U) && (g_cal_state == 0U))
+    {
+      g_cal_idx = 0U; g_cal_state = 1U;
+      LOG_Printf("cal: speed steady, capturing angle @ ~100 Hz...\r\n");
+    }
+
+    /* INL dump: emit a small chunk, then DRAIN THE RING TO EMPTY before producing
+       the next chunk, so the 2048-byte log buffer can never overflow (the previous
+       version pushed ~144 B/iter but LOG_Process drains only 64 B/call -> the ring
+       filled after ~400 lines and LOG_Printf dropped the rest -> corrupt CSV).
+       The continue suppresses status logs while dumping so the CSV stays clean. */
+    if (g_cal_state == 2U)
+    {
+      static uint16_t cd = 0U;
+      uint16_t n = g_cal_idx;
+      uint16_t end = (uint16_t)(cd + 8U);
+      if (end > n) { end = n; }
+      if (cd == 0U) { LOG_Printf("cal_start n=%u\r\n", (unsigned)n); }
+      for (; cd < end; cd++) { LOG_Printf("%u,%u\r\n", (unsigned)cd, (unsigned)g_cal_raw[cd]); }
+      if (cd >= n) { LOG_Printf("cal_end\r\n"); cd = 0U; g_cal_state = 3U; }
+      /* drain-to-empty: CDC sends <=64 B per completed transfer (~1 ms at FS),
+         so loop with a short yield until the ring clears (bounded for safety). */
+      for (uint16_t guard = 0U; (LOG_Pending() > 0U) && (guard < 200U); guard++)
+      {
+        LOG_Process();
+        osDelay(2U);
+      }
+      continue;
+    }
+
     motor_status_log();
+    if (++idx_log >= 10U)                                    /* ~1 s: index health */
+    {
+      extern volatile uint32_t g_spi_err_count;     /* SPI read failures (mc_tasks_foc.c) */
+      extern volatile int16_t  g_dbg_spi_minus_tim3; /* SPI angle - TIM3 angle (s16)       */
+      extern volatile uint8_t  g_inl_enable;         /* INL correction on/off              */
+      extern volatile float    g_inl_sign;           /* INL correction sign (+1/-1)        */
+      extern volatile uint8_t  g_use_spi_speed;      /* speed source: 1=SPI, 0=TIM3        */
+      extern volatile float    g_enc_speed_rpm;      /* SPI-derived mech speed (rpm)       */
+      idx_log = 0U;
+      LOG_Printf("spi: err=%lu dSPI=%d | spdsrc=%s SPIrpm=%d TIM3rpm=%d | PI: Kp=%d Ki=%d\r\n",
+                 (unsigned long)g_spi_err_count, (int)g_dbg_spi_minus_tim3,
+                 (g_use_spi_speed ? "SPI" : "TIM3"),
+                 (int)g_enc_speed_rpm, (int)spd_now,
+                 (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1));
+    }
     LOG_Process();
     osDelay(MOTOR_LOG_PERIOD_MS);
   }

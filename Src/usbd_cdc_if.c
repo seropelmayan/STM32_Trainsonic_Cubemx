@@ -22,7 +22,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+/* speed-loop gain setters live in mc_tasks_foc.c (keeps the MC header chain out
+   of this USB file); declared extern in the RX handler below. */
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -261,6 +262,79 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  /* Live tuning over the USB serial terminal. Single-letter commands fire
+   * IMMEDIATELY (no Enter needed); numeric commands accumulate digits and apply
+   * on the next non-digit (Enter, space, or the next command letter).
+   *   e / d        enable / disable INL correction
+   *   + / -        INL sign +1 / -1
+   *   c            re-arm INL capture (fires once speed is steady)
+   *   v / b        speed feedback: v = SPI velocity, b = TIM3 quadrature
+   *   g            trigger the d-axis current-loop step-response capture (+dump)
+   *   p<n> / i<n>  speed-loop Kp / Ki        (e.g.  p8000  i150 )
+   *   P<n> / I<n>  torque(Iq+Id)-loop Kp / Ki
+   * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
+   * volatile globals / PID fields -- never logs (log ring is single-producer). */
+  extern volatile uint8_t  g_inl_enable;
+  extern volatile float    g_inl_sign;
+  extern volatile uint8_t  g_cal_state;
+  extern volatile uint16_t g_cal_idx;
+  extern volatile uint8_t  g_use_spi_speed;
+  extern volatile uint8_t  g_step_request;
+  extern void Ropetow_SetSpeedKp(int32_t kp);  /* mc_tasks_foc.c */
+  extern void Ropetow_SetSpeedKi(int32_t ki);  /* mc_tasks_foc.c */
+  extern void Ropetow_SetTorqueKp(int32_t kp); /* mc_tasks_foc.c */
+  extern void Ropetow_SetTorqueKi(int32_t ki); /* mc_tasks_foc.c */
+
+  static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
+  static int32_t s_val    = 0;
+  static uint8_t s_ndig   = 0U;
+
+  for (uint32_t i = 0U; i < *Len; i++)
+  {
+    uint8_t ch = Buf[i];
+
+    if ((ch >= '0') && (ch <= '9'))
+    {
+      if (s_numcmd != 0)
+      {
+        s_val = (s_val * 10) + (int32_t)(ch - '0');
+        if (s_val > 32767) { s_val = 32767; }
+        s_ndig++;
+      }
+      continue;   /* digit consumed */
+    }
+
+    /* any non-digit finalizes a pending numeric command first */
+    if ((s_numcmd != 0) && (s_ndig > 0U))
+    {
+      switch (s_numcmd)
+      {
+        case 'p': Ropetow_SetSpeedKp(s_val);  break;
+        case 'i': Ropetow_SetSpeedKi(s_val);  break;
+        case 'P': Ropetow_SetTorqueKp(s_val); break;
+        case 'I': Ropetow_SetTorqueKi(s_val); break;
+        default:  break;
+      }
+    }
+    s_numcmd = 0; s_val = 0; s_ndig = 0U;
+
+    /* then act on this character */
+    switch (ch)
+    {
+      case 'e': g_inl_enable = 1U;     break;
+      case 'd': g_inl_enable = 0U;     break;
+      case '+': g_inl_sign   = 1.0f;   break;
+      case '-': g_inl_sign   = -1.0f;  break;
+      case 'c': g_cal_idx = 0U; g_cal_state = 0U; break;
+      case 'v': g_use_spi_speed = 1U;  break;
+      case 'b': g_use_spi_speed = 0U;  break;
+      case 'g': g_step_request = 1U;   break;
+      case 'p': case 'i': case 'P': case 'I':
+        s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
+      default:  break;   /* CR/LF/space/unknown: ignore */
+    }
+  }
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);

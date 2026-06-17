@@ -111,3 +111,10 @@ void LOG_Process(void)
   }
   /* On USBD_BUSY/FAIL leave s_tail; retry on the next call. */
 }
+
+uint16_t LOG_Pending(void)
+{
+  uint16_t h = s_head;
+  uint16_t t = s_tail;
+  return (uint16_t)((h + LOG_BUF_SIZE - t) % LOG_BUF_SIZE);
+}

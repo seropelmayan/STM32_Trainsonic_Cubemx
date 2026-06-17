@@ -73,7 +73,13 @@ __weak void MC_APP_PostMediumFrequencyHook_M1(void)
    */
 
 /* USER SECTION BEGIN PostMediumFrequencyHookM1 */
-
+  /* Ropetow: update the SPI encoder estimate here, in the medium-frequency THREAD
+     context where the HAL SPI read is safe (it hangs in the priority-0 FOC ISR).
+     The HF FOC ISR only extrapolates the published angle. See mc_tasks_foc.c. */
+  {
+    extern void Ropetow_EncoderUpdate(void);
+    Ropetow_EncoderUpdate();
+  }
 /* USER SECTION END PostMediumFrequencyHookM1 */
 }
 

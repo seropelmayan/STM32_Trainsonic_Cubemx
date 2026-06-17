@@ -33,10 +33,10 @@
 /*** Speed measurement settings ***/
 #define MAX_APPLICATION_SPEED_RPM           700 /*!< rpm, mechanical */
 #define MIN_APPLICATION_SPEED_RPM           0 /*!< rpm, mechanical, absolute value */
-#define M1_SS_MEAS_ERRORS_BEFORE_FAULTS     3 /*!< Number of speed measurement errors before main sensor goes in fault */
+#define M1_SS_MEAS_ERRORS_BEFORE_FAULTS     16 /*!< 3->16: tolerate occasional ABI/EMI speed-read glitches (enc=BAD) instead of faulting. Set in MC Workbench too to survive regen. */
 
 /*** Encoder **********************/
-#define ENC_AVERAGING_FIFO_DEPTH            16 /*!< depth of the FIFO used to average mechanical speed in 0.1Hz resolution */
+#define ENC_AVERAGING_FIFO_DEPTH            16 /*!< MUST be <= ENC_SPEED_ARRAY_SIZE (16) -- the encoder's DeltaCapturesBuffer is a fixed 16-element array; 32 overran it -> HardFault boot loop. 16 is the max. */
 
 /* USER CODE BEGIN angle reconstruction M1 */
 #define PARK_ANGLE_COMPENSATION_FACTOR      0
@@ -45,10 +45,10 @@
 
 /**************************    DRIVE SETTINGS SECTION   **********************/
 /* PWM generation and current reading */
-#define PWM_FREQUENCY                       16000
+#define PWM_FREQUENCY                       25000
 #define PWM_FREQ_SCALING                    1
 #define LOW_SIDE_SIGNALS_ENABLING           LS_PWM_TIMER
-#define SW_DEADTIME_NS                      400 /*!< Dead-time to be inserted by FW, only if low side signals are enabled */
+#define SW_DEADTIME_NS                      100 /*!< Dead-time to be inserted by FW, only if low side signals are enabled */
 
 /* Torque and flux regulation loops */
 #define REGULATION_EXECUTION_RATE           1 /*!< FOC execution rate in number of PWM cycles */
@@ -74,18 +74,18 @@
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-#define PID_SPEED_KP_DEFAULT                2601/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
-#define PID_SPEED_KI_DEFAULT                5/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
+#define PID_SPEED_KP_DEFAULT                4000/(SPEED_UNIT/10) /* 4000/200 with SP_KPDIV=512: ~280ms rise, 8% overshoot, holds setpoint */
+#define PID_SPEED_KI_DEFAULT                200/(SPEED_UNIT/10) /* 4000/200 */
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
 /* Speed control loop */
 #define SPEED_LOOP_FREQUENCY_HZ             (uint16_t)1000 /*!<Execution rate of speed regulation loop (Hz) */
 
 /* Speed PID parameter dividers */
-#define SP_KPDIV                            8192
+#define SP_KPDIV                            512 /* lowered from 8192: typed Kp produces 16x more proportional torque (Kp range was the bottleneck) */
 #define SP_KIDIV                            16384
 #define SP_KDDIV                            16
-#define SP_KPDIV_LOG                        LOG2((8192))
+#define SP_KPDIV_LOG                        LOG2((512))
 #define SP_KIDIV_LOG                        LOG2((16384))
 #define SP_KDDIV_LOG                        LOG2((16))
 
@@ -123,7 +123,7 @@
 /* Encoder alignment */
 #define M1_ALIGNMENT_DURATION               700 /*!< milliseconds */
 #define M1_ALIGNMENT_ANGLE_DEG              90 /*!< degrees [0...359] */
-#define FINAL_I_ALIGNMENT_A                 0.5 /*!< reduced to protect the bench supply during the overdraw diagnostic */
+#define FINAL_I_ALIGNMENT_A                 8 /*!< 8A alignment (firm snap on the coggy 20pp rotor); just under IQMAX/NOMINAL=8.2A so no clamp. ~1.6A supply draw on 30V -> ensure supply can source ~2A (or use battery). */
 /* With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment */
 /* phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt) */
 /* being Av the voltage gain between Rshunt and A/D input */

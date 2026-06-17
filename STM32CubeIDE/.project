@@ -51,6 +51,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/drv8353.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/as5047.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/as5047.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/log.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/log.c</locationURI>

@@ -26,4 +26,8 @@ void LOG_Printf(const char *fmt, ...);
 /** @brief Drain pending bytes to the USB CDC port. Call repeatedly from main(). */
 void LOG_Process(void);
 
+/** @brief Bytes still queued in the ring (0 == fully drained). Lets a caller
+ *  drain-to-empty before producing more, so a fast dump cannot overflow. */
+uint16_t LOG_Pending(void);
+
 #endif /* LOG_H */

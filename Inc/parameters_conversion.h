@@ -183,8 +183,8 @@
 
 /**********  ENCODER TIMER MOTOR 1 *************/
 #define M1_PULSE_NBR                        ((4 * (M1_ENCODER_PPR)) - 1)
-#define M1_ENC_IC_FILTER_LL LL_TIM_IC_FILTER_FDIV16_N8
-#define M1_ENC_IC_FILTER   12
+#define M1_ENC_IC_FILTER_LL LL_TIM_IC_FILTER_FDIV32_N8
+#define M1_ENC_IC_FILTER   15  /* 12->15: max TIM3 input filter (fDTS/32,N8 ~1.5us glitch reject) for EMI on A/B; <<21us min edge @700rpm. Set in MC Workbench (ENC IC filter) to survive regen. */
 #define SPD_ENC_TIM_M1_IRQHandler               TIM3_IRQHandler
 
 #define LPF_FILT_CONST                      ((int16_t)(32767 * 0.5))

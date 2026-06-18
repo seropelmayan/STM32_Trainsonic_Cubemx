@@ -272,6 +272,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *   g            trigger the d-axis current-loop step-response capture (+dump)
    *   p<n> / i<n>  speed-loop Kp / Ki        (e.g.  p8000  i150 )
    *   P<n> / I<n>  torque(Iq+Id)-loop Kp / Ki
+   *   D<n>         dead-time compensation magnitude (s16 V); 0 = off
+   *   f<n>         current LPF cutoff in Hz on measured Iq/Id; 0 = off
+   *   F<n>         velocity-smoothing cutoff Hz on SPI speed estimate; 0 = raw
+   *   t<n>         TORQUE-mode current setpoint in mA (commands Iq; clamped 0..8000)
+   *   s<n>         SPEED-mode setpoint in rpm (commands speed ramp; clamped 0..600)
+   *   r            toggle live raw-encoder monitor (motor stopped; check it's sane)
+   *   a            AGC-vs-position sweep (spin shaft slowly): magnet-field diagnostic
+   *   y / Y        anti-cogging calibration: y = arm capture, Y = stop + dump map
+   *   K / k        anti-cogging feed-forward ON / OFF
+   *   C<n>         anti-cogging FF clamp (max |Iq FF|, s16 current units)
    * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
    * volatile globals / PID fields -- never logs (log ring is single-producer). */
   extern volatile uint8_t  g_inl_enable;
@@ -284,6 +294,19 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern void Ropetow_SetSpeedKi(int32_t ki);  /* mc_tasks_foc.c */
   extern void Ropetow_SetTorqueKp(int32_t kp); /* mc_tasks_foc.c */
   extern void Ropetow_SetTorqueKi(int32_t ki); /* mc_tasks_foc.c */
+  extern volatile int16_t g_dt_comp;           /* dead-time comp magnitude (mc_tasks_foc.c) */
+  extern void Ropetow_SetCurrentLpf(int32_t fc_hz); /* current LPF cutoff (mc_tasks_foc.c) */
+  extern void Ropetow_SetEncVelLp(int32_t fc_hz);   /* velocity-smoothing cutoff (mc_tasks_foc.c) */
+  extern volatile int32_t g_torque_set_ma;          /* torque setpoint mA (mc_tasks_foc.c) */
+  extern volatile uint8_t g_torque_set_req;
+  extern volatile int32_t g_speed_set_rpm;          /* speed setpoint rpm (mc_tasks_foc.c) */
+  extern volatile uint8_t g_speed_set_req;
+  extern volatile uint8_t g_agc_log_req;            /* AGC sweep trigger (mc_tasks_foc.c) */
+  extern volatile uint8_t g_enc_mon;                /* live raw-encoder monitor toggle (mc_tasks_foc.c) */
+  extern volatile uint8_t g_cogg_cal_req;           /* anti-cogging cal arm (mc_tasks_foc.c) */
+  extern volatile uint8_t g_cogg_cal_state;         /* anti-cogging cal state (mc_tasks_foc.c) */
+  extern volatile uint8_t g_cogg_enable;            /* anti-cogging FF on/off (mc_tasks_foc.c) */
+  extern volatile int16_t g_cogg_clamp;             /* anti-cogging FF clamp (mc_tasks_foc.c) */
 
   static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
   static int32_t s_val    = 0;
@@ -313,6 +336,12 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'i': Ropetow_SetSpeedKi(s_val);  break;
         case 'P': Ropetow_SetTorqueKp(s_val); break;
         case 'I': Ropetow_SetTorqueKi(s_val); break;
+        case 'D': g_dt_comp = (int16_t)s_val;  break;
+        case 'f': Ropetow_SetCurrentLpf(s_val); break;
+        case 'F': Ropetow_SetEncVelLp(s_val); break;
+        case 't': g_torque_set_ma = s_val; g_torque_set_req = 1U; break;
+        case 's': g_speed_set_rpm = s_val; g_speed_set_req = 1U; break;
+        case 'C': g_cogg_clamp = (int16_t)s_val; break;
         default:  break;
       }
     }
@@ -329,7 +358,13 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'v': g_use_spi_speed = 1U;  break;
       case 'b': g_use_spi_speed = 0U;  break;
       case 'g': g_step_request = 1U;   break;
-      case 'p': case 'i': case 'P': case 'I':
+      case 'r': g_enc_mon ^= 1U;       break;   /* toggle live encoder monitor  */
+      case 'a': g_agc_log_req = 1U;    break;   /* AGC-vs-position sweep        */
+      case 'y': g_cogg_cal_req = 1U;   break;   /* arm anti-cogging calibration */
+      case 'Y': if (g_cogg_cal_state == 1U) { g_cogg_cal_state = 2U; } break; /* stop + dump */
+      case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
+      case 'k': g_cogg_enable = 0U;    break;   /* anti-cogging FF off          */
+      case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

@@ -45,7 +45,8 @@
 #define RSHUNT                               0.005
 
 /*  ICSs gains in case of isolated current sensors,
-        amplification gain for shunts based sensing */
+        amplification gain for shunts based sensing.
+   MUST match DRV8353_CSA_GAIN_CODE (drv8353.h). 20 = DRV CSA 20 V/V, +/-16.5 A. */
 #define AMPLIFICATION_GAIN                   20
 
 /*** Noise parameters ***/

@@ -54,7 +54,11 @@ __weak void MC_APP_BootHook(void)
    */
 
 /* USER CODE BEGIN BootHook */
-
+  /* Ropetow: load the compiled anti-cogging table into the runtime LUT. */
+  {
+    extern void Ropetow_CoggInit(void);
+    Ropetow_CoggInit();
+  }
 /* USER CODE END BootHook */
 }
 

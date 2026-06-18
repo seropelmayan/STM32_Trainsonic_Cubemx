@@ -219,3 +219,21 @@ void AS5047_LogStatus(SPI_HandleTypeDef *hspi)
              (unsigned long)(cdeg / 100U), (unsigned long)(cdeg % 100U),
              (st == AS5047_OK) ? "OK" : "ERR");
 }
+
+void AS5047_LogAngle(SPI_HandleTypeDef *hspi)
+{
+  AS5047_Status st = AS5047_OK;
+  uint16_t raw  = AS5047_ReadAngle(hspi, &st);          /* ANGLECOM, 0..16383 */
+  uint16_t diag = AS5047_ReadRegister(hspi, AS5047P_DIAAGC, NULL);
+  uint16_t err  = AS5047_ReadRegister(hspi, AS5047P_ERRFL, NULL);
+  uint32_t cdeg = ((uint32_t)raw * 36000U) / 16384U;    /* centi-degrees */
+
+  LOG_Printf("[enc] raw=%5u %lu.%02lu deg AGC=%u MAGL=%u MAGH=%u COF=%u ERRFL=0x%03X %s\r\n",
+             (unsigned)raw,
+             (unsigned long)(cdeg / 100U), (unsigned long)(cdeg % 100U),
+             (unsigned)(diag & 0xFFU),
+             (unsigned)!!(diag & AS5047P_DIAG_MAGL),
+             (unsigned)!!(diag & AS5047P_DIAG_MAGH),
+             (unsigned)!!(diag & AS5047P_DIAG_COF),
+             err, (st == AS5047_OK) ? "OK" : "COMM-ERR");
+}

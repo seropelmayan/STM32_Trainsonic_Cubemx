@@ -92,9 +92,9 @@
         <define key="M1_ENC_TIMER_SELECTION" value="ENC_TIM3" />
         <define key="M1_ENC_USE_CH3" value="FALSE" />
         <define key="M1_ENCODER_PPR" value="1024" />
-        <define key="M1_FEED_FORWARD_CURRENT_REG_ENABLING" value="DISABLE" />
+        <define key="M1_FEED_FORWARD_CURRENT_REG_ENABLING" value="ENABLE" />
         <define key="M1_FINAL_I_ALIGNMENT" value="2" />
-        <define key="M1_FLUX_WEAKENING_ENABLING" value="DISABLE" />
+        <define key="M1_FLUX_WEAKENING_ENABLING" value="ENABLE" />
         <define key="M1_FW_KI_GAIN" value="5000" />
         <define key="M1_FW_KIDIV" value="32768" />
         <define key="M1_FW_KP_GAIN" value="3000" />

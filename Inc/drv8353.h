@@ -43,13 +43,18 @@
 /* ------------------------------------------------------------------------- */
 /* User-tunable configuration (4-bit IDRIVE codes, see datasheet tables)     */
 /* ------------------------------------------------------------------------- */
-/* Peak gate-drive currents. Code 0b1111 = 1000 mA source / 2000 mA sink.    */
+/* Peak gate-drive currents. Code 0b1111 = 1000 mA source / 2000 mA sink.
+   (Tried lowering to 0x08 to slow dv/dt -> no change in the noise, so switching
+   ringing/EMI is NOT the cause; reverted to the original max.) */
 #define DRV8353_IDRIVEP_CODE   0x0FU   /* source: 1111 = 1000 mA (1 A)        */
 #define DRV8353_IDRIVEN_CODE   0x0FU   /* sink:   1111 = 2000 mA (2 A)        */
 
 /* Current-sense-amplifier gain. 00=5, 01=10, 10=20, 11=40 V/V.
-   Firmware AMPLIFICATION_GAIN must equal this gain TIMES the 5 mOhm shunt
-   (V/A): 20 V/V -> 0.1 V/A, full scale +/-16.5 A. Change both together. */
+   Firmware AMPLIFICATION_GAIN (power_stage_parameters.h) MUST match this. Change
+   both together. 20 V/V -> 0.1 V/A, full scale +/-16.5 A.
+   (Tried 40 V/V for 2x resolution -> measured Iq ripple dropped but motor got
+   AUDIBLY LOUDER: higher counts/amp = higher effective current-loop gain = more
+   voltage thrash. Confirms the loop is too aggressive; reverted.) */
 #define DRV8353_CSA_GAIN_CODE  0x2U
 
 /* !!! REVIEW BEFORE POWERING THE STAGE !!!

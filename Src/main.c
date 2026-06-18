@@ -31,6 +31,7 @@
 #include "mc_config.h"           /* FOCVars / pwmcHandle for loop diagnostics  */
 #include "usb_device.h"          /* MX_USB_Device_Init -- see appTask note      */
 #include "as5047.h"              /* AS5047P absolute encoder (SPI1) -- now USED for the FOC angle */
+#include "cogg_table.h"          /* COGG_NBINS -- anti-cogging map dump                       */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,9 +41,18 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOOT_TORQUE_REF_A       0.0f    /* boot Iq target (A); 0 = rotor sits still, ready for the d-axis step test */
+/* ENCODER-ONLY bring-up: when 1, the motor is NEVER started (no torque, no
+   commutation, no PWM). appTask just streams the raw AS5047 reading continuously
+   so you can verify the encoder/magnet in isolation by turning the shaft by hand.
+   Set back to 0 for normal motor operation. */
+#define ENC_ONLY                0
+#define BOOT_TORQUE_REF_A       0.3f    /* torque-control boot current (A); gentle. UNLOADED this spins up to the voltage wall (~700 rpm @ 50V) - load the shaft or keep small */
 #define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)       */
-#define STEP_MODE               1       /* 'g' test: 0 = current-loop step (Iq/Id), 1 = speed-loop step */
+#define STEP_MODE               1       /* 'g' test: 0 = current-loop step, 1 = speed-loop step, 2 = Iq-ripple @ const speed
+                                           STEP_MODE 1 BOOTS in SPEED control to SPEED_BASE_RPM (safe, won't run away). */
+/* --- Iq-ripple capture (STEP_MODE 2): run steady, capture Iq for an FFT --- */
+#define RIPPLE_SPEED_RPM        150     /* constant speed for the ripple capture (rpm) */
+#define RIPPLE_DECIM            10      /* HF/this = 2.5 kHz; 512 samp = ~205 ms (Nyquist 1.25 kHz) */
 /* --- current-loop step (STEP_MODE 0) --- */
 #define STEP_AXIS_Q             1       /* axis: 1 = q (torque, rotor spins), 0 = d (rotor holds) */
 #define STEP_FROM_A             0.2f    /* step start current (A) */
@@ -946,6 +956,7 @@ static void StartAppTask(void const *argument)
   {
     AS5047_Status enc = AS5047_Init(&hspi1);   /* FOC now commutates on the AS5047 SPI angle */
     LOG_Printf("AS5047_Init=%d\r\n", (int)enc);
+    AS5047_LogStatus(&hspi1);                  /* dump AGC/MAGL/MAGH -> magnet health vs vibration */
   }
   LOG_Printf("=== end boot diagnostics ===\r\n");
 
@@ -953,7 +964,7 @@ static void StartAppTask(void const *argument)
    * WARNING: spins the drive on every power-up with no operator interlock.
    * On a rope-tow that moves a load this is a hazard -- add an enable / e-stop
    * interlock before field use. Only start if the gate driver configured. */
-  if (drv == DRV8353_OK)
+  if ((drv == DRV8353_OK) && (ENC_ONLY == 0))
   {
     Ropetow_IndexInit();                     /* arm PB3 index -> TIM3 count reset */
     (void)MC_AcknowledgeFaultMotor1();       /* clear any latched fault        */
@@ -983,15 +994,20 @@ static void StartAppTask(void const *argument)
                    (unsigned)MC_GetCurrentFaultsMotor1());
       }
     }
-#elif STEP_MODE == 1
-    /* Closed-loop SPEED mode: regulate to SPEED_BASE_RPM so the speed-loop step
-       test (press 'g') has a running baseline to step from. */
-    MC_ProgramSpeedRampMotor1((int16_t)((int32_t)SPEED_BASE_RPM * SPEED_UNIT / U_RPM),
+#elif (STEP_MODE == 1) || (STEP_MODE == 2)
+    /* Closed-loop SPEED mode. Mode 1: baseline for the speed-step test.
+       Mode 2: hold a constant speed for the Iq-ripple capture. */
+  #if STEP_MODE == 2
+    #define BOOT_SPD_RPM RIPPLE_SPEED_RPM
+  #else
+    #define BOOT_SPD_RPM SPEED_BASE_RPM
+  #endif
+    MC_ProgramSpeedRampMotor1((int16_t)((int32_t)BOOT_SPD_RPM * SPEED_UNIT / U_RPM),
                               BOOT_SPEED_RAMP_MS);
     if (MC_StartMotor1())
     {
-      LOG_Printf("Motor start commanded -> speed mode, base %d rpm over %d ms\r\n",
-                 (int)SPEED_BASE_RPM, BOOT_SPEED_RAMP_MS);
+      LOG_Printf("Motor start commanded -> speed mode, %d rpm over %d ms\r\n",
+                 (int)BOOT_SPD_RPM, BOOT_SPEED_RAMP_MS);
     }
     else
     {
@@ -1017,6 +1033,10 @@ static void StartAppTask(void const *argument)
     }
 #endif
   }
+  else if (ENC_ONLY != 0)
+  {
+    LOG_Printf("ENC_ONLY: motor NOT started -- streaming raw encoder. Turn shaft by hand.\r\n");
+  }
   else
   {
     LOG_Printf("Motor start SKIPPED: DRV8353_Init=%d\r\n", (int)drv);
@@ -1038,12 +1058,152 @@ static void StartAppTask(void const *argument)
     extern volatile int16_t  g_inj_s16;
     extern volatile uint8_t  g_step_axis;
     extern volatile uint8_t  g_step_mode;
+    extern volatile uint16_t g_cap_decim;
+
+#if ENC_ONLY
+    /* Pure encoder readout: the motor was never started, so the MF hook isn't
+       touching the SPI and appTask owns it. Stream the raw AS5047 reading (~10 Hz)
+       so the encoder/magnet can be validated in isolation. Watch raw sweep
+       0..16383 smoothly per hand-turn, AGC mid-scale, all flags 0. */
+    AS5047_LogAngle(&hspi1);
+    for (uint16_t eguard = 0U; (LOG_Pending() > 0U) && (eguard < 200U); eguard++)
+    { LOG_Process(); osDelay(2U); }
+    osDelay(80U);
+    continue;
+#endif
+
+    /* One-shot: log the calibrated 3-shunt offsets once the motor is running.
+       A phase offset that differs from the others is a DC current bias -> the
+       1x-electrical Iq ripple we saw. ODrive re-nulls these every startup. */
+    {
+      static uint8_t offsets_logged = 0U;
+      extern void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c);
+      if ((offsets_logged == 0U) && (MC_GetSTMStateMotor1() == RUN))
+      {
+        int32_t oa = 0, ob = 0, oc = 0;
+        Ropetow_GetOffsets(&oa, &ob, &oc);
+        LOG_Printf("offsets(3-shunt): A=%ld B=%ld C=%ld  spread=%ld\r\n",
+                   (long)oa, (long)ob, (long)oc,
+                   (long)((oa>ob?oa:ob)>oc ? (oa>ob?oa:ob) : oc) -
+                   (long)((oa<ob?oa:ob)<oc ? (oa<ob?oa:ob) : oc));
+        offsets_logged = 1U;
+      }
+    }
+
+    /* Live torque-current setpoint ('t<mA>'): command Iq in torque control,
+       clamped to a safe 8 A. Switches the motor to torque mode at that current. */
+    {
+      extern volatile int32_t g_torque_set_ma;
+      extern volatile uint8_t g_torque_set_req;
+      if ((g_torque_set_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
+      {
+        int32_t ma = g_torque_set_ma;
+        g_torque_set_req = 0U;
+        if (ma > 8000) { ma = 8000; }
+        if (ma < 0)    { ma = 0; }
+        MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 200U);
+        LOG_Printf("torque set -> %ld mA\r\n", (long)ma);
+      }
+    }
+
+    /* Live SPEED setpoint ('s<rpm>'): command a speed ramp (switches to / stays in
+       speed control). Clamped to a safe 0..600 rpm. Sweep this to find where the
+       low-speed stick-slip starts/stops. */
+    {
+      extern volatile int32_t g_speed_set_rpm;
+      extern volatile uint8_t g_speed_set_req;
+      if ((g_speed_set_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
+      {
+        int32_t rpm = g_speed_set_rpm;
+        g_speed_set_req = 0U;
+        if (rpm > 600) { rpm = 600; }
+        if (rpm < 0)   { rpm = 0; }
+        MC_ProgramSpeedRampMotor1((int16_t)((int32_t)rpm * SPEED_UNIT / U_RPM), 500U);
+        LOG_Printf("speed set -> %ld rpm\r\n", (long)rpm);
+      }
+    }
+
+    /* Live raw-encoder monitor ('r'): compact angle/AGC/flags each iteration so you
+       can watch the sensor while hand-turning. Motor must be STOPPED (the MF hook
+       owns hspi1 in RUN). Toggle off with 'r' again. */
+    {
+      extern volatile uint8_t g_enc_mon;
+      if (g_enc_mon != 0U)
+      {
+        if (MC_GetSTMStateMotor1() == RUN)
+        {
+          LOG_Printf("enc mon: STOP the motor first (SPI shared with the FOC loop)\r\n");
+          g_enc_mon = 0U;
+        }
+        else
+        {
+          AS5047_LogAngle(&hspi1);
+          for (uint16_t guard = 0U; (LOG_Pending() > 0U) && (guard < 200U); guard++)
+          { LOG_Process(); osDelay(2U); }
+          osDelay(80U);
+          continue;
+        }
+      }
+    }
+
+    /* AGC-vs-position sweep ('a'): log AS5047 AGC/MAGL/MAGH + angle ~24x over ~3 s.
+       Spin the shaft slowly during this. Flat AGC (~246 everywhere) => uniform
+       under-field (magnet too weak / air-gap too large). AGC that swings with the
+       logged angle => eccentric / off-axis mount. See plan Phase 0. */
+    {
+      extern volatile uint8_t g_agc_log_req;
+      if (g_agc_log_req != 0U)
+      {
+        g_agc_log_req = 0U;
+        /* Motor must be STOPPED: the MF hook reads the AS5047 on hspi1 while in RUN,
+           and a second reader here would race the SPI. Turn the shaft BY HAND. */
+        if (MC_GetSTMStateMotor1() == RUN)
+        {
+          LOG_Printf("agc sweep: STOP the motor first (turn shaft by hand)\r\n");
+          continue;
+        }
+        LOG_Printf("agc sweep: turn shaft slowly by hand now (24 samples, ~3 s)...\r\n");
+        for (uint8_t k = 0U; k < 24U; k++)
+        {
+          AS5047_LogStatus(&hspi1);
+          for (uint16_t guard = 0U; (LOG_Pending() > 0U) && (guard < 200U); guard++)
+          { LOG_Process(); osDelay(2U); }
+          osDelay(120U);
+        }
+        LOG_Printf("agc sweep: done\r\n");
+        continue;
+      }
+    }
+
+    /* Anti-cogging calibration arm ('y'): clear accumulators and start binning the
+       measured Iq by mechanical position (done in the MF hook). Run a slow constant
+       speed and let it sweep several revolutions, then send 'Y' to stop + dump. */
+    {
+      extern volatile uint8_t g_cogg_cal_req;
+      extern void Ropetow_CoggCalArm(void);
+      if ((g_cogg_cal_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
+      {
+        g_cogg_cal_req = 0U;
+        Ropetow_CoggCalArm();
+        LOG_Printf("cogg cal: armed -- sweep slowly, send Y to stop+dump\r\n");
+      }
+    }
 
     if ((g_step_request != 0U) && (g_step_state == 0U) &&
         (MC_GetSTMStateMotor1() == RUN))
     {
       g_step_request = 0U;
-#if STEP_MODE == 1
+#if STEP_MODE == 2
+      /* Iq-ripple capture: motor already holds RIPPLE_SPEED_RPM. Just arm the HF
+         capture (q-axis: Iqref vs measured Iq) at the decimated rate -- NO step,
+         NO injection. The dump is FFT'd on the host to find the ripple frequency. */
+      g_step_mode = 0U;            /* HF-rate capture path */
+      g_step_axis = 1U;            /* log Iqref.q / Iq.q   */
+      g_cap_decim = RIPPLE_DECIM;
+      g_step_idx = 0U; g_step_state = 1U;
+      LOG_Printf("ripple: capturing Iq @ %d rpm, %u Hz...\r\n",
+                 (int)RIPPLE_SPEED_RPM, (unsigned)(ISR_FREQUENCY_HZ / RIPPLE_DECIM));
+#elif STEP_MODE == 1
       /* Speed-loop step: motor already runs at SPEED_BASE_RPM; capture a baseline
          then step the speed reference to SPEED_STEP_RPM. Logged at 1 kHz (MF). */
       g_step_mode = 1U;
@@ -1078,7 +1238,7 @@ static void StartAppTask(void const *argument)
       uint16_t end = (uint16_t)(sd + 8U);
       char axc = (g_step_mode ? 's' : (g_step_axis ? 'q' : 'd'));
       unsigned rate_hz = (g_step_mode ? (SPEED_LOOP_FREQUENCY_HZ / SPEED_CAP_DECIM)
-                                      : (ISR_FREQUENCY_HZ / STEP_DECIM));
+                                      : (ISR_FREQUENCY_HZ / g_cap_decim));
       if (end > n) { end = n; }
       if (sd == 0U)
       {
@@ -1102,6 +1262,34 @@ static void StartAppTask(void const *argument)
         osDelay(2U);
       }
       continue;
+    }
+
+    /* Anti-cogging map dump (drain-safe): per-bin mean of the measured Iq the loop
+       fought, indexed by mechanical position. Host cogging.py parses this (run it
+       once per direction, then combine). Format mirrors cal_start/step_start. */
+    {
+      extern volatile uint8_t g_cogg_cal_state;
+      extern void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count);
+      if (g_cogg_cal_state == 2U)
+      {
+        static uint16_t gd = 0U;
+        uint16_t end = (uint16_t)(gd + 8U);
+        if (end > (uint16_t)COGG_NBINS) { end = (uint16_t)COGG_NBINS; }
+        if (gd == 0U) { LOG_Printf("cogg_start nbins=%u\r\n", (unsigned)COGG_NBINS); }
+        for (; gd < end; gd++)
+        {
+          int16_t  mean = 0; uint16_t cnt = 0U;
+          Ropetow_CoggCalGet(gd, &mean, &cnt);
+          LOG_Printf("%u,%d,%u\r\n", (unsigned)gd, (int)mean, (unsigned)cnt);
+        }
+        if (gd >= (uint16_t)COGG_NBINS) { LOG_Printf("cogg_end\r\n"); gd = 0U; g_cogg_cal_state = 0U; }
+        for (uint16_t guard = 0U; (LOG_Pending() > 0U) && (guard < 200U); guard++)
+        {
+          LOG_Process();
+          osDelay(2U);
+        }
+        continue;
+      }
     }
 
 #if BOOT_OPENLOOP
@@ -1152,16 +1340,19 @@ static void StartAppTask(void const *argument)
     {
       extern volatile uint32_t g_spi_err_count;     /* SPI read failures (mc_tasks_foc.c) */
       extern volatile int16_t  g_dbg_spi_minus_tim3; /* SPI angle - TIM3 angle (s16)       */
-      extern volatile uint8_t  g_inl_enable;         /* INL correction on/off              */
-      extern volatile float    g_inl_sign;           /* INL correction sign (+1/-1)        */
       extern volatile uint8_t  g_use_spi_speed;      /* speed source: 1=SPI, 0=TIM3        */
       extern volatile float    g_enc_speed_rpm;      /* SPI-derived mech speed (rpm)       */
+      extern volatile int16_t  g_dt_comp;            /* dead-time comp magnitude (s16 V)   */
+      extern volatile int16_t  g_avg_iq;             /* avg Iq over ~0.3s (DC)             */
+      extern volatile int16_t  g_avg_id;             /* avg Id over ~0.3s: !=0 => misaligned */
+      extern volatile uint8_t  g_cogg_enable;        /* anti-cogging FF on/off             */
+      extern volatile int16_t  g_cogg_clamp;         /* anti-cogging FF clamp (s16)        */
       idx_log = 0U;
-      LOG_Printf("spi: err=%lu dSPI=%d | spdsrc=%s SPIrpm=%d TIM3rpm=%d | PI: Kp=%d Ki=%d\r\n",
-                 (unsigned long)g_spi_err_count, (int)g_dbg_spi_minus_tim3,
-                 (g_use_spi_speed ? "SPI" : "TIM3"),
-                 (int)g_enc_speed_rpm, (int)spd_now,
-                 (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1));
+      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s clamp=%d\r\n",
+                 (unsigned long)g_spi_err_count, (int)spd_now,
+                 (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
+                 (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
+                 (g_cogg_enable ? "ON" : "off"), (int)g_cogg_clamp);
     }
     LOG_Process();
     osDelay(MOTOR_LOG_PERIOD_MS);

@@ -161,8 +161,13 @@ int16_t           g_step_iq[STEP_N];
 volatile uint16_t g_step_idx     = 0U;
 volatile uint8_t  g_step_state   = 0U;  /* 0 idle, 1 capturing, 2 ready, 3 done */
 volatile uint8_t  g_step_request = 0U;  /* set by CDC 'g'; appTask injects step */
+volatile int32_t  g_torque_set_ma = 0;  /* CDC 't<mA>' -> appTask commands torque ref */
+volatile uint8_t  g_torque_set_req = 0U;
+volatile int32_t  g_speed_set_rpm = 0;  /* CDC 's<rpm>' -> appTask commands SPEED ramp  */
+volatile uint8_t  g_speed_set_req = 0U;
 static   uint16_t g_step_dec     = 0U;
 static   uint16_t g_spd_dec      = 0U;
+volatile uint16_t g_cap_decim    = STEP_DECIM; /* HF-capture decimation (1=25kHz step; larger for Iq-ripple over revs) */
 /* Current injection for the step test. appTask sets these; FOC_CalcCurrRef pins
    Iqdref accordingly (same ctx -> no race). g_step_axis selects which loop:
    - d-axis (0): Id makes ZERO torque (aligns with rotor flux) -> rotor HOLDS, no
@@ -173,6 +178,50 @@ volatile uint8_t  g_inj_override = 0U;  /* 1 = force Iqdref (injected axis = g_i
 volatile int16_t  g_inj_s16      = 0;   /* commanded current on the injected axis, s16 units        */
 volatile uint8_t  g_step_axis    = 0U;  /* 0 = d-axis (rotor holds), 1 = q-axis (torque)            */
 volatile uint8_t  g_step_mode    = 0U;  /* 0 = current-loop step (HF capture), 1 = speed-loop step (MF/1kHz) */
+/* Dead-time compensation: adds +sign(Iphase)*g_dt_comp (s16 V) per phase after the
+   inverse-Park, to cancel the 6x-electrical voltage distortion dead-time causes
+   (the ripple ODrive compensates and we didn't). 0 = off; set live via 'D<n>',
+   sweep against a 'g' ripple capture. Flip the code sign if ripple INCREASES. */
+volatile int16_t  g_dt_comp      = 45;  /* tuned: D45 minimized the 6x & 1x electrical lines */
+/* First-order LPF on the MEASURED Iq/Id before the PI: cuts current-sense noise
+   the loop would otherwise amplify into voltage thrash. alpha=1.0 -> off (raw).
+   Set live via 'f<cutoff_Hz>'. y += alpha*(x - y), alpha = 2*pi*fc/ISR_FREQ. */
+volatile float    g_iq_lpf_alpha = 1.0f;
+/* Running average of Iq/Id over ~0.3 s (many electrical revs) -> the 50Hz AC
+   averages to ~0, leaving the DC component. mean Id != 0 => commutation
+   MISALIGNED (encoder offset); mean Id ~0 with 50Hz ripple => current offset. */
+volatile int16_t  g_avg_iq = 0;
+volatile int16_t  g_avg_id = 0;
+/* Live velocity-smoothing coefficient on the SPI-derived speed estimate (used by
+   the speed loop in 'v' mode and by the HF commutation interpolation). alpha in
+   (0..1]: 1 = raw (no smoothing), smaller = heavier LPF (less noise, MORE lag).
+   Set live via 'F<cutoff_Hz>' (filter runs at the 1 kHz MF rate). */
+volatile float    g_enc_vel_lp = ENC_VEL_LP;
+/* ---- Anti-cogging (Ropetow) -------------------------------------------------
+   Position-indexed Iq feed-forward that cancels cogging / low-speed torque ripple.
+   The table is captured by a both-direction slow sweep (host cogging.py combines
+   fwd+rev), compiled in via cogg_table.h, and applied in FOC_CalcCurrRef (MF,
+   guarded). Gated by g_cogg_enable (default OFF) and clamped by g_cogg_clamp so a
+   bad table can never command large current. See the plan / cogg_table.h. */
+#define COGG_DEFINE_TABLE
+#include "cogg_table.h"
+int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied from COGG_TABLE_INIT at boot) */
+volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
+volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
+volatile uint16_t g_enc_mech14  = 0U;            /* latest mechanical angle 0..16383 (published by MF hook) */
+/* Calibration accumulators: filled in the MF hook, dumped in appTask (both thread
+   context, so plain statics). 512*(4+2)=3 KB. */
+static   int32_t  g_cogg_acc[COGG_NBINS];
+static   uint16_t g_cogg_cnt[COGG_NBINS];
+volatile uint8_t  g_cogg_cal_req   = 0U;         /* CDC 'y' -> appTask clears & arms           */
+volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 capturing, 2 ready-to-dump       */
+/* AGC-vs-position sweep (Phase 0 magnet diagnostic): CDC 'a' -> appTask logs
+   AS5047 AGC/MAGL/MAGH + angle across a slow revolution. */
+volatile uint8_t  g_agc_log_req = 0U;
+/* Live raw-encoder monitor: CDC 'r' toggles a compact per-iteration angle/AGC/flag
+   readout in appTask (motor STOPPED -- turn the shaft by hand). For "is the encoder
+   sane?" checks: watch raw track smoothly 0..16383 and flags stay clear. */
+volatile uint8_t  g_enc_mon = 0U;
 #define ENC_CPT_TO_RPM (((float)ISR_FREQUENCY_HZ * 60.0f) / (65536.0f * (float)POLE_PAIR_NUM))
 #define ENC_HF_PER_MF  (ISR_FREQUENCY_HZ / SPEED_LOOP_FREQUENCY_HZ) /* nominal HF ticks/hook */
 /* USER CODE END Private Variables */
@@ -195,6 +244,12 @@ void Ropetow_SetSpeedKp(int32_t kp); /* live speed-loop tuning (CDC RX handler) 
 void Ropetow_SetSpeedKi(int32_t ki);
 void Ropetow_SetTorqueKp(int32_t kp); /* live Iq+Id-loop tuning (CDC RX handler) */
 void Ropetow_SetTorqueKi(int32_t ki);
+void Ropetow_SetEncVelLp(int32_t fc_hz); /* live velocity-smoothing cutoff (CDC 'F<n>') */
+void Ropetow_CoggInit(void);          /* copy COGG_TABLE_INIT -> g_cogg_lut (MC_APP_BootHook) */
+void Ropetow_CoggCalArm(void);        /* clear accumulators + arm capture (appTask, CDC 'y') */
+void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count); /* read a cal bin (dump) */
+void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c); /* calibrated 3-shunt offsets */
+void Ropetow_SetCurrentLpf(int32_t fc_hz); /* live current LPF cutoff (CDC 'f<n>') */
 /* USER CODE END Private Functions */
 /**
   * @brief  It initializes the whole MC core according to user defined
@@ -666,6 +721,27 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     else                   { FOCVars[M1].Iqdref.q = g_inj_s16; FOCVars[M1].Iqdref.d = 0; }
     __enable_irq();
   }
+
+  /* Anti-cogging feed-forward: add the position-indexed Iq term to the freshly
+     latched reference. Skipped during the step-test override. Gated by
+     g_cogg_enable (default OFF) and clamped by g_cogg_clamp. Linear interpolation
+     between bins. g_enc_mech14 is the latest mechanical angle from the MF hook
+     (<=1 ms stale -> negligible at the low speeds where cogging is felt). */
+  if ((bMotor == M1) && (g_inj_override == 0U) && (g_cogg_enable != 0U) &&
+      (Mci[M1].State == RUN))
+  {
+    uint16_t m    = g_enc_mech14;
+    uint16_t bin  = (uint16_t)(m >> COGG_SHIFT);
+    uint16_t nb   = (uint16_t)((bin + 1U) & (uint16_t)(COGG_NBINS - 1U));
+    int32_t  frac = (int32_t)(m & (uint16_t)((1U << COGG_SHIFT) - 1U));   /* 0..31 */
+    int32_t  ff   = (int32_t)g_cogg_lut[bin] +
+                    ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
+    if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
+    if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
+    __disable_irq();
+    FOCVars[M1].Iqdref.q = (int16_t)((int32_t)FOCVars[M1].Iqdref.q + ff);
+    __enable_irq();
+  }
   /* USER CODE END FOC_CalcCurrRef 1 */
 }
 
@@ -785,12 +861,41 @@ inline uint16_t FOC_CurrControllerM1(void)
   Ialphabeta = MCM_Clarke(Iab);
   Iqd = MCM_Park(Ialphabeta, hElAngle);
 
+  /* Optional first-order LPF on measured Iq/Id before the loop sees them
+     (g_iq_lpf_alpha < 1). Reduces sense noise -> less voltage thrash; costs a
+     little phase lag (tolerable now that the current loop is detuned). */
+  if (g_iq_lpf_alpha < 1.0f)
+  {
+    static float lpf_q = 0.0f, lpf_d = 0.0f;
+    if (Mci[M1].State != RUN) { lpf_q = (float)Iqd.q; lpf_d = (float)Iqd.d; }
+    lpf_q += g_iq_lpf_alpha * ((float)Iqd.q - lpf_q);
+    lpf_d += g_iq_lpf_alpha * ((float)Iqd.d - lpf_d);
+    Iqd.q = (int16_t)lpf_q;
+    Iqd.d = (int16_t)lpf_d;
+  }
+
+  /* Alignment / offset diagnostic: average Iq,Id over ~0.33 s (8192 ticks ~= 16
+     elec revs at 150 rpm) so the 50Hz AC cancels and the DC shows. */
+  if (Mci[M1].State == RUN)
+  {
+    static int32_t  acc_q = 0, acc_d = 0;
+    static uint16_t acc_n = 0U;
+    acc_q += (int32_t)Iqd.q;
+    acc_d += (int32_t)Iqd.d;
+    if (++acc_n >= 8192U)
+    {
+      g_avg_iq = (int16_t)(acc_q / 8192);
+      g_avg_id = (int16_t)(acc_d / 8192);
+      acc_q = 0; acc_d = 0; acc_n = 0U;
+    }
+  }
+
   /* Current-loop step-response capture (HF rate): injected-axis ref vs measured
      (g_step_axis: d -> Idref/Id, q -> Iqref/Iq). Speed-loop capture (g_step_mode==1)
      is done in Ropetow_EncoderUpdate at the 1 kHz MF rate instead. */
   if ((g_step_state == 1U) && (g_step_mode == 0U))
   {
-    if (++g_step_dec >= (uint16_t)STEP_DECIM)
+    if (++g_step_dec >= g_cap_decim)
     {
       g_step_dec = 0U;
       if (g_step_idx < (uint16_t)STEP_N)
@@ -817,6 +922,20 @@ inline uint16_t FOC_CurrControllerM1(void)
   }
   Vqd = Circle_Limitation(&CircleLimitationM1, Vqd);
   Valphabeta = MCM_Rev_Park(Vqd, hElAngle);
+
+  /* Dead-time compensation: add +sign(Iphase)*g_dt_comp per phase (Clarke'd into
+     alpha/beta) to restore the volt-seconds dead-time eats. Cancels the 6x-elec
+     ripple. Off when g_dt_comp==0. (2-input Clarke approx; magnitude tuned live.) */
+  if (g_dt_comp != 0)
+  {
+    ab_t        dtab;
+    alphabeta_t dtab2;
+    dtab.a = (Iab.a >= 0) ? g_dt_comp : (int16_t)(-g_dt_comp);
+    dtab.b = (Iab.b >= 0) ? g_dt_comp : (int16_t)(-g_dt_comp);
+    dtab2  = MCM_Clarke(dtab);
+    Valphabeta.alpha = (int16_t)(Valphabeta.alpha + dtab2.alpha);
+    Valphabeta.beta  = (int16_t)(Valphabeta.beta  + dtab2.beta);
+  }
 
   if (PWMC_GetPWMState(pwmcHandle[M1]) == true)
   {
@@ -904,6 +1023,21 @@ void Ropetow_EncoderUpdate(void)
       enc_meas             = (int16_t)(spi_el - spi_offset);
       g_dbg_spi_minus_tim3 = (int16_t)(enc_meas - tim3_el);
 
+      /* Anti-cogging: publish the mechanical angle (consumed by the FF lookup in
+         FOC_CalcCurrRef) and, while calibrating, bin the measured Iq the loop
+         fights by mechanical position. FOCVars[M1].Iqd.q is the latest measured Iq
+         (stored by the HF loop each tick). Sweep both directions on the host. */
+      g_enc_mech14 = mech;
+      if (g_cogg_cal_state == 1U)
+      {
+        uint16_t cbin = (uint16_t)(mech >> COGG_SHIFT);
+        if (cbin < (uint16_t)COGG_NBINS)
+        {
+          g_cogg_acc[cbin] += (int32_t)FOCVars[M1].Iqd.q;
+          if (g_cogg_cnt[cbin] < 0xFFFFU) { g_cogg_cnt[cbin]++; }
+        }
+      }
+
       /* INL cal: capture the mechanical angle ACTUALLY USED for commutation at
          ~100 Hz -- raw14 when disabled (baseline) or the corrected 'mech' when
          enabled (Phase-5 residual). Same routine validates before vs after. */
@@ -937,7 +1071,7 @@ void Ropetow_EncoderUpdate(void)
     float d = (float)enc_meas - enc_theta;
     if (d >= 32768.0f)      { d -= 65536.0f; }
     else if (d < -32768.0f) { d += 65536.0f; }
-    enc_vel   += ENC_VEL_LP * (d - enc_vel);
+    enc_vel   += g_enc_vel_lp * (d - enc_vel);
     enc_theta  = (float)enc_meas;
   }
 
@@ -993,6 +1127,51 @@ void Ropetow_SetSpeedKi(int32_t ki)
   PID_SetKI(&PIDSpeedHandle_M1, (int16_t)ki);
 }
 
+/* Calibrated three-shunt ADC offsets (set by MCSDK at boot). A phase whose offset
+   differs from the others reads a DC current bias -> 1x-electrical Iq ripple. */
+void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c)
+{
+  PWMC_R3_2_Handle_t *h = (PWMC_R3_2_Handle_t *)pwmcHandle[M1];
+  *a = (int32_t)h->PhaseAOffset;
+  *b = (int32_t)h->PhaseBOffset;
+  *c = (int32_t)h->PhaseCOffset;
+}
+
+/* Current LPF cutoff (Hz). fc<=0 -> off (alpha=1, raw). alpha = 2*pi*fc/ISR_FREQ. */
+void Ropetow_SetCurrentLpf(int32_t fc_hz)
+{
+  if (fc_hz <= 0)
+  {
+    g_iq_lpf_alpha = 1.0f;
+  }
+  else
+  {
+    float a = (2.0f * 3.14159265f * (float)fc_hz) / (float)ISR_FREQUENCY_HZ;
+    if (a > 1.0f)   { a = 1.0f; }
+    if (a < 0.002f) { a = 0.002f; }
+    g_iq_lpf_alpha = a;
+  }
+}
+
+/* Velocity-smoothing cutoff (Hz) on the SPI speed estimate. fc<=0 -> raw (alpha=1).
+   alpha = 2*pi*fc/SPEED_LOOP_FREQUENCY_HZ (the enc_vel filter runs at the MF rate).
+   Heavier smoothing (lower fc) cuts speed noise but ADDS lag -> watch for worse
+   hunting. */
+void Ropetow_SetEncVelLp(int32_t fc_hz)
+{
+  if (fc_hz <= 0)
+  {
+    g_enc_vel_lp = 1.0f;
+  }
+  else
+  {
+    float a = (2.0f * 3.14159265f * (float)fc_hz) / (float)SPEED_LOOP_FREQUENCY_HZ;
+    if (a > 1.0f)   { a = 1.0f; }
+    if (a < 0.002f) { a = 0.002f; }
+    g_enc_vel_lp = a;
+  }
+}
+
 /* Torque loop = Iq and Id PIs (kept identical, as the autotune sets them). */
 void Ropetow_SetTorqueKp(int32_t kp)
 {
@@ -1004,6 +1183,31 @@ void Ropetow_SetTorqueKi(int32_t ki)
 {
   PID_SetKI(&PIDIqHandle_M1, (int16_t)ki);
   PID_SetKI(&PIDIdHandle_M1, (int16_t)ki);
+}
+
+/* Copy the compiled anti-cogging table into the runtime LUT. Called from
+   MC_APP_BootHook so a regenerated/zeroed table simply means "no compensation". */
+void Ropetow_CoggInit(void)
+{
+  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = COGG_TABLE_INIT[i]; }
+}
+
+/* Clear the calibration accumulators and arm a capture (thread context: 512-entry
+   clear is too long for the USB IRQ, so CDC 'y' only sets g_cogg_cal_req and
+   appTask calls this). */
+void Ropetow_CoggCalArm(void)
+{
+  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_acc[i] = 0; g_cogg_cnt[i] = 0U; }
+  g_cogg_cal_state = 1U;
+}
+
+/* Read one calibration bin: mean measured-Iq (s16) and sample count. Returns 0
+   mean for empty bins. Used by the appTask dump. */
+void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count)
+{
+  if (bin >= (uint16_t)COGG_NBINS) { *mean = 0; *count = 0U; return; }
+  *count = g_cogg_cnt[bin];
+  *mean  = (g_cogg_cnt[bin] != 0U) ? (int16_t)(g_cogg_acc[bin] / (int32_t)g_cogg_cnt[bin]) : (int16_t)0;
 }
 /* USER CODE END mc_task 0 */
 

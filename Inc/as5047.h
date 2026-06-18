@@ -74,4 +74,9 @@ uint16_t AS5047_ReadRegister(SPI_HandleTypeDef *hspi, uint16_t addr, AS5047_Stat
 /** @brief Dump error/diagnostic/settings registers and angle via the USB logger. */
 void AS5047_LogStatus(SPI_HandleTypeDef *hspi);
 
+/** @brief One compact line: raw angle, degrees, AGC, MAGL/MAGH/COF, ERRFL.
+ *         For a live "is the encoder sane?" watch while turning the shaft by hand
+ *         (motor STOPPED -- the FOC MF hook owns this SPI link while running). */
+void AS5047_LogAngle(SPI_HandleTypeDef *hspi);
+
 #endif /* AS5047_H */

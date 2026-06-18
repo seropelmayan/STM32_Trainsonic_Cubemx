@@ -58,11 +58,11 @@
 /* Workbench autotune values (for AMPLIFICATION_GAIN=20 / LS=1.4 mH). Restored
    after the current-sense polarity fix in r3_2_g4xx_pwm_curr_fdbk.c -- the /8
    diagnostic detune is no longer needed now the loop has negative feedback. */
-#define PID_TORQUE_KP_DEFAULT               2365
-#define PID_TORQUE_KI_DEFAULT               2501
+#define PID_TORQUE_KP_DEFAULT               150 /* quiet current loop (bench-tuned; 300/1200/2365 all louder) */
+#define PID_TORQUE_KI_DEFAULT               150
 #define PID_TORQUE_KD_DEFAULT               100
-#define PID_FLUX_KP_DEFAULT                 2365
-#define PID_FLUX_KI_DEFAULT                 2501
+#define PID_FLUX_KP_DEFAULT                 150 /* keep Id loop = Iq loop */
+#define PID_FLUX_KI_DEFAULT                 150
 #define PID_FLUX_KD_DEFAULT                 100
 
 /* Torque/Flux control loop gains dividers*/
@@ -74,8 +74,8 @@
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-#define PID_SPEED_KP_DEFAULT                4000/(SPEED_UNIT/10) /* 4000/200 with SP_KPDIV=512: ~280ms rise, 8% overshoot, holds setpoint */
-#define PID_SPEED_KI_DEFAULT                200/(SPEED_UNIT/10) /* 4000/200 */
+#define PID_SPEED_KP_DEFAULT                10000/(SPEED_UNIT/10) /* bench-tuned 10000/10000 best ratio (hot; revisit after Feed-Forward + anti-cogging) */
+#define PID_SPEED_KI_DEFAULT                10000/(SPEED_UNIT/10) /* = raw 10000 (SPEED_UNIT=10); matches live p10000/i10000 */
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
 /* Speed control loop */

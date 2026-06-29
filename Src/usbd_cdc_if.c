@@ -292,6 +292,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *   j<rpm>       log raw per-phase currents (Ia/Ib/Ic, s16): j0 = standstill/zero
    *                current; j<rpm> = spin at constant rpm (0..600) then sample
    *   R            acknowledge faults + (re)start motor in torque mode at 0 A
+   *   V<rpm>       torque-mode speed cap (governor): rolls Iqref off near the cap
+   *                so speed plateaus below the 700 rpm over-speed fault (0 = off)
    * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
    * volatile globals / PID fields -- never logs (log ring is single-producer). */
   extern volatile uint8_t  g_inl_enable;
@@ -335,6 +337,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_iadc_log_req;           /* 'j<rpm>' raw per-phase current log */
   extern volatile int32_t g_iadc_speed_rpm;         /* j arg: 0 standstill, >0 at speed   */
   extern volatile uint8_t g_restart_req;            /* 'R' ack faults + restart motor     */
+  extern volatile float   g_spdcap_rpm;             /* 'V<rpm>' torque-mode speed cap     */
 
   static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
   static int32_t s_val    = 0;
@@ -379,6 +382,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'M': g_pos_max_iq  = (float)s_val / 1000.0f; break;    /* position max |Iq|, mA->A */
         case 'Q': g_pos_max_rpm = (float)s_val;         break;      /* position velocity clamp, rpm */
         case 'j': g_iadc_speed_rpm = s_val; g_iadc_log_req = 1U; break; /* raw phase-current log @ rpm (0=standstill) */
+        case 'V': g_spdcap_rpm = (float)s_val; break;              /* torque-mode speed cap, rpm (0=off) */
         default:  break;
       }
     }
@@ -407,7 +411,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J':
-      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

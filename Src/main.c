@@ -1117,7 +1117,7 @@ static void StartAppTask(void const *argument)
       {
         int32_t rpm = g_speed_set_rpm;
         g_speed_set_req = 0U;
-        if (rpm > 600) { rpm = 600; }
+        if (rpm > 700) { rpm = 700; }
         if (rpm < 0)   { rpm = 0; }
         MC_ProgramSpeedRampMotor1((int16_t)((int32_t)rpm * SPEED_UNIT / U_RPM), 500U);
         LOG_Printf("speed set -> %ld rpm\r\n", (long)rpm);
@@ -1179,7 +1179,7 @@ static void StartAppTask(void const *argument)
           extern volatile int32_t g_iadc_speed_rpm;
           int32_t rpm = g_iadc_speed_rpm;
           if (rpm < 0)   { rpm = 0; }
-          if (rpm > 600) { rpm = 600; }              /* same clamp as 's<rpm>' */
+          if (rpm > 700) { rpm = 700; }              /* same clamp as 's<rpm>' */
           int32_t oa = 0, ob = 0, oc = 0;
           Ropetow_GetOffsets(&oa, &ob, &oc);
           if (rpm == 0)
@@ -1490,15 +1490,17 @@ static void StartAppTask(void const *argument)
       extern volatile float    g_fw_hyst_rpm;        /* FW engage hysteresis (rpm)         */
       extern volatile float    g_fw_id_target_a;     /* FW Id target (A, negative)         */
       extern volatile float    g_fw_id_now_a;        /* FW Id ACTUALLY applied (A, 0=idle) */
+      extern volatile float    g_spdcap_rpm;         /* torque-mode speed cap (rpm, 0=off) */
       idx_log = 0U;
       LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s clamp=%d | "
-                 "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA\r\n",
+                 "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA | cap=%dr\r\n",
                  (unsigned long)g_spi_err_count, (int)spd_now,
                  (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
                  (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
                  (g_cogg_enable ? "ON" : "off"), (int)g_cogg_clamp,
                  (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
-                 (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f));
+                 (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f),
+                 (int)g_spdcap_rpm);
     }
     LOG_Process();
     osDelay(APP_LOOP_PERIOD_MS);

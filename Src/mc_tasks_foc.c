@@ -272,12 +272,24 @@ volatile uint8_t  g_enc_mon = 0U;
    headroom in the status log. Applied in FOC_CalcCurrRef (MF, guarded). Tune live
    over USB CDC: 'w' toggle, 'W<rpm>' threshold, 'J<mA>' weakening magnitude. */
 volatile uint8_t  g_fw_enable        = 1U;      /* 1 = flux weakening active (CDC 'w')        */
-volatile float    g_fw_speed_thr_rpm = 600.0f;  /* |mech rpm| above which FW engages (CDC 'W')*/
-volatile float    g_fw_hyst_rpm      = 40.0f;   /* engage hysteresis: drop out below thr-hyst (CDC 'H') */
+volatile float    g_fw_speed_thr_rpm = 525.0f;  /* |mech rpm| above which FW engages (CDC 'W')*/
+volatile float    g_fw_hyst_rpm      = 50.0f;   /* engage hysteresis: drop out below thr-hyst (CDC 'H') */
 volatile float    g_fw_id_target_a   = -1.0f;   /* d-axis current target, A, negative (CDC 'J')*/
 volatile float    g_fw_id_slew_a_s   = 5.0f;    /* Id slew rate, A/s -- limits the step       */
 volatile float    g_fw_id_now_a      = 0.0f;    /* slewed Id ACTUALLY applied, A (0 = FW idle) */
 static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 once below thr-hyst */
+/* ---- Torque-mode speed cap / governor (Ropetow) -----------------------------
+   Caps top speed by rolling Iqref toward 0 as |mech speed| approaches the cap, so
+   the drive LEVELS OFF short of the MAX_APPLICATION_SPEED (700 rpm) over-speed
+   fault instead of tripping it. Primarily for torque mode (no speed loop), but it
+   runs in any mode as a backstop -- harmless in speed mode as long as the cap is
+   above the commanded speed. Only the ACCELERATING torque is rolled off (q and
+   speed same sign); braking torque always passes so you can decelerate. Uses the
+   MCSDK average speed (hAvrMecSpeedUnit), whose sign matches Iqref.q. The
+   over-speed fault is intentionally LEFT ENABLED as a hard backstop below this.
+   0 = cap disabled. Set live via CDC 'V<rpm>'. */
+volatile float    g_spdcap_rpm       = 650.0f; /* speed cap, rpm (0 = off); keep < 700 fault */
+#define SPDCAP_BAND_RPM   40.0f                 /* roll-off band below the cap (rpm)          */
 /* USER CODE END Private Variables */
 
 /* Private functions ---------------------------------------------------------*/
@@ -831,6 +843,34 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     {
       g_fw_id_now_a = 0.0f;   /* re-start from 0 on the next RUN */
       g_fw_engaged = 0U;      /* and re-arm the hysteresis latch */
+    }
+  }
+
+  /* Torque-mode speed cap (governor): roll the q-axis reference toward 0 as
+     |speed| approaches g_spdcap_rpm, so the drive plateaus BELOW the
+     MAX_APPLICATION_SPEED over-speed fault rather than tripping it. Only the
+     ACCELERATING component is limited (q and speed same sign) -- braking torque
+     passes through so deceleration always works. Uses the MCSDK average speed
+     (hAvrMecSpeedUnit) so its sign is consistent with Iqref.q. Runs LAST so it
+     caps the final q reference (incl. anti-cogging FF). Skipped during the
+     step-test override. */
+  if ((bMotor == M1) && (g_inj_override == 0U) && (g_spdcap_rpm > 0.0f) &&
+      (Mci[M1].State == RUN))
+  {
+    int32_t spd_rpm = ((int32_t)ENCODER_M1._Super.hAvrMecSpeedUnit * U_RPM) / SPEED_UNIT;
+    int32_t aspd    = (spd_rpm < 0) ? -spd_rpm : spd_rpm;
+    if ((float)aspd > (g_spdcap_rpm - SPDCAP_BAND_RPM))
+    {
+      float f = (g_spdcap_rpm - (float)aspd) / SPDCAP_BAND_RPM;  /* 1 -> 0 across band */
+      if (f < 0.0f) { f = 0.0f; }
+      if (f > 1.0f) { f = 1.0f; }
+      int16_t q = FOCVars[M1].Iqdref.q;
+      if (((int32_t)q * spd_rpm) > 0)        /* torque is accelerating |speed| */
+      {
+        __disable_irq();
+        FOCVars[M1].Iqdref.q = (int16_t)((float)q * f);
+        __enable_irq();
+      }
     }
   }
   /* USER CODE END FOC_CalcCurrRef 1 */

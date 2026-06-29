@@ -46,15 +46,15 @@
    so you can verify the encoder/magnet in isolation by turning the shaft by hand.
    Set back to 0 for normal motor operation. */
 #define ENC_ONLY                0
-#define BOOT_TORQUE_REF_A       0.3f    /* torque-control boot current (A); gentle. UNLOADED this spins up to the voltage wall (~700 rpm @ 50V) - load the shaft or keep small */
+#define BOOT_TORQUE_REF_A       0.0f    /* torque-control boot current (A); 0 = rotor holds at rest for a clean d-axis step capture. Raise only if the shaft is mechanically loaded/held. */
 #define BOOT_TORQUE_RAMP_MS     500     /* 0 -> target ramp duration (ms)       */
-#define STEP_MODE               1       /* 'g' test: 0 = current-loop step, 1 = speed-loop step, 2 = Iq-ripple @ const speed
+#define STEP_MODE               0       /* 'g' test: 0 = current-loop step, 1 = speed-loop step, 2 = Iq-ripple @ const speed
                                            STEP_MODE 1 BOOTS in SPEED control to SPEED_BASE_RPM (safe, won't run away). */
 /* --- Iq-ripple capture (STEP_MODE 2): run steady, capture Iq for an FFT --- */
 #define RIPPLE_SPEED_RPM        150     /* constant speed for the ripple capture (rpm) */
 #define RIPPLE_DECIM            10      /* HF/this = 2.5 kHz; 512 samp = ~205 ms (Nyquist 1.25 kHz) */
 /* --- current-loop step (STEP_MODE 0) --- */
-#define STEP_AXIS_Q             1       /* axis: 1 = q (torque, rotor spins), 0 = d (rotor holds) */
+#define STEP_AXIS_Q             0       /* axis: 1 = q (torque, rotor spins), 0 = d (rotor holds) */
 #define STEP_FROM_A             0.2f    /* step start current (A) */
 #define STEP_TO_A               1.0f    /* step end current (A) */
 #define STEP_BASELINE_MS        3       /* current-step baseline before the step (ms) */
@@ -66,7 +66,8 @@
 #define SPEED_CAP_DECIM         4       /* must match SPEED_CAP_DECIM in mc_tasks_foc.c: 1kHz/4 = 250 Hz -> 512 samp = ~2 s */
 #define BOOT_SPEED_RPM          60      /* speed-mode boot target (rpm); low for clean INL capture */
 #define BOOT_SPEED_RAMP_MS      2000    /* 0 -> target speed ramp duration (ms) */
-#define MOTOR_LOG_PERIOD_MS     100U    /* periodic motor status log interval   */
+#define APP_LOOP_PERIOD_MS      100U    /* app-task yield / health-tick interval (INL & spi: line count on this) */
+#define MOTOR_LOG_PERIOD_MS     1000U   /* periodic [motor] status log interval (1 Hz; raise to log less)        */
 
 /* Open-loop forced commutation for a CLEAN INL capture (method A). When 1, boot
    in torque mode with a fixed holding current and rotate the electrical field at
@@ -1123,6 +1124,143 @@ static void StartAppTask(void const *argument)
       }
     }
 
+    /* Motor restart ('R'): acknowledge any latched fault and re-start the drive in
+       torque mode at 0 A (stationary, safe) so it lands in RUN -- e.g. after a
+       speed-feedback fault, or to re-arm for the 'j' / position workflows without
+       a board reset. Mirrors the boot start sequence; logs the same way. NOTE: if
+       the underlying fault (e.g. enc=BAD speed reliability) persists, the drive
+       will simply re-fault -- fix the root cause, this only clears the latch. */
+    {
+      extern volatile uint8_t g_restart_req;
+      if (g_restart_req != 0U)
+      {
+        g_restart_req = 0U;
+        (void)MC_AcknowledgeFaultMotor1();
+        MC_ProgramTorqueRampMotor1_F(0.0f, 0U);
+        if (MC_StartMotor1())
+        {
+          LOG_Printf("restart: motor commanded -> torque mode, 0 A\r\n");
+        }
+        else
+        {
+          LOG_Printf("restart REJECTED: state=%d faults=0x%04X\r\n",
+                     (int)MC_GetSTMStateMotor1(),
+                     (unsigned)MC_GetCurrentFaultsMotor1());
+        }
+      }
+    }
+
+    /* Raw per-phase current log ('j<rpm>'): burst the measured phase currents
+       (Ia, Ib, Ic = -(Ia+Ib)) to characterise the 3-shunt sense chain.
+         j0      -> standstill, zero current commanded: residual DC = offset error,
+                    spread = noise (currents should sit at ~0).
+         j<rpm>  -> spin at a constant speed first, then sample: currents are AC
+                    (mean ~0, pkpk = current amplitude), then the motor is stopped.
+       Values are MCSDK s16 current units (offset already removed; the calibrated
+       offsets are printed too so raw ADC can be reconstructed). */
+    {
+      extern volatile uint8_t g_iadc_log_req;
+      extern volatile uint8_t g_pos_mode;
+      extern void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c);
+      if (g_iadc_log_req != 0U)
+      {
+        g_iadc_log_req = 0U;
+        if (MC_GetSTMStateMotor1() != RUN)
+        {
+          LOG_Printf("iadc: SKIPPED -- drive not in RUN (state=%d)\r\n",
+                     (int)MC_GetSTMStateMotor1());
+        }
+        else if (g_pos_mode != 0U)
+        {
+          LOG_Printf("iadc: SKIPPED -- position servo active; send 'O' to disable first\r\n");
+        }
+        else
+        {
+          extern volatile int32_t g_iadc_speed_rpm;
+          int32_t rpm = g_iadc_speed_rpm;
+          if (rpm < 0)   { rpm = 0; }
+          if (rpm > 600) { rpm = 600; }              /* same clamp as 's<rpm>' */
+          int32_t oa = 0, ob = 0, oc = 0;
+          Ropetow_GetOffsets(&oa, &ob, &oc);
+          if (rpm == 0)
+          {
+            MC_ProgramTorqueRampMotor1_F(0.0f, 0U);  /* zero current commanded */
+            osDelay(50U);                            /* let residual current decay */
+          }
+          else
+          {
+            /* spin to a constant speed and WAIT until it actually stabilizes before
+               sampling (at speed the phase currents are AC: mean ~0, pkpk = current
+               amplitude). Poll the measured speed and require it within tolerance
+               for a sustained window; bail after a timeout so a stuck ramp can't
+               hang the logger. */
+            int32_t  tol    = (rpm * 3) / 100;       /* +/-3% of target ... */
+            uint32_t t0     = HAL_GetTick();
+            uint16_t stable = 0U;
+            if (tol < 3) { tol = 3; }                /* ... but at least +/-3 rpm */
+            MC_ProgramSpeedRampMotor1((int16_t)((int32_t)rpm * SPEED_UNIT / U_RPM), 1000U);
+            for (;;)
+            {
+              int32_t meas = (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT;
+              int32_t e    = meas - rpm;
+              if (e < 0) { e = -e; }
+              stable = (e <= tol) ? (uint16_t)(stable + 1U) : 0U;
+              if (stable >= 15U) { break; }          /* ~300 ms continuously in band */
+              if ((HAL_GetTick() - t0) > 5000U)
+              {
+                LOG_Printf("iadc: speed did NOT stabilize (meas=%ld tgt=%ld); sampling anyway\r\n",
+                           (long)meas, (long)rpm);
+                break;
+              }
+              LOG_Process();
+              osDelay(20U);
+            }
+          }
+          LOG_Printf("iadc_start n=64 (k,Ia,Ib,Ic s16) speed=%ld offsets A=%ld B=%ld C=%ld\r\n",
+                     (long)rpm, (long)oa, (long)ob, (long)oc);
+          int32_t sa = 0, sb = 0, sc = 0;
+          int32_t mnA = 32767, mxA = -32768, mnB = 32767, mxB = -32768, mnC = 32767, mxC = -32768;
+          for (int k = 0; k < 64; k++)
+          {
+            int16_t ia = FOCVars[M1].Iab.a;
+            int16_t ib = FOCVars[M1].Iab.b;
+            int16_t ic = (int16_t)(-(ia + ib));
+            LOG_Printf("%d,%d,%d,%d\r\n", k, (int)ia, (int)ib, (int)ic);
+            sa += ia; sb += ib; sc += ic;
+            if (ia < mnA) { mnA = ia; }  if (ia > mxA) { mxA = ia; }
+            if (ib < mnB) { mnB = ib; }  if (ib > mxB) { mxB = ib; }
+            if (ic < mnC) { mnC = ic; }  if (ic > mxC) { mxC = ic; }
+            for (uint16_t g = 0U; (LOG_Pending() > 0U) && (g < 200U); g++)
+            { LOG_Process(); osDelay(1U); }
+            osDelay(2U);
+          }
+          LOG_Printf("iadc_end mean A=%ld B=%ld C=%ld pkpk A=%d B=%d C=%d\r\n",
+                     (long)(sa / 64), (long)(sb / 64), (long)(sc / 64),
+                     (int)(mxA - mnA), (int)(mxB - mnB), (int)(mxC - mnC));
+          if (rpm != 0) { MC_ProgramSpeedRampMotor1(0, 500U); }  /* stop after sampling */
+        }
+      }
+    }
+
+    /* Position-servo telemetry: while the position mode is engaged, print target
+       vs measured angle (and error in degrees) at ~5 Hz so the servo can be tuned
+       over the serial link. The PD loop itself runs in the 1 kHz MF hook. */
+    {
+      extern volatile uint8_t g_pos_mode;
+      extern volatile int32_t g_pos_counts, g_pos_target;
+      static uint32_t pos_log_tick = 0U;
+      if ((g_pos_mode != 0U) && ((HAL_GetTick() - pos_log_tick) >= 200U))
+      {
+        pos_log_tick = HAL_GetTick();
+        int32_t err   = g_pos_target - g_pos_counts;
+        /* counts -> deci-degrees (16384 counts/rev): deg*10 = counts*3600/16384 */
+        int32_t edd   = (int32_t)(((int64_t)err * 3600) / 16384);
+        LOG_Printf("[pos] tgt=%ld cur=%ld err=%ld (%ld.%01ld deg)\r\n",
+                   (long)g_pos_target, (long)g_pos_counts, (long)err,
+                   (long)(edd / 10), (long)(edd < 0 ? -edd % 10 : edd % 10));
+      }
+    }
+
     /* Live raw-encoder monitor ('r'): compact angle/AGC/flags each iteration so you
        can watch the sensor while hand-turning. Motor must be STOPPED (the MF hook
        owns hspi1 in RUN). Toggle off with 'r' again. */
@@ -1347,15 +1485,23 @@ static void StartAppTask(void const *argument)
       extern volatile int16_t  g_avg_id;             /* avg Id over ~0.3s: !=0 => misaligned */
       extern volatile uint8_t  g_cogg_enable;        /* anti-cogging FF on/off             */
       extern volatile int16_t  g_cogg_clamp;         /* anti-cogging FF clamp (s16)        */
+      extern volatile uint8_t  g_fw_enable;          /* flux weakening on/off              */
+      extern volatile float    g_fw_speed_thr_rpm;   /* FW speed threshold (rpm)           */
+      extern volatile float    g_fw_hyst_rpm;        /* FW engage hysteresis (rpm)         */
+      extern volatile float    g_fw_id_target_a;     /* FW Id target (A, negative)         */
+      extern volatile float    g_fw_id_now_a;        /* FW Id ACTUALLY applied (A, 0=idle) */
       idx_log = 0U;
-      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s clamp=%d\r\n",
+      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s clamp=%d | "
+                 "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA\r\n",
                  (unsigned long)g_spi_err_count, (int)spd_now,
                  (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
                  (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
-                 (g_cogg_enable ? "ON" : "off"), (int)g_cogg_clamp);
+                 (g_cogg_enable ? "ON" : "off"), (int)g_cogg_clamp,
+                 (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
+                 (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f));
     }
     LOG_Process();
-    osDelay(MOTOR_LOG_PERIOD_MS);
+    osDelay(APP_LOOP_PERIOD_MS);
   }
 }
 

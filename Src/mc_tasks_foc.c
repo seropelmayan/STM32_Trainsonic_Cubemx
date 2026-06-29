@@ -165,6 +165,44 @@ volatile int32_t  g_torque_set_ma = 0;  /* CDC 't<mA>' -> appTask commands torqu
 volatile uint8_t  g_torque_set_req = 0U;
 volatile int32_t  g_speed_set_rpm = 0;  /* CDC 's<rpm>' -> appTask commands SPEED ramp  */
 volatile uint8_t  g_speed_set_req = 0U;
+volatile uint8_t  g_iadc_log_req  = 0U; /* CDC 'j<rpm>' -> appTask logs raw per-phase currents     */
+volatile int32_t  g_iadc_speed_rpm = 0; /* j arg: 0 = standstill/zero cmd, >0 = sample at this speed */
+volatile uint8_t  g_restart_req   = 0U; /* CDC 'R' -> appTask acks faults + restarts motor (0 A)    */
+/* ---- Position control mode (Ropetow) ----------------------------------------
+   Direct position -> torque PD servo. No inner speed loop: the loop closes
+   mechanical position by commanding Iq directly, and a derivative term on the
+   measured speed supplies the damping (Kd) the missing speed loop would have.
+       Iq[A] = Kp*(target - pos)  -  Kd*speed_rpm     (then clamped)
+   Multi-turn position is accumulated from g_enc_mech14 (14-bit, 16384 counts/rev)
+   by unwrapping the wrap each 1 kHz MF tick -- safe up to ~30000 rpm, far above
+   the 700 rpm ceiling. Runs in Ropetow_PositionControl() from the MF hook, and
+   only actuates while the drive is in RUN. A velocity clamp (g_pos_max_rpm) and a
+   torque clamp (g_pos_max_iq) bound the motion so a bad target can't run away.
+   Engaged live over USB CDC: 'O' toggle, 'z' hold-here/zero, 'o<deg>' set target,
+   'L'/'N' set Kp/Kd, 'M' max Iq (mA), 'Q' max rpm. All CDC writes are just
+   volatile stores / request flags -- every STC_* call happens in the MF thread. */
+#define POS_COUNTS_PER_REV   16384       /* g_enc_mech14 is 14-bit (0..16383)        */
+#define POS_IQ_SIGN          (-1.0f)     /* maps +Iq (torque) to the +g_pos_counts direction.
+                                            On THIS drive +Iq DECREASES the count (verified: a
+                                            -83 deg error drove -max Iq and the count ran AWAY
+                                            positive), so it is inverted. Flip if a future
+                                            encoder/TIM3 sign change makes the servo run away. */
+#define POS_KP_DEFAULT       0.0020f     /* A per count   (~0.9 A at 10 deg error)   */
+#define POS_KD_DEFAULT       0.0015f     /* A per rpm     (damping)                  */
+#define POS_MAX_IQ_DEFAULT   3.0f        /* |Iq| clamp, A                            */
+#define POS_MAX_RPM_DEFAULT  150.0f      /* velocity clamp, rpm                      */
+volatile uint8_t  g_pos_mode       = 0U; /* 1 = position servo active (actuating)   */
+volatile int32_t  g_pos_counts     = 0;  /* measured multi-turn position, counts     */
+volatile int32_t  g_pos_origin     = 0;  /* reference zero for 'o<deg>' targets      */
+volatile int32_t  g_pos_target     = 0;  /* commanded position, counts               */
+volatile float    g_pos_kp         = POS_KP_DEFAULT;
+volatile float    g_pos_kd         = POS_KD_DEFAULT;
+volatile float    g_pos_max_iq     = POS_MAX_IQ_DEFAULT;
+volatile float    g_pos_max_rpm    = POS_MAX_RPM_DEFAULT;
+volatile uint8_t  g_pos_toggle_req = 0U; /* CDC 'O': enable/disable (handled in MF)  */
+volatile uint8_t  g_pos_zero_req   = 0U; /* CDC 'z': set target=origin=current pos   */
+volatile int32_t  g_pos_set_deg    = 0;  /* CDC 'o<deg>': pending target, deg from origin */
+volatile uint8_t  g_pos_set_req    = 0U;
 static   uint16_t g_step_dec     = 0U;
 static   uint16_t g_spd_dec      = 0U;
 volatile uint16_t g_cap_decim    = STEP_DECIM; /* HF-capture decimation (1=25kHz step; larger for Iq-ripple over revs) */
@@ -224,6 +262,22 @@ volatile uint8_t  g_agc_log_req = 0U;
 volatile uint8_t  g_enc_mon = 0U;
 #define ENC_CPT_TO_RPM (((float)ISR_FREQUENCY_HZ * 60.0f) / (65536.0f * (float)POLE_PAIR_NUM))
 #define ENC_HF_PER_MF  (ISR_FREQUENCY_HZ / SPEED_LOOP_FREQUENCY_HZ) /* nominal HF ticks/hook */
+/* ---- Flux weakening (Ropetow) ----------------------------------------------
+   Simple speed-gated d-axis (field-weakening) current injection to push past the
+   ~600 rpm voltage wall (at 48 V the back-EMF meets the SVPWM voltage ceiling, so
+   speed mode buzzes/clips). When |mech speed| exceeds g_fw_speed_thr_rpm, Id is
+   slewed toward g_fw_id_target_a (negative = weakening, frees voltage headroom);
+   below the threshold Id slews back to 0. This is an OPEN-LOOP fixed target, NOT
+   ST's voltage-feedback FW PI -- start small (-1 A) and raise while watching Vqd
+   headroom in the status log. Applied in FOC_CalcCurrRef (MF, guarded). Tune live
+   over USB CDC: 'w' toggle, 'W<rpm>' threshold, 'J<mA>' weakening magnitude. */
+volatile uint8_t  g_fw_enable        = 1U;      /* 1 = flux weakening active (CDC 'w')        */
+volatile float    g_fw_speed_thr_rpm = 600.0f;  /* |mech rpm| above which FW engages (CDC 'W')*/
+volatile float    g_fw_hyst_rpm      = 40.0f;   /* engage hysteresis: drop out below thr-hyst (CDC 'H') */
+volatile float    g_fw_id_target_a   = -1.0f;   /* d-axis current target, A, negative (CDC 'J')*/
+volatile float    g_fw_id_slew_a_s   = 5.0f;    /* Id slew rate, A/s -- limits the step       */
+volatile float    g_fw_id_now_a      = 0.0f;    /* slewed Id ACTUALLY applied, A (0 = FW idle) */
+static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 once below thr-hyst */
 /* USER CODE END Private Variables */
 
 /* Private functions ---------------------------------------------------------*/
@@ -250,6 +304,7 @@ void Ropetow_CoggCalArm(void);        /* clear accumulators + arm capture (appTa
 void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count); /* read a cal bin (dump) */
 void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c); /* calibrated 3-shunt offsets */
 void Ropetow_SetCurrentLpf(int32_t fc_hz); /* live current LPF cutoff (CDC 'f<n>') */
+void Ropetow_PositionControl(void);   /* position->torque PD servo (MF hook, after EncoderUpdate) */
 /* USER CODE END Private Functions */
 /**
   * @brief  It initializes the whole MC core according to user defined
@@ -742,6 +797,42 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     FOCVars[M1].Iqdref.q = (int16_t)((int32_t)FOCVars[M1].Iqdref.q + ff);
     __enable_irq();
   }
+
+  /* Flux weakening: speed-gated d-axis current injection with hysteresis. While
+     RUNNING, FW ENGAGES once |mech speed| rises above g_fw_speed_thr_rpm and
+     DISENGAGES only once it falls below (thr - g_fw_hyst_rpm). The latch stops
+     the on/off chatter (and the resulting big Id spikes) when speed oscillates
+     right around the threshold. When engaged, slew Id toward g_fw_id_target_a
+     (negative weakens the field, freeing voltage headroom above the ~600 rpm
+     wall); otherwise slew back to 0. The slew (g_fw_id_slew_a_s, A/s at the MF
+     rate) keeps the transition from stepping the current loop. Runs in the same
+     ctx that just latched Iqdref, so writing Iqdref.d is race-free. Acts on the
+     d axis only -> independent of the anti-cogging q-axis FF above. Skipped
+     during the step-test override (which owns both axes). */
+  if ((bMotor == M1) && (g_inj_override == 0U))
+  {
+    if (Mci[M1].State == RUN)
+    {
+      float spd = fabsf(g_enc_speed_rpm);
+      if (g_fw_engaged == 0U) { if (spd > g_fw_speed_thr_rpm) { g_fw_engaged = 1U; } }
+      else { if (spd < (g_fw_speed_thr_rpm - g_fw_hyst_rpm)) { g_fw_engaged = 0U; } }
+
+      float target_a = ((g_fw_enable != 0U) && (g_fw_engaged != 0U))
+                       ? g_fw_id_target_a : 0.0f;
+      float step = g_fw_id_slew_a_s / (float)SPEED_LOOP_FREQUENCY_HZ;
+      if      (g_fw_id_now_a < (target_a - step)) { g_fw_id_now_a += step; }
+      else if (g_fw_id_now_a > (target_a + step)) { g_fw_id_now_a -= step; }
+      else                                        { g_fw_id_now_a  = target_a; }
+      __disable_irq();
+      FOCVars[M1].Iqdref.d = (int16_t)(g_fw_id_now_a * (float)CURRENT_CONV_FACTOR);
+      __enable_irq();
+    }
+    else
+    {
+      g_fw_id_now_a = 0.0f;   /* re-start from 0 on the next RUN */
+      g_fw_engaged = 0U;      /* and re-arm the hysteresis latch */
+    }
+  }
   /* USER CODE END FOC_CalcCurrRef 1 */
 }
 
@@ -1125,6 +1216,95 @@ void Ropetow_SetSpeedKp(int32_t kp)
 void Ropetow_SetSpeedKi(int32_t ki)
 {
   PID_SetKI(&PIDSpeedHandle_M1, (int16_t)ki);
+}
+
+/* Position->torque PD servo. Called every MF tick (1 kHz) from the MF hook,
+   right AFTER Ropetow_EncoderUpdate() has published a fresh g_enc_mech14 and
+   g_enc_speed_rpm. Runs in the medium-frequency THREAD context, so it is safe to
+   call STC_* here (unlike the CDC IRQ, which only sets the request flags below).
+   Position is always accumulated so a target captured on enable has no jump; the
+   PD law only drives the motor while g_pos_mode is set and the drive is in RUN. */
+void Ropetow_PositionControl(void)
+{
+  /* --- multi-turn position accumulation (unwrap the 14-bit angle) --- */
+  static uint8_t  seeded   = 0U;
+  static uint16_t prev_raw = 0U;
+  static float    vel_rpm  = 0.0f;        /* sign-locked to g_pos_counts (see below) */
+  uint16_t raw = g_enc_mech14;
+  if (seeded == 0U) { prev_raw = raw; seeded = 1U; }
+  int32_t d = (int32_t)raw - (int32_t)prev_raw;
+  if (d >  (POS_COUNTS_PER_REV / 2)) { d -= POS_COUNTS_PER_REV; }   /* wrapped down->up */
+  if (d < -(POS_COUNTS_PER_REV / 2)) { d += POS_COUNTS_PER_REV; }   /* wrapped up->down */
+  g_pos_counts += d;
+  prev_raw = raw;
+
+  /* Velocity for damping + the clamp, derived from the SAME per-tick delta as the
+     position (counts/tick @ 1 kHz -> rpm). Deriving it here -- rather than reading
+     g_enc_speed_rpm -- guarantees the D term and the velocity clamp share the P
+     term's sign convention, so the damping can never become positive feedback no
+     matter how the encoder/TIM3 sign is set. Lightly LPF'd (alpha 0.2 ~ 35 Hz at
+     1 kHz) to smooth the 1-count quantization at low speed. */
+  {
+    float vel_inst = (float)d * (60000.0f / (float)POS_COUNTS_PER_REV);
+    vel_rpm += 0.2f * (vel_inst - vel_rpm);
+  }
+
+  /* --- service deferred CDC requests (thread ctx -> STC_* calls are safe) --- */
+  if (g_pos_zero_req != 0U)
+  {
+    g_pos_zero_req = 0U;
+    g_pos_origin = g_pos_counts;
+    g_pos_target = g_pos_counts;            /* hold right here, no motion */
+  }
+  if (g_pos_set_req != 0U)
+  {
+    g_pos_set_req = 0U;
+    g_pos_target = g_pos_origin +
+      (int32_t)(((int64_t)g_pos_set_deg * POS_COUNTS_PER_REV) / 360);
+  }
+  if (g_pos_toggle_req != 0U)
+  {
+    g_pos_toggle_req = 0U;
+    if (g_pos_mode == 0U)
+    {
+      /* engage only from RUN: capture current spot as the target so the servo
+         starts at zero error (no lurch), then take over torque control. */
+      if (Mci[M1].State == RUN)
+      {
+        g_pos_origin = g_pos_counts;
+        g_pos_target = g_pos_counts;
+        STC_SetControlMode(pSTC[M1], MCM_TORQUE_MODE);
+        g_pos_mode = 1U;
+      }
+    }
+    else
+    {
+      g_pos_mode = 0U;
+      STC_ExecRamp(pSTC[M1], 0, 0U);        /* release torque; user resumes via s/t */
+    }
+  }
+
+  if ((g_pos_mode == 0U) || (Mci[M1].State != RUN)) { return; }
+
+  /* --- PD law, computed in POSITION-COUNT space (where +u means "increase the
+     count"), then sign-mapped to torque at the very end. Doing the clamps here in
+     count space keeps the velocity backstop correct regardless of the torque
+     sign. --- */
+  int32_t err = g_pos_target - g_pos_counts;
+  float   u   = (g_pos_kp * (float)err) - (g_pos_kd * vel_rpm);
+
+  /* velocity clamp: if already over-speed in one direction, don't add effort that
+     pushes the count further that way (the D term brakes; this is the backstop). */
+  if ((vel_rpm >  g_pos_max_rpm) && (u > 0.0f)) { u = 0.0f; }
+  if ((vel_rpm < -g_pos_max_rpm) && (u < 0.0f)) { u = 0.0f; }
+
+  /* magnitude clamp (|sign| = 1, so this bounds |Iq| too) */
+  if (u >  g_pos_max_iq) { u =  g_pos_max_iq; }
+  if (u < -g_pos_max_iq) { u = -g_pos_max_iq; }
+
+  /* map count-space effort -> torque command */
+  float iq = POS_IQ_SIGN * u;
+  STC_ExecRamp(pSTC[M1], (int16_t)(iq * (float)CURRENT_CONV_FACTOR), 0U);
 }
 
 /* Calibrated three-shunt ADC offsets (set by MCSDK at boot). A phase whose offset

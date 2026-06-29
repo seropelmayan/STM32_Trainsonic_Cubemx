@@ -84,6 +84,12 @@ __weak void MC_APP_PostMediumFrequencyHook_M1(void)
     extern void Ropetow_EncoderUpdate(void);
     Ropetow_EncoderUpdate();
   }
+  /* Ropetow: position->torque PD servo. Must run AFTER the encoder update so it
+     sees the freshly published mechanical angle / speed this same MF cycle. */
+  {
+    extern void Ropetow_PositionControl(void);
+    Ropetow_PositionControl();
+  }
 /* USER SECTION END PostMediumFrequencyHookM1 */
 }
 

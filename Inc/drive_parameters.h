@@ -58,11 +58,11 @@
 /* Workbench autotune values (for AMPLIFICATION_GAIN=20 / LS=1.4 mH). Restored
    after the current-sense polarity fix in r3_2_g4xx_pwm_curr_fdbk.c -- the /8
    diagnostic detune is no longer needed now the loop has negative feedback. */
-#define PID_TORQUE_KP_DEFAULT               150 /* quiet current loop (bench-tuned; 300/1200/2365 all louder) */
-#define PID_TORQUE_KI_DEFAULT               150
+#define PID_TORQUE_KP_DEFAULT               3688 /* RESET 2026-06-20 to 9df3411 eff gain on div 512/16384 (was quiet 150; prev bench tune saved in memory ropetow-pid-tuning-snapshot) */
+#define PID_TORQUE_KI_DEFAULT               2816 /* = 22@128 rescaled to 16384 */
 #define PID_TORQUE_KD_DEFAULT               100
-#define PID_FLUX_KP_DEFAULT                 150 /* keep Id loop = Iq loop */
-#define PID_FLUX_KI_DEFAULT                 150
+#define PID_FLUX_KP_DEFAULT                 2580 /* = 645@128 rescaled to 512 */
+#define PID_FLUX_KI_DEFAULT                 2816
 #define PID_FLUX_KD_DEFAULT                 100
 
 /* Torque/Flux control loop gains dividers*/

@@ -282,6 +282,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *   y / Y        anti-cogging calibration: y = arm capture, Y = stop + dump map
    *   K / k        anti-cogging feed-forward ON / OFF
    *   C<n>         anti-cogging FF clamp (max |Iq FF|, s16 current units)
+   *   O            POSITION servo on/off (direct position->torque PD; holds angle)
+   *   z            position: set target = current angle (hold here) + zero origin
+   *   o<deg>       position target, degrees from origin (0..32767, fwd only)
+   *   L<n>         position Kp, n x 1e-4 A/count   (default 20 -> 0.0020)
+   *   N<n>         position Kd, n x 1e-4 A/rpm      (default 15 -> 0.0015)
+   *   M<n>         position max |Iq| in mA          (default 3000)
+   *   Q<n>         position velocity clamp in rpm   (default 150)
+   *   j<rpm>       log raw per-phase currents (Ia/Ib/Ic, s16): j0 = standstill/zero
+   *                current; j<rpm> = spin at constant rpm (0..600) then sample
+   *   R            acknowledge faults + (re)start motor in torque mode at 0 A
    * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
    * volatile globals / PID fields -- never logs (log ring is single-producer). */
   extern volatile uint8_t  g_inl_enable;
@@ -307,6 +317,24 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_cogg_cal_state;         /* anti-cogging cal state (mc_tasks_foc.c) */
   extern volatile uint8_t g_cogg_enable;            /* anti-cogging FF on/off (mc_tasks_foc.c) */
   extern volatile int16_t g_cogg_clamp;             /* anti-cogging FF clamp (mc_tasks_foc.c) */
+  extern volatile uint8_t g_fw_enable;              /* flux weakening on/off (mc_tasks_foc.c) */
+  extern volatile float   g_fw_speed_thr_rpm;       /* flux weakening speed threshold, rpm    */
+  extern volatile float   g_fw_hyst_rpm;            /* flux weakening engage hysteresis, rpm  */
+  extern volatile float   g_fw_id_target_a;         /* flux weakening Id target, A (negative) */
+  /* Position-control servo (mc_tasks_foc.c). CDC only sets these volatile request
+     flags / params; every STC_* call is done by Ropetow_PositionControl() in the
+     MF thread, so nothing here touches the motor state machine from IRQ context. */
+  extern volatile uint8_t g_pos_toggle_req;         /* 'O' enable/disable toggle    */
+  extern volatile uint8_t g_pos_zero_req;           /* 'z' hold-here / set origin   */
+  extern volatile int32_t g_pos_set_deg;            /* 'o<deg>' target, deg from origin */
+  extern volatile uint8_t g_pos_set_req;
+  extern volatile float   g_pos_kp;                 /* 'L<n>' Kp, n*1e-4 A/count    */
+  extern volatile float   g_pos_kd;                 /* 'N<n>' Kd, n*1e-4 A/rpm      */
+  extern volatile float   g_pos_max_iq;             /* 'M<n>' max |Iq|, mA -> A     */
+  extern volatile float   g_pos_max_rpm;            /* 'Q<n>' velocity clamp, rpm   */
+  extern volatile uint8_t g_iadc_log_req;           /* 'j<rpm>' raw per-phase current log */
+  extern volatile int32_t g_iadc_speed_rpm;         /* j arg: 0 standstill, >0 at speed   */
+  extern volatile uint8_t g_restart_req;            /* 'R' ack faults + restart motor     */
 
   static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
   static int32_t s_val    = 0;
@@ -342,6 +370,15 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 't': g_torque_set_ma = s_val; g_torque_set_req = 1U; break;
         case 's': g_speed_set_rpm = s_val; g_speed_set_req = 1U; break;
         case 'C': g_cogg_clamp = (int16_t)s_val; break;
+        case 'W': g_fw_speed_thr_rpm = (float)s_val; break;       /* FW speed threshold, rpm   */
+        case 'H': g_fw_hyst_rpm      = (float)s_val; break;       /* FW engage hysteresis, rpm */
+        case 'J': g_fw_id_target_a   = -((float)s_val / 1000.0f); break; /* FW |Id| in mA -> -A */
+        case 'o': g_pos_set_deg = s_val; g_pos_set_req = 1U; break; /* position target, deg from origin */
+        case 'L': g_pos_kp  = (float)s_val * 1e-4f;     break;      /* position Kp, A/count */
+        case 'N': g_pos_kd  = (float)s_val * 1e-4f;     break;      /* position Kd, A/rpm   */
+        case 'M': g_pos_max_iq  = (float)s_val / 1000.0f; break;    /* position max |Iq|, mA->A */
+        case 'Q': g_pos_max_rpm = (float)s_val;         break;      /* position velocity clamp, rpm */
+        case 'j': g_iadc_speed_rpm = s_val; g_iadc_log_req = 1U; break; /* raw phase-current log @ rpm (0=standstill) */
         default:  break;
       }
     }
@@ -364,7 +401,13 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'Y': if (g_cogg_cal_state == 1U) { g_cogg_cal_state = 2U; } break; /* stop + dump */
       case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
       case 'k': g_cogg_enable = 0U;    break;   /* anti-cogging FF off          */
+      case 'w': g_fw_enable ^= 1U;     break;   /* toggle flux weakening        */
+      case 'O': g_pos_toggle_req = 1U; break;   /* position servo on/off toggle */
+      case 'z': g_pos_zero_req   = 1U; break;   /* position: hold here / set origin */
+      case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
+      case 'W': case 'H': case 'J':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

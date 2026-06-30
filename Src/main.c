@@ -1091,8 +1091,9 @@ static void StartAppTask(void const *argument)
       }
     }
 
-    /* Live torque-current setpoint ('t<mA>'): command Iq in torque control,
-       clamped to a safe 8 A. Switches the motor to torque mode at that current. */
+    /* Live torque-current setpoint ('t<mA>', signed): command Iq in torque
+       control, clamped to a safe +/-8 A. Negative = reverse torque (e.g. t-200).
+       Switches the motor to torque mode at that current. */
     {
       extern volatile int32_t g_torque_set_ma;
       extern volatile uint8_t g_torque_set_req;
@@ -1100,8 +1101,8 @@ static void StartAppTask(void const *argument)
       {
         int32_t ma = g_torque_set_ma;
         g_torque_set_req = 0U;
-        if (ma > 8000) { ma = 8000; }
-        if (ma < 0)    { ma = 0; }
+        if (ma >  8000) { ma =  8000; }
+        if (ma < -8000) { ma = -8000; }
         MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 200U);
         LOG_Printf("torque set -> %ld mA\r\n", (long)ma);
       }
@@ -1117,7 +1118,7 @@ static void StartAppTask(void const *argument)
       {
         int32_t rpm = g_speed_set_rpm;
         g_speed_set_req = 0U;
-        if (rpm > 700) { rpm = 700; }
+        if (rpm > 500) { rpm = 500; }
         if (rpm < 0)   { rpm = 0; }
         MC_ProgramSpeedRampMotor1((int16_t)((int32_t)rpm * SPEED_UNIT / U_RPM), 500U);
         LOG_Printf("speed set -> %ld rpm\r\n", (long)rpm);
@@ -1179,7 +1180,7 @@ static void StartAppTask(void const *argument)
           extern volatile int32_t g_iadc_speed_rpm;
           int32_t rpm = g_iadc_speed_rpm;
           if (rpm < 0)   { rpm = 0; }
-          if (rpm > 700) { rpm = 700; }              /* same clamp as 's<rpm>' */
+          if (rpm > 500) { rpm = 500; }              /* same clamp as 's<rpm>' */
           int32_t oa = 0, ob = 0, oc = 0;
           Ropetow_GetOffsets(&oa, &ob, &oc);
           if (rpm == 0)
@@ -1501,6 +1502,16 @@ static void StartAppTask(void const *argument)
                  (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
                  (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f),
                  (int)g_spdcap_rpm);
+      {
+        extern volatile uint8_t g_mcfw_enable;
+        extern int16_t Ropetow_McFwAvVolt(void);
+        extern int16_t Ropetow_McFwVTarget(void);
+        extern volatile float   g_enc_ff_ticks;
+        LOG_Printf("mcfw=%s avV=%d/%d Idref=%d | ff=%d\r\n",
+                   (g_mcfw_enable ? "ON" : "off"),
+                   (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
+                   (int)FOCVars[M1].Iqdref.d, (int)(g_enc_ff_ticks * 10.0f));
+      }
     }
     LOG_Process();
     osDelay(APP_LOOP_PERIOD_MS);

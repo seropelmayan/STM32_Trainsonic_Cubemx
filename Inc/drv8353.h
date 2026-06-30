@@ -51,11 +51,11 @@
 
 /* Current-sense-amplifier gain. 00=5, 01=10, 10=20, 11=40 V/V.
    Firmware AMPLIFICATION_GAIN (power_stage_parameters.h) MUST match this. Change
-   both together. 20 V/V -> 0.1 V/A, full scale +/-16.5 A.
-   (Tried 40 V/V for 2x resolution -> measured Iq ripple dropped but motor got
-   AUDIBLY LOUDER: higher counts/amp = higher effective current-loop gain = more
-   voltage thrash. Confirms the loop is too aggressive; reverted.) */
-#define DRV8353_CSA_GAIN_CODE  0x2U
+   both together. 10 V/V -> 0.05 V/A, full scale +/-33 A (fits the 29 A motor).
+   (Was 0x2 = 20 V/V / +/-16.5 A, which clipped the 29 A motor. Lower gain also
+   halves counts/amp -> lower effective current-loop gain = calmer loop, the
+   opposite of the 40 V/V "louder" experiment.) */
+#define DRV8353_CSA_GAIN_CODE  0x1U
 
 /* !!! REVIEW BEFORE POWERING THE STAGE !!!
    VDS overcurrent threshold, 4-bit code (OCP Control register VDS_LVL).

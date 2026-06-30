@@ -42,7 +42,7 @@ ENCODER_Handle_t ENCODER_M1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((750 * SPEED_UNIT) / U_RPM), /* over-speed fault: 750 rpm (was 1.15*MAX_APP=805) */
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((800 * SPEED_UNIT) / U_RPM), /* over-speed fault: 800 rpm (room to operate at 750) */
     .hMinReliableMecSpeedUnit  = (uint16_t)(MIN_APPLICATION_SPEED_UNIT),
     .bMaximumSpeedErrorsNumber = M1_SS_MEAS_ERRORS_BEFORE_FAULTS,
     .hMaxReliableMecAccelUnitP = 65535,
@@ -78,7 +78,7 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((750 * SPEED_UNIT) / U_RPM), /* over-speed fault: 750 rpm (was 1.15*MAX_APP=805) */
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((800 * SPEED_UNIT) / U_RPM), /* over-speed fault: 800 rpm (room to operate at 750) */
     .hMinReliableMecSpeedUnit  = (uint16_t)(MIN_APPLICATION_SPEED_UNIT),
     .bMaximumSpeedErrorsNumber = M1_SS_MEAS_ERRORS_BEFORE_FAULTS,
     .hMaxReliableMecAccelUnitP = 65535,

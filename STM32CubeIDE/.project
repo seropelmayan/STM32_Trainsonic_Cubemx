@@ -406,6 +406,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/pid_regulator.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/MotorControl/flux_weakening_ctrl.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/flux_weakening_ctrl.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/MotorControl/pqd_motor_power_measurement.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/MCSDK_v6.4.2-Full/MotorControl/MCSDK/MCLib/Any/Src/pqd_motor_power_measurement.c</locationURI>

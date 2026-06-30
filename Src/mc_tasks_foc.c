@@ -75,6 +75,8 @@
 /* USER CODE BEGIN Includes */
 #include "as5047.h"                 /* AS5047P absolute-angle SPI read     */
 #include <math.h>                   /* sinf/cosf for the INL correction    */
+#include "flux_weakening_ctrl.h"    /* MCSDK native voltage-feedback FW component */
+#include "pid_regulator.h"          /* PID_HandleInit / PID_SetKI for the FW PID  */
 extern SPI_HandleTypeDef hspi1;     /* AS5047 SPI link (defined in main.c) */
 /* USER CODE END Includes */
 
@@ -130,6 +132,13 @@ static volatile uint32_t g_enc_seq        = 0U;   /* increments each hook publis
 static volatile uint32_t g_hf_tick_count  = 0U;   /* free-running HF tick counter (RUN) */
 volatile uint8_t  g_use_spi_commutation = 1U; /* 1=SPI extrapolation, 0=TIM3/ABI (extern: main.c) */
 volatile uint8_t  g_use_spi_speed = 0U;       /* 1=speed loop fed from SPI velocity, 0=TIM3 deltas */
+/* Commutation latency feed-forward: advance the extrapolated electrical angle by
+   this many EXTRA HF ticks of velocity, to cancel the SPI-read + half-PWM apply
+   latency that otherwise leaves a SPEED-PROPORTIONAL angle error (angle sampled,
+   then used ~T_ff later). omega-scaled => auto-corrects at every speed. ~4 ticks
+   ~= cancels ~14 deg electrical at 700 rpm (the Id->Iq leakage / buzz). Tune live
+   via CDC 'G<tenths>' while watching Iq track Iqref cleanly. */
+volatile float    g_enc_ff_ticks = 4.0f;
 /* Open-loop forced commutation (INL capture, method A): rotate the electrical
    angle at a constant commanded speed, ignoring the encoder, so the rotor follows
    a perfectly constant field -- the encoder logged vs that ramp is speed-ripple
@@ -288,8 +297,48 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    MCSDK average speed (hAvrMecSpeedUnit), whose sign matches Iqref.q. The
    over-speed fault is intentionally LEFT ENABLED as a hard backstop below this.
    0 = cap disabled. Set live via CDC 'V<rpm>'. */
-volatile float    g_spdcap_rpm       = 650.0f; /* speed cap, rpm (0 = off); keep < 700 fault */
+volatile float    g_spdcap_rpm       = 500.0f; /* speed cap, rpm (0 = off); keep < 700 fault */
 #define SPDCAP_BAND_RPM   40.0f                 /* roll-off band below the cap (rpm)          */
+/* ---- MCSDK native flux weakening (voltage-feedback) -- hand-instantiated -----
+   The project was generated without FW, so ST's FW_Handle (flux_weakening_ctrl.c)
+   is wired up here by hand. It is the ADAPTIVE voltage-feedback FW: a PI on the
+   error (FW_V_Ref%-of-MaxModule  -  |Vqd|) whose output drives Id negative once
+   the voltage saturates. Safe in our LOW-torque torque mode: FW_CalcCurrRef only
+   clamps Iq via the current circle sqrt(Inom^2 - Id^2), which never bites at
+   ~0.5 A; and its pSpeedPID integral-limit writes are harmless on the (idle)
+   speed PID. Hard floor = hDemagCurrent. Default OFF; enable with CDC 'x', tune
+   FW_V_Ref with 'A<tenths-%>' and the FW PI Ki with 'B<n>'. When ON it REPLACES
+   the custom g_fw_ block. */
+#define FW_V_REF_DEFAULT   950U      /* target |Vqd| as tenths-of-% of MaxModule (950 = 95%) */
+#define FW_DEMAG_A         8.0f      /* hard floor on FW |Id| (A); motor takes 29A, tune via 'S<mA>' */
+#define FW_VQD_BWLOG       4U        /* Vqd 1st-order LPF: 2^4 = 16                           */
+#define FW_PID_KP_DEFAULT  0         /* FW PI: start integral-only (Kp=0), tune live          */
+#define FW_PID_KI_DEFAULT  200       /* FW PI Ki -- conservative start; raise via 'B<n>'      */
+PID_Handle_t PIDFluxWeakeningHandle_M1 =
+{
+  .hDefKpGain          = (int16_t)FW_PID_KP_DEFAULT,
+  .hDefKiGain          = (int16_t)FW_PID_KI_DEFAULT,
+  .wUpperIntegralLimit = 0,                  /* FW only weakens: NO positive windup (anti-windup) */
+  .wLowerIntegralLimit = -(int32_t)INT16_MAX * (int32_t)TF_KIDIV,
+  .hUpperOutputLimit   = 0,                  /* output <= 0 => weaken-or-nothing; can't wind up at low speed */
+  .hLowerOutputLimit   = -INT16_MAX,         /* hDemagCurrent is the real floor  */
+  .hKpDivisor          = (uint16_t)TF_KPDIV,
+  .hKiDivisor          = (uint16_t)TF_KIDIV,
+  .hKpDivisorPOW2      = (uint16_t)TF_KPDIV_LOG,
+  .hKiDivisorPOW2      = (uint16_t)TF_KIDIV_LOG,
+  .hDefKdGain = 0, .hKdDivisor = 0, .hKdDivisorPOW2 = 0,
+};
+FW_Handle_t FW_M1 =
+{
+  .hMaxModule             = MAX_MODULE,
+  .hFW_V_Ref              = FW_V_REF_DEFAULT,
+  .hDefaultFW_V_Ref       = FW_V_REF_DEFAULT,
+  .hDemagCurrent          = -(int16_t)(FW_DEMAG_A * (float)CURRENT_CONV_FACTOR),
+  .wNominalSqCurr         = (int32_t)NOMINAL_CURRENT * (int32_t)NOMINAL_CURRENT,
+  .hVqdLowPassFilterBW    = (uint16_t)(1U << FW_VQD_BWLOG),
+  .hVqdLowPassFilterBWLOG = (uint16_t)FW_VQD_BWLOG,
+};
+volatile uint8_t  g_mcfw_enable = 0U;   /* CDC 'x': 1 = use MCSDK native FW (replaces custom g_fw_) */
 /* USER CODE END Private Variables */
 
 /* Private functions ---------------------------------------------------------*/
@@ -317,6 +366,12 @@ void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count); /* read a
 void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c); /* calibrated 3-shunt offsets */
 void Ropetow_SetCurrentLpf(int32_t fc_hz); /* live current LPF cutoff (CDC 'f<n>') */
 void Ropetow_PositionControl(void);   /* position->torque PD servo (MF hook, after EncoderUpdate) */
+void Ropetow_McFwInit(void);          /* init MCSDK native flux weakening (called from BootHook)   */
+void Ropetow_SetMcFwVRef(int32_t v);  /* FW target voltage, tenths-of-% (CDC 'A<n>')               */
+void Ropetow_SetMcFwKi(int32_t ki);   /* FW PI Ki (CDC 'B<n>')                                     */
+void Ropetow_SetMcFwDemag(int32_t ma);/* FW demag |Id| clamp, mA (CDC 'S<n>')                      */
+int16_t Ropetow_McFwAvVolt(void);     /* filtered |Vqd| the FW PI regulates (telemetry)            */
+int16_t Ropetow_McFwVTarget(void);    /* FW target voltage module (telemetry)                      */
 /* USER CODE END Private Functions */
 /**
   * @brief  It initializes the whole MC core according to user defined
@@ -821,7 +876,30 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
      ctx that just latched Iqdref, so writing Iqdref.d is race-free. Acts on the
      d axis only -> independent of the anti-cogging q-axis FF above. Skipped
      during the step-test override (which owns both axes). */
-  if ((bMotor == M1) && (g_inj_override == 0U))
+  /* MCSDK native flux weakening (voltage-feedback). When enabled it REPLACES the
+     custom g_fw_ block below: feed the last-cycle Vqd into the FW PI, then let
+     FW_CalcCurrRef drive Iqdref.d negative (and circle-clamp Iqdref.q). Runs in
+     the same ctx that just latched Iqdref -> the critical section makes it
+     race-free. Skipped during the step-test override. */
+  {
+    static uint8_t s_mcfw_prev = 0U;   /* tracks the 0->1 enable / RUN-entry edge */
+    if ((bMotor == M1) && (g_mcfw_enable != 0U) && (g_inj_override == 0U) &&
+        (Mci[M1].State == RUN))
+    {
+      if (s_mcfw_prev == 0U) { FW_Clear(&FW_M1); }  /* reset FW integral + Vqd filter on (re)enable */
+      s_mcfw_prev = 1U;
+      FW_DataProcess(&FW_M1, FOCVars[M1].Vqd);
+      __disable_irq();
+      FOCVars[M1].Iqdref = FW_CalcCurrRef(&FW_M1, FOCVars[M1].Iqdref);
+      __enable_irq();
+    }
+    else
+    {
+      s_mcfw_prev = 0U;   /* disabled / stopped / step-test -> re-arm the FW_Clear */
+    }
+  }
+
+  if ((bMotor == M1) && (g_inj_override == 0U) && (g_mcfw_enable == 0U))
   {
     if (Mci[M1].State == RUN)
     {
@@ -977,7 +1055,7 @@ inline uint16_t FOC_CurrControllerM1(void)
       uint32_t dt = g_hf_tick_count - g_enc_base_tick;  /* HF ticks since last publish */
       float    a;
       if (dt > (uint32_t)(4U * ENC_HF_PER_MF)) { dt = (uint32_t)(4U * ENC_HF_PER_MF); }
-      a = g_enc_theta0 + (g_enc_omega_tick * (float)dt);
+      a = g_enc_theta0 + (g_enc_omega_tick * ((float)dt + g_enc_ff_ticks)); /* +latency FF */
       while (a >= 32768.0f) { a -= 65536.0f; }
       while (a < -32768.0f) { a += 65536.0f; }
       hElAngle = (int16_t)a;
@@ -1257,6 +1335,49 @@ void Ropetow_SetSpeedKi(int32_t ki)
 {
   PID_SetKI(&PIDSpeedHandle_M1, (int16_t)ki);
 }
+
+/* MCSDK native flux-weakening init -- called once from MC_APP_BootHook. Sets up
+   the FW PI working gains from defaults and binds the FW component to the speed
+   PID (used only for its integral-limit writes, harmless in torque mode). */
+void Ropetow_McFwInit(void)
+{
+  PID_HandleInit(&PIDFluxWeakeningHandle_M1);
+  FW_Init(&FW_M1, &PIDSpeedHandle_M1, &PIDFluxWeakeningHandle_M1);
+  FW_Clear(&FW_M1);
+}
+
+void Ropetow_SetMcFwVRef(int32_t v)
+{
+  if (v < 0)    { v = 0; }
+  if (v > 1000) { v = 1000; }            /* tenths-of-% : 0..100.0% */
+  FW_M1.hFW_V_Ref = (uint16_t)v;
+}
+
+void Ropetow_SetMcFwKi(int32_t ki)
+{
+  if (ki < 0)     { ki = 0; }
+  if (ki > 32767) { ki = 32767; }
+  PID_SetKI(&PIDFluxWeakeningHandle_M1, (int16_t)ki);
+}
+
+/* FW demag clamp: max |Id| the flux-weakening loop may command, in mA. Bounds the
+   weakening headroom (and is the demag safety floor). Keep < the motor/FET limit. */
+void Ropetow_SetMcFwDemag(int32_t ma)
+{
+  if (ma < 0) { ma = 0; }
+  /* Convert mA -> s16A and HARD-clamp to int16 range BEFORE negating, or the
+     cast wraps and the demag "floor" flips POSITIVE (commands +Id = field
+     strengthening / runaway current). Max |Id| in s16A = 32767 (~16.5 A at the
+     ICS/3-shunt gain), which is also the current-sense saturation limit. */
+  int32_t s16 = (int32_t)(((float)ma / 1000.0f) * (float)CURRENT_CONV_FACTOR);
+  if (s16 > INT16_MAX) { s16 = INT16_MAX; }
+  FW_M1.hDemagCurrent = (int16_t)(-s16);
+}
+
+/* FW telemetry: filtered |Vqd| the FW PI regulates, and its target module
+   (hFW_V_Ref% of MaxModule). When FW engages, avV tracks the target. */
+int16_t Ropetow_McFwAvVolt(void)  { return FW_M1.AvVoltAmpl; }
+int16_t Ropetow_McFwVTarget(void) { return (int16_t)(((uint32_t)FW_M1.hFW_V_Ref * FW_M1.hMaxModule) / 1000U); }
 
 /* Position->torque PD servo. Called every MF tick (1 kHz) from the MF hook,
    right AFTER Ropetow_EncoderUpdate() has published a fresh g_enc_mech14 and

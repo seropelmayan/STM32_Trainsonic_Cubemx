@@ -275,7 +275,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *   D<n>         dead-time compensation magnitude (s16 V); 0 = off
    *   f<n>         current LPF cutoff in Hz on measured Iq/Id; 0 = off
    *   F<n>         velocity-smoothing cutoff Hz on SPI speed estimate; 0 = raw
-   *   t<n>         TORQUE-mode current setpoint in mA (commands Iq; clamped 0..8000)
+   *   t<n>         TORQUE-mode current setpoint in mA, SIGNED (Iq; clamped -8000..8000;
+   *                e.g. t-200 = reverse torque). Leading '-' only signs 't'.
    *   s<n>         SPEED-mode setpoint in rpm (commands speed ramp; clamped 0..600)
    *   r            toggle live raw-encoder monitor (motor stopped; check it's sane)
    *   a            AGC-vs-position sweep (spin shaft slowly): magnet-field diagnostic
@@ -294,6 +295,13 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *   R            acknowledge faults + (re)start motor in torque mode at 0 A
    *   V<rpm>       torque-mode speed cap (governor): rolls Iqref off near the cap
    *                so speed plateaus below the 700 rpm over-speed fault (0 = off)
+   *   x            toggle MCSDK NATIVE flux weakening (voltage-feedback; replaces custom FW)
+   *   A<n>         FW target voltage, tenths-of-% of MaxModule (e.g. A950 = 95%)
+   *   B<n>         FW PI Ki (raise from 0 until Id engages; watch Vq stop railing)
+   *   G<n>         commutation angle latency feed-forward, tenths of HF ticks (sweep 20-80
+   *                until Iq tracks Iqref cleanly / the at-speed buzz clears; default 40)
+   *   S<mA>        FW demag |Id| clamp = weakening headroom (e.g. S8000); raise if FW
+   *                pins at the clamp above ~700 rpm. Keep well under the motor/FET limit.
    * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
    * volatile globals / PID fields -- never logs (log ring is single-producer). */
   extern volatile uint8_t  g_inl_enable;
@@ -338,10 +346,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile int32_t g_iadc_speed_rpm;         /* j arg: 0 standstill, >0 at speed   */
   extern volatile uint8_t g_restart_req;            /* 'R' ack faults + restart motor     */
   extern volatile float   g_spdcap_rpm;             /* 'V<rpm>' torque-mode speed cap     */
+  extern volatile uint8_t g_mcfw_enable;            /* 'x' MCSDK native flux weakening on/off */
+  extern void Ropetow_SetMcFwVRef(int32_t v);       /* 'A<n>' FW target voltage, tenths-of-%  */
+  extern void Ropetow_SetMcFwKi(int32_t ki);        /* 'B<n>' FW PI Ki                         */
+  extern volatile float   g_enc_ff_ticks;           /* 'G<tenths>' commutation latency feed-forward */
+  extern void Ropetow_SetMcFwDemag(int32_t ma);     /* 'S<mA>' FW demag |Id| clamp (weakening headroom) */
 
   static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
   static int32_t s_val    = 0;
   static uint8_t s_ndig   = 0U;
+  static int8_t  s_tsign  = 1;   /* sign for signed numeric cmds (t): -1 after a leading '-' */
 
   for (uint32_t i = 0U; i < *Len; i++)
   {
@@ -358,6 +372,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       continue;   /* digit consumed */
     }
 
+    /* Leading sign for the torque command (t<mA>): a '-' right after 't' and
+       before any digit is captured as the value's sign, instead of falling
+       through to the INL-sign '-' command. Only 't' is signed here; '-' keeps
+       its normal INL meaning in every other context. */
+    if ((s_numcmd == 't') && (s_ndig == 0U) && (ch == (uint8_t)'-'))
+    {
+      s_tsign = -1;
+      continue;
+    }
+
     /* any non-digit finalizes a pending numeric command first */
     if ((s_numcmd != 0) && (s_ndig > 0U))
     {
@@ -370,7 +394,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'D': g_dt_comp = (int16_t)s_val;  break;
         case 'f': Ropetow_SetCurrentLpf(s_val); break;
         case 'F': Ropetow_SetEncVelLp(s_val); break;
-        case 't': g_torque_set_ma = s_val; g_torque_set_req = 1U; break;
+        case 't': g_torque_set_ma = (int32_t)s_tsign * s_val; g_torque_set_req = 1U; break;
         case 's': g_speed_set_rpm = s_val; g_speed_set_req = 1U; break;
         case 'C': g_cogg_clamp = (int16_t)s_val; break;
         case 'W': g_fw_speed_thr_rpm = (float)s_val; break;       /* FW speed threshold, rpm   */
@@ -383,10 +407,14 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'Q': g_pos_max_rpm = (float)s_val;         break;      /* position velocity clamp, rpm */
         case 'j': g_iadc_speed_rpm = s_val; g_iadc_log_req = 1U; break; /* raw phase-current log @ rpm (0=standstill) */
         case 'V': g_spdcap_rpm = (float)s_val; break;              /* torque-mode speed cap, rpm (0=off) */
+        case 'A': Ropetow_SetMcFwVRef(s_val); break;               /* MCSDK FW target voltage, tenths-of-% */
+        case 'B': Ropetow_SetMcFwKi(s_val);   break;               /* MCSDK FW PI Ki */
+        case 'G': g_enc_ff_ticks = (float)s_val * 0.1f; break;     /* commutation latency FF, tenths of HF ticks */
+        case 'S': Ropetow_SetMcFwDemag(s_val); break;             /* FW demag |Id| clamp, mA */
         default:  break;
       }
     }
-    s_numcmd = 0; s_val = 0; s_ndig = 0U;
+    s_numcmd = 0; s_val = 0; s_ndig = 0U; s_tsign = 1;
 
     /* then act on this character */
     switch (ch)
@@ -409,9 +437,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'O': g_pos_toggle_req = 1U; break;   /* position servo on/off toggle */
       case 'z': g_pos_zero_req   = 1U; break;   /* position: hold here / set origin */
       case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
+      case 'x': g_mcfw_enable ^= 1U;   break;   /* toggle MCSDK native flux weakening */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J':
-      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

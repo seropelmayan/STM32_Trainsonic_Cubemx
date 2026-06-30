@@ -46,8 +46,10 @@
 
 /*  ICSs gains in case of isolated current sensors,
         amplification gain for shunts based sensing.
-   MUST match DRV8353_CSA_GAIN_CODE (drv8353.h). 20 = DRV CSA 20 V/V, +/-16.5 A. */
-#define AMPLIFICATION_GAIN                   20
+   MUST match DRV8353_CSA_GAIN_CODE (drv8353.h). 10 = DRV CSA 10 V/V, +/-33 A
+   (was 20 V/V / +/-16.5 A -- raised range to fit the 29 A motor; also halves
+   counts/amp = calmer current loop). */
+#define AMPLIFICATION_GAIN                   10
 
 /*** Noise parameters ***/
 #define TNOISE_NS                            100

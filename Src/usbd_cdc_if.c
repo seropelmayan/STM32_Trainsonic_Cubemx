@@ -302,6 +302,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    *                until Iq tracks Iqref cleanly / the at-speed buzz clears; default 40)
    *   S<mA>        FW demag |Id| clamp = weakening headroom (e.g. S8000); raise if FW
    *                pins at the clamp above ~700 rpm. Keep well under the motor/FET limit.
+   *   u            toggle PLL velocity observer (default on) vs the old finite-diff+LPF
+   *   U<Hz>        PLL bandwidth f_n (default 50; sweep 30-120 watching Iq tracking +
+   *                top-end noise; too low=laggy, too high=noisy). Feeds the 'G' extrapolation.
    * Gains clamp to [0..32767] (int16). Runs in USB IRQ context: only sets
    * volatile globals / PID fields -- never logs (log ring is single-producer). */
   extern volatile uint8_t  g_inl_enable;
@@ -325,6 +328,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_enc_mon;                /* live raw-encoder monitor toggle (mc_tasks_foc.c) */
   extern volatile uint8_t g_cogg_cal_req;           /* anti-cogging cal arm (mc_tasks_foc.c) */
   extern volatile uint8_t g_cogg_cal_state;         /* anti-cogging cal state (mc_tasks_foc.c) */
+  extern volatile uint8_t g_cogg_cal_abort;         /* 'Y' -> finish auto-cal early */
+  extern volatile uint8_t g_cogg_refine_req;        /* 'm' -> more ILC refine passes */
+  extern volatile uint8_t g_cogg_harm_enable;       /* 'h' -> toggle harmonic denoise */
   extern volatile uint8_t g_cogg_enable;            /* anti-cogging FF on/off (mc_tasks_foc.c) */
   extern volatile int16_t g_cogg_clamp;             /* anti-cogging FF clamp (mc_tasks_foc.c) */
   extern volatile uint8_t g_fw_enable;              /* flux weakening on/off (mc_tasks_foc.c) */
@@ -351,6 +357,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern void Ropetow_SetMcFwKi(int32_t ki);        /* 'B<n>' FW PI Ki                         */
   extern volatile float   g_enc_ff_ticks;           /* 'G<tenths>' commutation latency feed-forward */
   extern void Ropetow_SetMcFwDemag(int32_t ma);     /* 'S<mA>' FW demag |Id| clamp (weakening headroom) */
+  extern volatile uint8_t g_pll_enable;             /* 'u' toggle PLL velocity observer vs LPF */
+  extern void Ropetow_SetPllBw(int32_t fn_hz);      /* 'U<Hz>' PLL bandwidth f_n */
 
   static char    s_numcmd = 0;   /* pending numeric command letter (p/i/P/I), 0=none */
   static int32_t s_val    = 0;
@@ -411,6 +419,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'B': Ropetow_SetMcFwKi(s_val);   break;               /* MCSDK FW PI Ki */
         case 'G': g_enc_ff_ticks = (float)s_val * 0.1f; break;     /* commutation latency FF, tenths of HF ticks */
         case 'S': Ropetow_SetMcFwDemag(s_val); break;             /* FW demag |Id| clamp, mA */
+        case 'U': Ropetow_SetPllBw(s_val); break;                /* PLL bandwidth f_n, Hz */
         default:  break;
       }
     }
@@ -429,8 +438,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'g': g_step_request = 1U;   break;
       case 'r': g_enc_mon ^= 1U;       break;   /* toggle live encoder monitor  */
       case 'a': g_agc_log_req = 1U;    break;   /* AGC-vs-position sweep        */
-      case 'y': g_cogg_cal_req = 1U;   break;   /* arm anti-cogging calibration */
-      case 'Y': if (g_cogg_cal_state == 1U) { g_cogg_cal_state = 2U; } break; /* stop + dump */
+      case 'y': g_cogg_cal_req = 1U;   break;   /* start AUTO anti-cogging calibration (servo sweep) */
+      case 'Y': g_cogg_cal_abort = 1U; break;   /* finish auto-cal early (then it auto-dumps) */
+      case 'm': g_cogg_refine_req = 1U; break;  /* more ILC refine passes on the current map */
+      case 'h': g_cogg_harm_enable ^= 1U; break; /* toggle harmonic denoise (applied next cal/refine) */
       case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
       case 'k': g_cogg_enable = 0U;    break;   /* anti-cogging FF off          */
       case 'w': g_fw_enable ^= 1U;     break;   /* toggle flux weakening        */
@@ -438,9 +449,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'z': g_pos_zero_req   = 1U; break;   /* position: hold here / set origin */
       case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
       case 'x': g_mcfw_enable ^= 1U;   break;   /* toggle MCSDK native flux weakening */
+      case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J':
-      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

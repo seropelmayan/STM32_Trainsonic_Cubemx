@@ -139,6 +139,26 @@ volatile uint8_t  g_use_spi_speed = 0U;       /* 1=speed loop fed from SPI veloc
    ~= cancels ~14 deg electrical at 700 rpm (the Id->Iq leakage / buzz). Tune live
    via CDC 'G<tenths>' while watching Iq track Iqref cleanly. */
 volatile float    g_enc_ff_ticks = 4.0f;
+
+/* PLL / type-II tracking observer for encoder velocity (replaces the finite-diff +
+   LPF when g_pll_enable=1). Carries angle+velocity as states, so it yields a clean,
+   ZERO-steady-state-lag electrical velocity -> smoother commutation angle at speed,
+   esp. through the cable transients. Gains from natural freq f_n (zeta=1, critically
+   damped): kp = 2*wn, ki = wn^2, wn = 2*pi*f_n. Default 50 Hz is conservative for the
+   1 kHz SPI update (kp*dt ~ 0.63, good margin). Refs (all use this exact loop): VESC
+   foc_pll_run; ODrive encoder PLL (pll_kp=2*bw, pll_ki=bw^2); J.Sachs
+   embeddedrelated.com/showarticle/530.php; SimpleFOC SmoothingSensor. CDC: toggle 'u',
+   bandwidth 'U<Hz>'.
+   VERDICT (2026-06-30 bench A/B): DEFAULT OFF. On this system the finite-diff+LPF
+   already feeds the 'G' angle-FF well enough; the PLL only traded velocity noise
+   (high BW -> audible) for transient phase lag (low BW -> weaker torque on the pull),
+   with no net noise reduction. Kept behind 'u' for future use; velocity quality was
+   not the bottleneck -- 'G' + the calm current loop was. */
+volatile uint8_t  g_pll_enable   = 0U;
+volatile float    g_pll_fn_hz    = 50.0f;
+volatile float    g_pll_kp       = 628.3185f;  /* 2*(2*pi*50)                          */
+volatile float    g_pll_ki       = 98696.04f;  /* (2*pi*50)^2                          */
+volatile float    g_pll_lock_err = 0.0f;       /* last wrapped tracking error (telemetry) */
 /* Open-loop forced commutation (INL capture, method A): rotate the electrical
    angle at a constant commanded speed, ignoring the encoder, so the rotor follows
    a perfectly constant field -- the encoder logged vs that ramp is speed-ripple
@@ -256,12 +276,40 @@ int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied fro
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
 volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
 volatile uint16_t g_enc_mech14  = 0U;            /* latest mechanical angle 0..16383 (published by MF hook) */
+volatile int16_t  g_cogg_ff_now = 0;             /* cogging FF applied this cycle (0 if off); ILC subtracts it from measured Iq to get the residual */
+/* Harmonic denoise: after the ILC passes, project the map onto its low-order
+   (cogging) harmonics and rebuild -- random per-bin noise is broadband, so keeping
+   only orders 1..KMAX rejects it and yields a near-noise-free map. Toggle 'h'. */
+#define COGG_HARM_KMAX  64U                      /* keep cogging orders 1..64/rev      */
+volatile uint8_t  g_cogg_harm_enable = 1U;       /* 1 = apply harmonic denoise (CDC 'h') */
+static   float    g_cogg_sintab[COGG_NBINS];     /* sin(2*pi*i/N) table (lazy init)    */
+static   uint8_t  g_cogg_sintab_ready = 0U;
 /* Calibration accumulators: filled in the MF hook, dumped in appTask (both thread
    context, so plain statics). 512*(4+2)=3 KB. */
 static   int32_t  g_cogg_acc[COGG_NBINS];
 static   uint16_t g_cogg_cnt[COGG_NBINS];
-volatile uint8_t  g_cogg_cal_req   = 0U;         /* CDC 'y' -> appTask clears & arms           */
-volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 capturing, 2 ready-to-dump       */
+volatile uint8_t  g_cogg_cal_req   = 0U;         /* CDC 'y' -> appTask requests auto-cal        */
+volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 sweeping, 2 dump-ready, 3 start-req */
+/* --- Auto cogging-calibration sweep (self-driven, no hand-spinning) ------------
+   'y' sets state=3; Ropetow_PositionControl (MF ctx) engages the position servo and
+   slow-sweeps the rotor through full mechanical revolutions (fwd+back) while the
+   accumulator above bins the holding (cogging) current by ACTUAL rotor position.
+   Bidirectional -> Coulomb friction and the velocity-D offset cancel in the average.
+   Ropetow_CoggCalFinish() writes the zero-mean map to g_cogg_lut. Needs a FREE shaft
+   (no cable load) or the load is baked into the map. */
+#define COGG_CAL_STEP    2.5f    /* g_pos_target ramp, counts/tick (~9 rpm sweep)      */
+#define COGG_CAL_REVS    4U      /* full-rev sweeps PER PASS: 2 fwd + 2 back (averaging) */
+#define COGG_CAL_PASSES  6U      /* 'y': pass 0 = capture cogging; 1..5 = ILC refine   */
+#define COGG_REFINE_PASSES 3U    /* 'm': extra ILC refine passes on the existing map   */
+#define COGG_ILC_GAIN    0.4f    /* iterative-learning gain: map += L*residual / pass  */
+static   float    g_cogg_cal_sweep = 0.0f;       /* ramping target position (counts)  */
+static   float    g_cogg_cal_swept = 0.0f;       /* counts swept this direction       */
+static   int8_t   g_cogg_cal_dir   = 1;          /* +1 fwd / -1 back                  */
+static   uint8_t  g_cogg_cal_revs  = 0U;         /* completed direction sweeps        */
+volatile uint8_t  g_cogg_cal_pass  = 0U;         /* 0 = initial capture, >=1 = refine (telemetry) */
+volatile uint8_t  g_cogg_cal_target = 0U;        /* stop after this many passes (telemetry) */
+volatile uint8_t  g_cogg_cal_abort = 0U;         /* CDC 'Y' -> finish early            */
+volatile uint8_t  g_cogg_refine_req = 0U;        /* CDC 'm' -> more ILC passes (keep map) */
 /* AGC-vs-position sweep (Phase 0 magnet diagnostic): CDC 'a' -> appTask logs
    AS5047 AGC/MAGL/MAGH + angle across a slow revolution. */
 volatile uint8_t  g_agc_log_req = 0U;
@@ -360,8 +408,11 @@ void Ropetow_SetSpeedKi(int32_t ki);
 void Ropetow_SetTorqueKp(int32_t kp); /* live Iq+Id-loop tuning (CDC RX handler) */
 void Ropetow_SetTorqueKi(int32_t ki);
 void Ropetow_SetEncVelLp(int32_t fc_hz); /* live velocity-smoothing cutoff (CDC 'F<n>') */
+void Ropetow_SetPllBw(int32_t fn_hz);    /* live PLL bandwidth f_n, Hz (CDC 'U<n>')      */
 void Ropetow_CoggInit(void);          /* copy COGG_TABLE_INIT -> g_cogg_lut (MC_APP_BootHook) */
-void Ropetow_CoggCalArm(void);        /* clear accumulators + arm capture (appTask, CDC 'y') */
+void Ropetow_CoggCalArm(void);        /* clear accumulators + request auto-sweep (appTask, CDC 'y') */
+void Ropetow_CoggCalFinish(void);     /* compute zero-mean cogging map from accumulators -> g_cogg_lut */
+void Ropetow_CoggHarmonicFit(void);   /* frequency-domain denoise: keep cogging orders 1..KMAX (CDC 'h') */
 void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count); /* read a cal bin (dump) */
 void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c); /* calibrated 3-shunt offsets */
 void Ropetow_SetCurrentLpf(int32_t fc_hz); /* live current LPF cutoff (CDC 'f<n>') */
@@ -849,6 +900,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
      g_cogg_enable (default OFF) and clamped by g_cogg_clamp. Linear interpolation
      between bins. g_enc_mech14 is the latest mechanical angle from the MF hook
      (<=1 ms stale -> negligible at the low speeds where cogging is felt). */
+  if (bMotor == M1) { g_cogg_ff_now = 0; }   /* default: no FF applied this cycle (ILC) */
   if ((bMotor == M1) && (g_inj_override == 0U) && (g_cogg_enable != 0U) &&
       (Mci[M1].State == RUN))
   {
@@ -860,6 +912,9 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
                     ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
     if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
     if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
+    /* Anti-cogging applied at ALL speeds incl. standstill -- the trainer wants a
+       constant, position-independent "gravity" force with no detent/parking, ever. */
+    g_cogg_ff_now = (int16_t)ff;              /* record FF for ILC residual capture */
     __disable_irq();
     FOCVars[M1].Iqdref.q = (int16_t)((int32_t)FOCVars[M1].Iqdref.q + ff);
     __enable_irq();
@@ -1242,7 +1297,10 @@ void Ropetow_EncoderUpdate(void)
         uint16_t cbin = (uint16_t)(mech >> COGG_SHIFT);
         if (cbin < (uint16_t)COGG_NBINS)
         {
-          g_cogg_acc[cbin] += (int32_t)FOCVars[M1].Iqd.q;
+          /* Capture the RESIDUAL = measured Iq minus the FF already applied. Pass 0
+             (FF off) -> full cogging; refine passes (FF on) -> what still leaks
+             through, which ILC folds back in. */
+          g_cogg_acc[cbin] += (int32_t)FOCVars[M1].Iqd.q - (int32_t)g_cogg_ff_now;
           if (g_cogg_cnt[cbin] < 0xFFFFU) { g_cogg_cnt[cbin]++; }
         }
       }
@@ -1267,31 +1325,52 @@ void Ropetow_EncoderUpdate(void)
   }
 #endif
 
-  /* Commutate on the RAW SPI absolute angle. enc_vel is a low-passed
-     finite-difference velocity used ONLY to interpolate up to the loop rate. */
-  if (locked == 0U)
+  /* Velocity estimator feeding the 1 kHz -> 25 kHz angle extrapolation. Two
+     A/B-selectable estimators (toggle 'u', re-seeds cleanly on switch):
+       g_pll_enable=1 (default): type-II tracking observer / PLL. enc_theta = filtered
+         phase estimate, enc_vel = velocity in s16-elec counts/SECOND. Per update:
+         dtheta = wrap(meas - phase); phase += (speed + kp*dtheta)*dt; speed += ki*dtheta*dt.
+         Clean, zero-steady-lag velocity -> smoother commutation. Refs in g_pll_* defs.
+       g_pll_enable=0 (fallback): original finite-difference + 1st-order LPF; enc_vel is
+         the LPF'd angle delta per hook. */
   {
-    enc_theta = (float)enc_meas;
-    enc_vel   = 0.0f;
-    locked    = 1U;
-  }
-  else
-  {
-    float d = (float)enc_meas - enc_theta;
-    if (d >= 32768.0f)      { d -= 65536.0f; }
-    else if (d < -32768.0f) { d += 65536.0f; }
-    enc_vel   += g_enc_vel_lp * (d - enc_vel);
-    enc_theta  = (float)enc_meas;
-  }
-
-  /* Publish atomically w.r.t. the FOC ISR (counts-per-HF-tick from elapsed ticks). */
-  {
-    uint32_t now = g_hf_tick_count;
-    uint32_t dt  = now - hook_last_tick;
+    static uint8_t pll_mode_prev = 1U;
+    uint32_t now      = g_hf_tick_count;
+    uint32_t dt_ticks = now - hook_last_tick;
     float    omega_tick;
     hook_last_tick = now;
-    if (dt == 0U) { dt = 1U; }
-    omega_tick = enc_vel / (float)dt;
+    if (dt_ticks == 0U) { dt_ticks = 1U; }
+    if (g_pll_enable != pll_mode_prev) { locked = 0U; pll_mode_prev = g_pll_enable; }
+
+    if (locked == 0U)
+    {
+      enc_theta  = (float)enc_meas;   /* seed phase/angle state on (re)lock */
+      enc_vel    = 0.0f;              /* seed speed/delta state             */
+      omega_tick = 0.0f;
+      locked     = 1U;
+    }
+    else if (g_pll_enable != 0U)
+    {
+      float dt_s = (float)dt_ticks / (float)ISR_FREQUENCY_HZ;
+      float e    = (float)enc_meas - enc_theta;        /* wrap error to +/- pi (s16 elec) */
+      while (e >= 32768.0f) { e -= 65536.0f; }
+      while (e < -32768.0f) { e += 65536.0f; }
+      enc_theta += (enc_vel + (g_pll_kp * e)) * dt_s;  /* phase += (speed + kp*e)*dt */
+      enc_vel   += (g_pll_ki * e) * dt_s;              /* speed += ki*e*dt           */
+      while (enc_theta >= 32768.0f) { enc_theta -= 65536.0f; }
+      while (enc_theta < -32768.0f) { enc_theta += 65536.0f; }
+      omega_tick     = enc_vel / (float)ISR_FREQUENCY_HZ;  /* cnt/s -> cnt/HF-tick */
+      g_pll_lock_err = e;                                  /* lock/health telemetry */
+    }
+    else
+    {
+      float d = (float)enc_meas - enc_theta;
+      if (d >= 32768.0f)      { d -= 65536.0f; }
+      else if (d < -32768.0f) { d += 65536.0f; }
+      enc_vel   += g_enc_vel_lp * (d - enc_vel);
+      enc_theta  = (float)enc_meas;
+      omega_tick = enc_vel / (float)dt_ticks;
+    }
 
     __disable_irq();
     g_enc_theta0     = enc_theta;
@@ -1374,6 +1453,20 @@ void Ropetow_SetMcFwDemag(int32_t ma)
   FW_M1.hDemagCurrent = (int16_t)(-s16);
 }
 
+/* PLL bandwidth: set natural frequency f_n (Hz); kp=2*wn, ki=wn^2 at zeta=1.
+   Capped at 150 Hz for discrete stability at the 1 kHz SPI update (kp*dt < ~2).
+   Doesn't reset the observer state -- it re-converges within a few hooks. */
+void Ropetow_SetPllBw(int32_t fn_hz)
+{
+  float wn;
+  if (fn_hz < 1)   { fn_hz = 1; }
+  if (fn_hz > 150) { fn_hz = 150; }
+  wn          = 6.2831853f * (float)fn_hz;
+  g_pll_fn_hz = (float)fn_hz;
+  g_pll_kp    = 2.0f * wn;
+  g_pll_ki    = wn * wn;
+}
+
 /* FW telemetry: filtered |Vqd| the FW PI regulates, and its target module
    (hFW_V_Ref% of MaxModule). When FW engages, avV tracks the target. */
 int16_t Ropetow_McFwAvVolt(void)  { return FW_M1.AvVoltAmpl; }
@@ -1445,7 +1538,100 @@ void Ropetow_PositionControl(void)
     }
   }
 
+  /* Auto cogging-cal start request (CDC 'y' -> state 3): engage the servo here in MF
+     context (mirrors the toggle path) and arm the sweep. */
+  if (g_cogg_cal_state == 3U)
+  {
+    if (Mci[M1].State == RUN)
+    {
+      g_pos_origin     = g_pos_counts;
+      g_pos_target     = g_pos_counts;
+      STC_SetControlMode(pSTC[M1], MCM_TORQUE_MODE);
+      g_pos_mode       = 1U;
+      g_cogg_cal_sweep = (float)g_pos_counts;
+      g_cogg_cal_swept = 0.0f;
+      g_cogg_cal_dir   = 1;
+      g_cogg_cal_revs  = 0U;
+      g_cogg_cal_pass  = 0U;                 /* start with the capture pass */
+      g_cogg_cal_target = (uint8_t)COGG_CAL_PASSES;
+      g_cogg_enable    = 0U;                 /* pass 0: FF OFF -> capture full cogging */
+      g_cogg_cal_state = 1U;                 /* sweeping + accumulating */
+    }
+    else { g_cogg_cal_state = 0U; }          /* not in RUN -> abort */
+  }
+  /* Refine-more request (CDC 'm' -> state 4): run extra ILC passes on the EXISTING
+     map -- no fresh capture, FF stays ON so each pass measures the residual. */
+  if (g_cogg_cal_state == 4U)
+  {
+    if (Mci[M1].State == RUN)
+    {
+      uint16_t k;
+      for (k = 0U; k < (uint16_t)COGG_NBINS; k++) { g_cogg_acc[k] = 0; g_cogg_cnt[k] = 0U; }
+      g_pos_origin     = g_pos_counts;
+      g_pos_target     = g_pos_counts;
+      STC_SetControlMode(pSTC[M1], MCM_TORQUE_MODE);
+      g_pos_mode       = 1U;
+      g_cogg_cal_sweep = (float)g_pos_counts;
+      g_cogg_cal_swept = 0.0f;
+      g_cogg_cal_dir   = 1;
+      g_cogg_cal_revs  = 0U;
+      g_cogg_cal_pass  = 1U;                 /* >=1 -> CoggCalFinish ADDS (refine) */
+      g_cogg_cal_target = (uint8_t)(1U + COGG_REFINE_PASSES);
+      g_cogg_enable    = 1U;                 /* FF ON -> capture residual */
+      g_cogg_cal_state = 1U;                 /* sweeping */
+    }
+    else { g_cogg_cal_state = 0U; }
+  }
+  /* abort an in-progress cal if the drive leaves RUN, so it can't hang in state 1 */
+  if ((g_cogg_cal_state == 1U) && (Mci[M1].State != RUN)) { g_cogg_cal_state = 0U; }
+
   if ((g_pos_mode == 0U) || (Mci[M1].State != RUN)) { return; }
+
+  /* Cogging-cal sweep: drive g_pos_target slowly through full mechanical revs (fwd
+     then back); EncoderUpdate's accumulator bins holding Iq by position. 'Y'
+     (g_cogg_cal_abort) finishes early. On completion -> compute map, release torque. */
+  if (g_cogg_cal_state == 1U)
+  {
+    uint8_t done    = 0U;
+    uint8_t aborted = 0U;
+    if (g_cogg_cal_abort != 0U) { g_cogg_cal_abort = 0U; done = 1U; aborted = 1U; }
+    else
+    {
+      g_cogg_cal_sweep += (float)g_cogg_cal_dir * COGG_CAL_STEP;
+      g_pos_target      = (int32_t)g_cogg_cal_sweep;
+      g_cogg_cal_swept += COGG_CAL_STEP;
+      if (g_cogg_cal_swept >= (float)POS_COUNTS_PER_REV)
+      {
+        g_cogg_cal_swept = 0.0f;
+        g_cogg_cal_dir   = (int8_t)(-g_cogg_cal_dir);
+        g_cogg_cal_revs++;
+        if (g_cogg_cal_revs >= (uint8_t)COGG_CAL_REVS) { done = 1U; }
+      }
+    }
+    if (done != 0U)
+    {
+      Ropetow_CoggCalFinish();                  /* process pass: replace (0) or ILC-add */
+      g_cogg_cal_pass++;
+      if ((aborted == 0U) && (g_cogg_cal_pass < g_cogg_cal_target))
+      {
+        uint16_t k;                             /* next refine pass: clear, FF ON, restart */
+        for (k = 0U; k < (uint16_t)COGG_NBINS; k++) { g_cogg_acc[k] = 0; g_cogg_cnt[k] = 0U; }
+        g_cogg_enable    = 1U;                   /* inject current map -> capture RESIDUAL */
+        g_cogg_cal_sweep = (float)g_pos_counts;
+        g_cogg_cal_swept = 0.0f;
+        g_cogg_cal_dir   = 1;
+        g_cogg_cal_revs  = 0U;
+      }
+      else
+      {
+        g_pos_mode       = 0U;                   /* all passes (or abort) done */
+        g_cogg_enable    = 1U;                   /* leave anti-cogging ON (refined map) */
+        g_cogg_cal_state = 2U;                   /* ready to dump */
+        STC_ExecRamp(pSTC[M1], 0, 0U);           /* release torque */
+      }
+      return;
+    }
+  }
 
   /* --- PD law, computed in POSITION-COUNT space (where +u means "increase the
      count"), then sign-mapped to torque at the very end. Doing the clamps here in
@@ -1538,8 +1724,103 @@ void Ropetow_CoggInit(void)
    appTask calls this). */
 void Ropetow_CoggCalArm(void)
 {
+  /* Clear the bins and REQUEST the auto-sweep. The actual servo engage + sweep run
+     in Ropetow_PositionControl (MF ctx) to avoid racing the control loop. Safe to
+     clear here: the accumulator only writes while state==1, and we set state=3. */
   for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_acc[i] = 0; g_cogg_cnt[i] = 0U; }
-  g_cogg_cal_state = 1U;
+  g_cogg_cal_abort = 0U;
+  g_cogg_cal_pass  = 0U;   /* start at the initial-capture pass */
+  g_cogg_cal_state = 3U;   /* start-requested -> PositionControl engages the sweep */
+}
+
+/* Reduce the per-bin accumulators to a zero-mean cogging map in g_cogg_lut. Called
+   from Ropetow_PositionControl (MF ctx) when the sweep completes (or on abort).
+   ~512 cheap iterations (~tens of us) -- fits one MF tick. */
+void Ropetow_CoggCalFinish(void)
+{
+  int32_t  sum = 0;
+  int32_t  n   = 0;
+  int32_t  mean;
+  uint16_t i;
+  /* mean of the captured residual (cogging is zero-mean) -- do NOT overwrite the LUT
+     yet; refine passes need the old map + a fraction of the residual. */
+  for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+  {
+    if (g_cogg_cnt[i] != 0U) { sum += g_cogg_acc[i] / (int32_t)g_cogg_cnt[i]; n++; }
+  }
+  mean = (n != 0) ? (sum / n) : 0;
+  /* combine into the map: pass 0 REPLACES (initial capture), refine passes ADD a
+     fraction of the residual (ILC: map += L*residual -> converges toward zero leak). */
+  for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+  {
+    int32_t r = (g_cogg_cnt[i] != 0U)
+              ? ((g_cogg_acc[i] / (int32_t)g_cogg_cnt[i]) - mean) : 0;
+    int32_t v = (g_cogg_cal_pass == 0U)
+              ? r
+              : ((int32_t)g_cogg_lut[i] + (int32_t)(COGG_ILC_GAIN * (float)r));
+    if (v >  32767) { v =  32767; }
+    if (v < -32768) { v = -32768; }
+    g_cogg_lut[i] = (int16_t)v;
+  }
+  /* Light 3-tap circular smoothing: cogging is smooth (~24-bin period) so this barely
+     touches the real signal but knocks down isolated stick-slip outliers. Reuse
+     g_cogg_acc (int32) as scratch -- the residual was already consumed above. */
+  for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+  {
+    uint16_t a = (uint16_t)((i + (uint16_t)COGG_NBINS - 1U) & (uint16_t)(COGG_NBINS - 1U));
+    uint16_t b = (uint16_t)((i + 1U) & (uint16_t)(COGG_NBINS - 1U));
+    g_cogg_acc[i] = ((int32_t)g_cogg_lut[a] + (int32_t)g_cogg_lut[i] + (int32_t)g_cogg_lut[b]) / 3;
+  }
+  for (i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = (int16_t)g_cogg_acc[i]; }
+}
+
+/* Frequency-domain denoise of the cogging map: DFT it, keep only the low (cogging)
+   orders 1..COGG_HARM_KMAX, and rebuild. Cogging is a few harmonics; per-bin noise is
+   broadband, so this rejects the noise and yields a near-noise-free map. Runs in the
+   appTask (thread ctx) -- ~few ms via a sine table. COGG_NBINS is a power of two so
+   the index wrap is a mask. */
+void Ropetow_CoggHarmonicFit(void)
+{
+  static float ar[COGG_HARM_KMAX];
+  static float br[COGG_HARM_KMAX];
+  const uint32_t mask = (uint32_t)(COGG_NBINS - 1U);
+  const uint32_t q    = (uint32_t)(COGG_NBINS / 4U);   /* +N/4 turns sin into cos */
+  uint16_t i, k;
+  if (g_cogg_sintab_ready == 0U)
+  {
+    for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+    { g_cogg_sintab[i] = sinf(6.2831853f * (float)i / (float)COGG_NBINS); }
+    g_cogg_sintab_ready = 1U;
+  }
+  /* analysis: a_k = sum x[i]cos(2pi k i/N), b_k = sum x[i]sin(...) */
+  for (k = 1U; k <= (uint16_t)COGG_HARM_KMAX; k++)
+  {
+    float a = 0.0f, b = 0.0f;
+    for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+    {
+      uint32_t ki = (uint32_t)k * (uint32_t)i;
+      float x = (float)g_cogg_lut[i];
+      a += x * g_cogg_sintab[(ki + q) & mask];
+      b += x * g_cogg_sintab[ki & mask];
+    }
+    ar[k - 1U] = a; br[k - 1U] = b;
+  }
+  /* synthesis: x[i] = (2/N) sum_k (a_k cos + b_k sin), orders 1..KMAX only */
+  for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
+  {
+    float v = 0.0f;
+    for (k = 1U; k <= (uint16_t)COGG_HARM_KMAX; k++)
+    {
+      uint32_t ki = (uint32_t)k * (uint32_t)i;
+      v += ar[k - 1U] * g_cogg_sintab[(ki + q) & mask] + br[k - 1U] * g_cogg_sintab[ki & mask];
+    }
+    {
+      int32_t o = (int32_t)((2.0f / (float)COGG_NBINS) * v);
+      if (o >  32767) { o =  32767; }
+      if (o < -32768) { o = -32768; }
+      g_cogg_lut[i] = (int16_t)o;
+    }
+  }
 }
 
 /* Read one calibration bin: mean measured-Iq (s16) and sample count. Returns 0
@@ -1547,8 +1828,8 @@ void Ropetow_CoggCalArm(void)
 void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count)
 {
   if (bin >= (uint16_t)COGG_NBINS) { *mean = 0; *count = 0U; return; }
-  *count = g_cogg_cnt[bin];
-  *mean  = (g_cogg_cnt[bin] != 0U) ? (int16_t)(g_cogg_acc[bin] / (int32_t)g_cogg_cnt[bin]) : (int16_t)0;
+  *count = g_cogg_cnt[bin];        /* samples captured in this bin (sweep quality)   */
+  *mean  = g_cogg_lut[bin];        /* FINAL zero-mean cogging FF (after CoggCalFinish) */
 }
 /* USER CODE END mc_task 0 */
 

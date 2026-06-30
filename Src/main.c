@@ -1249,8 +1249,10 @@ static void StartAppTask(void const *argument)
     {
       extern volatile uint8_t g_pos_mode;
       extern volatile int32_t g_pos_counts, g_pos_target;
+      extern volatile uint8_t g_cogg_cal_state;
       static uint32_t pos_log_tick = 0U;
-      if ((g_pos_mode != 0U) && ((HAL_GetTick() - pos_log_tick) >= 200U))
+      /* suppress the [pos] line during cogging cal (the servo drives the sweep) */
+      if ((g_pos_mode != 0U) && (g_cogg_cal_state == 0U) && ((HAL_GetTick() - pos_log_tick) >= 200U))
       {
         pos_log_tick = HAL_GetTick();
         int32_t err   = g_pos_target - g_pos_counts;
@@ -1324,7 +1326,21 @@ static void StartAppTask(void const *argument)
       {
         g_cogg_cal_req = 0U;
         Ropetow_CoggCalArm();
-        LOG_Printf("cogg cal: armed -- sweep slowly, send Y to stop+dump\r\n");
+        LOG_Printf("cogg cal: auto-sweep + ILC + harmonic denoise (free shaft!) -- ~2.5min, dumps when done. 'Y'=abort\r\n");
+      }
+    }
+    /* 'm' -> more ILC refine passes on the EXISTING map (keep refining until smooth). */
+    {
+      extern volatile uint8_t g_cogg_refine_req;
+      extern volatile uint8_t g_cogg_cal_state;
+      if ((g_cogg_refine_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
+      {
+        g_cogg_refine_req = 0U;
+        if (g_cogg_cal_state == 0U)   /* only when fully idle (after any dump finishes) */
+        {
+          g_cogg_cal_state = 4U;   /* PositionControl runs the refine passes */
+          LOG_Printf("cogg refine: more ILC passes on current map (free shaft) -- ~80s\r\n");
+        }
       }
     }
 
@@ -1408,13 +1424,19 @@ static void StartAppTask(void const *argument)
        once per direction, then combine). Format mirrors cal_start/step_start. */
     {
       extern volatile uint8_t g_cogg_cal_state;
+      extern volatile uint8_t g_cogg_harm_enable;
       extern void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count);
+      extern void Ropetow_CoggHarmonicFit(void);
       if (g_cogg_cal_state == 2U)
       {
         static uint16_t gd = 0U;
         uint16_t end = (uint16_t)(gd + 8U);
         if (end > (uint16_t)COGG_NBINS) { end = (uint16_t)COGG_NBINS; }
-        if (gd == 0U) { LOG_Printf("cogg_start nbins=%u\r\n", (unsigned)COGG_NBINS); }
+        if (gd == 0U)
+        {
+          if (g_cogg_harm_enable != 0U) { Ropetow_CoggHarmonicFit(); }  /* denoise once before dumping */
+          LOG_Printf("cogg_start nbins=%u harm=%u\r\n", (unsigned)COGG_NBINS, (unsigned)g_cogg_harm_enable);
+        }
         for (; gd < end; gd++)
         {
           int16_t  mean = 0; uint16_t cnt = 0U;
@@ -1474,6 +1496,24 @@ static void StartAppTask(void const *argument)
       continue;
     }
 
+    {
+    extern volatile uint8_t g_cogg_cal_state;
+    extern volatile uint8_t g_cogg_cal_pass;
+    extern volatile uint8_t g_cogg_cal_target;
+    if (g_cogg_cal_state == 1U)
+    {
+      /* CALIBRATING: show only the cal progress, suppress the normal telemetry flood. */
+      static uint32_t cogg_log_tick = 0U;
+      if ((HAL_GetTick() - cogg_log_tick) >= 500U)
+      {
+        extern volatile int16_t g_avg_iq;
+        cogg_log_tick = HAL_GetTick();
+        LOG_Printf("[cogg] pass %u/%u  Iq=%d  (sweeping)\r\n",
+                   (unsigned)(g_cogg_cal_pass + 1U), (unsigned)g_cogg_cal_target, (int)g_avg_iq);
+      }
+    }
+    else if (g_cogg_cal_state == 0U)
+    {
     motor_status_log();
     if (++idx_log >= 10U)                                    /* ~1 s: index health */
     {
@@ -1507,12 +1547,18 @@ static void StartAppTask(void const *argument)
         extern int16_t Ropetow_McFwAvVolt(void);
         extern int16_t Ropetow_McFwVTarget(void);
         extern volatile float   g_enc_ff_ticks;
-        LOG_Printf("mcfw=%s avV=%d/%d Idref=%d | ff=%d\r\n",
+        extern volatile uint8_t g_pll_enable;
+        extern volatile float   g_pll_fn_hz;
+        extern volatile float   g_pll_lock_err;
+        LOG_Printf("mcfw=%s avV=%d/%d Idref=%d | ff=%d | pll=%s/%dHz e=%d\r\n",
                    (g_mcfw_enable ? "ON" : "off"),
                    (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
-                   (int)FOCVars[M1].Iqdref.d, (int)(g_enc_ff_ticks * 10.0f));
+                   (int)FOCVars[M1].Iqdref.d, (int)(g_enc_ff_ticks * 10.0f),
+                   (g_pll_enable ? "ON" : "off"), (int)g_pll_fn_hz, (int)g_pll_lock_err);
       }
     }
+    }  /* end else-if (cal idle) */
+    }  /* end cal-state telemetry gate */
     LOG_Process();
     osDelay(APP_LOOP_PERIOD_MS);
   }

@@ -331,6 +331,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_cogg_cal_abort;         /* 'Y' -> finish auto-cal early */
   extern volatile uint8_t g_cogg_refine_req;        /* 'm' -> more ILC refine passes */
   extern volatile uint8_t g_cogg_harm_enable;       /* 'h' -> toggle harmonic denoise */
+  extern volatile float   g_cogg_gain;              /* 'E<percent>' -> anti-cogging FF amplitude scale */
+  extern volatile float   g_cogg_cal_iq_a;          /* 'Z<mA>' -> cal calib current (torque authority) */
+  extern volatile uint8_t g_cogg_freeze_en;         /* 'l' -> freeze anti-cogging FF at standstill */
   extern volatile uint8_t g_cogg_enable;            /* anti-cogging FF on/off (mc_tasks_foc.c) */
   extern volatile int16_t g_cogg_clamp;             /* anti-cogging FF clamp (mc_tasks_foc.c) */
   extern volatile uint8_t g_fw_enable;              /* flux weakening on/off (mc_tasks_foc.c) */
@@ -420,6 +423,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'G': g_enc_ff_ticks = (float)s_val * 0.1f; break;     /* commutation latency FF, tenths of HF ticks */
         case 'S': Ropetow_SetMcFwDemag(s_val); break;             /* FW demag |Id| clamp, mA */
         case 'U': Ropetow_SetPllBw(s_val); break;                /* PLL bandwidth f_n, Hz */
+        case 'E': g_cogg_gain = (float)s_val / 100.0f; break;    /* anti-cogging FF amplitude scale, percent */
+        case 'Z': { float a = (float)s_val / 1000.0f;            /* cal calib current, mA -> A */
+                    if (a < 1.0f) { a = 1.0f; } if (a > 15.0f) { a = 15.0f; }
+                    g_cogg_cal_iq_a = a; } break;
         default:  break;
       }
     }
@@ -442,6 +449,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'Y': g_cogg_cal_abort = 1U; break;   /* finish auto-cal early (then it auto-dumps) */
       case 'm': g_cogg_refine_req = 1U; break;  /* more ILC refine passes on the current map */
       case 'h': g_cogg_harm_enable ^= 1U; break; /* toggle harmonic denoise (applied next cal/refine) */
+      case 'l': g_cogg_freeze_en  ^= 1U; break;  /* toggle standstill FF freeze (the "release at stop" fix) */
       case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
       case 'k': g_cogg_enable = 0U;    break;   /* anti-cogging FF off          */
       case 'w': g_fw_enable ^= 1U;     break;   /* toggle flux weakening        */
@@ -452,7 +460,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J':
-      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

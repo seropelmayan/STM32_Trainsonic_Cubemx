@@ -29,6 +29,7 @@
 #define AS5047P_S1_DIR         (1U << 2)    /* rotation direction             */
 #define AS5047P_S1_UVW_ABI     (1U << 3)    /* 0 = ABI active, 1 = UVW active  */
 #define AS5047P_S1_ABIBIN      (1U << 5)    /* 0 = decimal, 1 = binary ABIRES  */
+#define AS5047P_S1_DAECDIS     (1U << 4)    /* 1 = disable DAEC (datasheet: better <100 rpm/static; no speed-predictor during reversals) */
 
 /* SETTINGS2 (0x19) bit fields */
 #define AS5047P_S2_ABIRES_Msk  (0x7U << 5)  /* ABIRES[2:0] @ bits [7:5]        */
@@ -165,6 +166,7 @@ AS5047_Status AS5047_Init(SPI_HandleTypeDef *hspi)
   s1 = AS5047_ReadRegister(hspi, AS5047P_SETTINGS1, NULL);
   s1 &= (uint16_t)~AS5047P_S1_UVW_ABI;   /* 0 -> ABI active (not UVW)          */
   s1 |=  AS5047P_S1_ABIBIN;              /* 1 -> binary (2^N) resolution       */
+  s1 |=  AS5047P_S1_DAECDIS;             /* disable DAEC: lower noise at low speed, no reversal predictor */
 #if (AS5047_INVERT_DIR != 0)
   s1 |=  AS5047P_S1_DIR;
 #else
@@ -181,7 +183,7 @@ AS5047_Status AS5047_Init(SPI_HandleTypeDef *hspi)
   /* Verify the bits we care about actually took. */
   v1 = AS5047_ReadRegister(hspi, AS5047P_SETTINGS1, NULL);
   v2 = AS5047_ReadRegister(hspi, AS5047P_SETTINGS2, NULL);
-  if (((v1 ^ s1) & (AS5047P_S1_UVW_ABI | AS5047P_S1_ABIBIN | AS5047P_S1_DIR)) ||
+  if (((v1 ^ s1) & (AS5047P_S1_UVW_ABI | AS5047P_S1_ABIBIN | AS5047P_S1_DIR | AS5047P_S1_DAECDIS)) ||
       ((v2 ^ s2) & AS5047P_S2_ABIRES_Msk))
   {
     st = AS5047_ERR_VERIFY;

@@ -1525,6 +1525,7 @@ static void StartAppTask(void const *argument)
       extern volatile int16_t  g_avg_iq;             /* avg Iq over ~0.3s (DC)             */
       extern volatile int16_t  g_avg_id;             /* avg Id over ~0.3s: !=0 => misaligned */
       extern volatile uint8_t  g_cogg_enable;        /* anti-cogging FF on/off             */
+      extern volatile uint8_t  g_cogg_harm_enable;   /* harmonic denoise on/off ('h')      */
       extern volatile int16_t  g_cogg_clamp;         /* anti-cogging FF clamp (s16)        */
       extern volatile uint8_t  g_fw_enable;          /* flux weakening on/off              */
       extern volatile float    g_fw_speed_thr_rpm;   /* FW speed threshold (rpm)           */
@@ -1533,12 +1534,12 @@ static void StartAppTask(void const *argument)
       extern volatile float    g_fw_id_now_a;        /* FW Id ACTUALLY applied (A, 0=idle) */
       extern volatile float    g_spdcap_rpm;         /* torque-mode speed cap (rpm, 0=off) */
       idx_log = 0U;
-      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s clamp=%d | "
+      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s harm=%s clamp=%d | "
                  "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA | cap=%dr\r\n",
                  (unsigned long)g_spi_err_count, (int)spd_now,
                  (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
                  (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
-                 (g_cogg_enable ? "ON" : "off"), (int)g_cogg_clamp,
+                 (g_cogg_enable ? "ON" : "off"), (g_cogg_harm_enable ? "ON" : "off"), (int)g_cogg_clamp,
                  (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
                  (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f),
                  (int)g_spdcap_rpm);

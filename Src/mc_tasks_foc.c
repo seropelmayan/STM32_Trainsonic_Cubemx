@@ -275,6 +275,15 @@ volatile float    g_enc_vel_lp = ENC_VEL_LP;
 int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied from COGG_TABLE_INIT at boot) */
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
 volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
+volatile float    g_cogg_gain   = 1.0f;          /* FF amplitude scale; CDC 'E<percent>' (e.g. E130=1.3x) */
+volatile float    g_cogg_cal_iq_a = 10.0f;       /* calib current: torque authority during the cal sweep (A); CDC 'Z<mA>' */
+/* Standstill FF freeze: at ~0 speed the rotor (with its cogging detent now cancelled)
+   micro-creeps under a constant pull; the position-indexed FF would TRACK that creep
+   and modulate the holding force -> the "release at stop" feel. Latch the FF below
+   FREEZE_LO and resume tracking above FREEZE_HI (hysteresis). CDC 'l' toggles it. */
+#define COGG_FREEZE_LO_RPM 1.0f
+#define COGG_FREEZE_HI_RPM 2.0f
+volatile uint8_t  g_cogg_freeze_en = 0U;         /* OFF: A/B'd neutral, and research advises against velocity-gated FF terms; kept behind 'l' */
 volatile uint16_t g_enc_mech14  = 0U;            /* latest mechanical angle 0..16383 (published by MF hook) */
 volatile int16_t  g_cogg_ff_now = 0;             /* cogging FF applied this cycle (0 if off); ILC subtracts it from measured Iq to get the residual */
 /* Harmonic denoise: after the ILC passes, project the map onto its low-order
@@ -301,6 +310,10 @@ volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 sweeping, 2 dump-r
 #define COGG_CAL_REVS    4U      /* full-rev sweeps PER PASS: 2 fwd + 2 back (averaging) */
 #define COGG_CAL_PASSES  6U      /* 'y': pass 0 = capture cogging; 1..5 = ILC refine   */
 #define COGG_REFINE_PASSES 3U    /* 'm': extra ILC refine passes on the existing map   */
+#define COGG_CAL_KP_MULT 4.0f    /* cal-sweep stiffness boost: firmer servo glides through the cogging
+                                    detents instead of stick-slipping (turn-stop-turn) -> even capture */
+#define COGG_CAL_KD_MULT 5.0f    /* damping boost to kill ringing from the stiff cal servo + the
+                                    low-gain current loop (the cal servo vibrates if under-damped) */
 #define COGG_ILC_GAIN    0.4f    /* iterative-learning gain: map += L*residual / pass  */
 static   float    g_cogg_cal_sweep = 0.0f;       /* ramping target position (counts)  */
 static   float    g_cogg_cal_swept = 0.0f;       /* counts swept this direction       */
@@ -910,10 +923,24 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     int32_t  frac = (int32_t)(m & (uint16_t)((1U << COGG_SHIFT) - 1U));   /* 0..31 */
     int32_t  ff   = (int32_t)g_cogg_lut[bin] +
                     ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
+    if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); } /* amplitude scale */
     if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
     if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
-    /* Anti-cogging applied at ALL speeds incl. standstill -- the trainer wants a
-       constant, position-independent "gravity" force with no detent/parking, ever. */
+    /* Anti-cogging applied at ALL speeds incl. standstill (constant "gravity" force).
+       Standstill FF freeze: latch the FF when ~stopped so a settle-creep can't modulate
+       the held force (the "release at stop" feel); resume tracking once moving again. */
+    {
+      static uint8_t frozen = 0U;
+      static int32_t latch  = 0;
+      if (g_cogg_freeze_en != 0U)
+      {
+        float aspd = g_enc_speed_rpm; if (aspd < 0.0f) { aspd = -aspd; }
+        if (frozen == 0U) { if (aspd < COGG_FREEZE_LO_RPM) { frozen = 1U; } }
+        else              { if (aspd > COGG_FREEZE_HI_RPM) { frozen = 0U; } }
+        if (frozen != 0U) { ff = latch; } else { latch = ff; }
+      }
+      else { frozen = 0U; }
+    }
     g_cogg_ff_now = (int16_t)ff;              /* record FF for ILC residual capture */
     __disable_irq();
     FOCVars[M1].Iqdref.q = (int16_t)((int32_t)FOCVars[M1].Iqdref.q + ff);
@@ -1637,8 +1664,14 @@ void Ropetow_PositionControl(void)
      count"), then sign-mapped to torque at the very end. Doing the clamps here in
      count space keeps the velocity backstop correct regardless of the torque
      sign. --- */
+  /* During the cogging cal, use a STIFFER servo and a stronger "calib current" so the
+     rotor glides smoothly through the detents (no stick-slip -> even capture); use the
+     gentle user gains otherwise. */
+  float   kp_use  = (g_cogg_cal_state == 1U) ? (g_pos_kp * COGG_CAL_KP_MULT) : g_pos_kp;
+  float   kd_use  = (g_cogg_cal_state == 1U) ? (g_pos_kd * COGG_CAL_KD_MULT) : g_pos_kd;
+  float   miq_use = (g_cogg_cal_state == 1U) ? g_cogg_cal_iq_a               : g_pos_max_iq;
   int32_t err = g_pos_target - g_pos_counts;
-  float   u   = (g_pos_kp * (float)err) - (g_pos_kd * vel_rpm);
+  float   u   = (kp_use * (float)err) - (kd_use * vel_rpm);
 
   /* velocity clamp: if already over-speed in one direction, don't add effort that
      pushes the count further that way (the D term brakes; this is the backstop). */
@@ -1646,8 +1679,8 @@ void Ropetow_PositionControl(void)
   if ((vel_rpm < -g_pos_max_rpm) && (u < 0.0f)) { u = 0.0f; }
 
   /* magnitude clamp (|sign| = 1, so this bounds |Iq| too) */
-  if (u >  g_pos_max_iq) { u =  g_pos_max_iq; }
-  if (u < -g_pos_max_iq) { u = -g_pos_max_iq; }
+  if (u >  miq_use) { u =  miq_use; }
+  if (u < -miq_use) { u = -miq_use; }
 
   /* map count-space effort -> torque command */
   float iq = POS_IQ_SIGN * u;

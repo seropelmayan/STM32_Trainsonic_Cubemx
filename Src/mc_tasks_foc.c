@@ -273,16 +273,6 @@ volatile float    g_enc_vel_lp = ENC_VEL_LP;
 #define COGG_DEFINE_TABLE
 #include "cogg_table.h"
 int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied from COGG_TABLE_INIT at boot) */
-/* Direction-split anti-cogging: the averaged map (g_cogg_lut) cancels cogging, but the
-   direction-dependent ripple (dead-time 6th harmonic, Coulomb friction) cancels OUT of
-   the average. g_cogg_lut_diff = (fwd - rev)/2 captures it; at runtime we add
-   dirgate*diff where dirgate = clamp(speed/COGG_DIR_BLEND_RPM, -1, +1) -- so moving fwd
-   uses the fwd map, rev the rev map, and at standstill it's just the averaged map
-   (continuous through zero, no reversal kick). Captured on cal pass 0 (FF off). 'n' toggles. */
-#define COGG_DIR_BLEND_RPM    3.0f
-#define COGG_DIR_DEADBAND_RPM 2.0f   /* below this |speed| the diff is OFF: the noisy near-zero velocity can't jitter it (stop vibration) */
-int16_t           g_cogg_lut_diff[COGG_NBINS];   /* (fwd-rev)/2 direction-dependent FF */
-volatile uint8_t  g_cogg_dir_en = 0U;            /* OFF by default (A/B'd worse w/ old sign; sign now flipped, CDC 'n' to retry) */
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
 volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
 volatile float    g_cogg_gain   = 1.0f;          /* FF amplitude scale; CDC 'E<percent>' (e.g. E130=1.3x) */
@@ -301,13 +291,12 @@ volatile int16_t  g_cogg_ff_now = 0;             /* cogging FF applied this cycl
    only orders 1..KMAX rejects it and yields a near-noise-free map. Toggle 'h'. */
 #define COGG_HARM_KMAX  64U                      /* keep cogging orders 1..64/rev      */
 volatile uint8_t  g_cogg_harm_enable = 1U;       /* 1 = apply harmonic denoise (CDC 'h') */
-static   float    g_cogg_sintab[COGG_NBINS / 2U]; /* HALF sine table (saves RAM); sin(2pi*i/N) for i<N/2, negate beyond */
+static   float    g_cogg_sintab[COGG_NBINS];     /* sin(2*pi*i/N) table (lazy init)    */
 static   uint8_t  g_cogg_sintab_ready = 0U;
 /* Calibration accumulators: filled in the MF hook, dumped in appTask (both thread
    context, so plain statics). 512*(4+2)=3 KB. */
 static   int32_t  g_cogg_acc[COGG_NBINS];
 static   uint16_t g_cogg_cnt[COGG_NBINS];
-static   int32_t  g_cogg_acc_diff[COGG_NBINS];   /* sum of (dir * residual), pass 0 -> (fwd-rev)/2 */
 volatile uint8_t  g_cogg_cal_req   = 0U;         /* CDC 'y' -> appTask requests auto-cal        */
 volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 sweeping, 2 dump-ready, 3 start-req */
 /* --- Auto cogging-calibration sweep (self-driven, no hand-spinning) ------------
@@ -934,27 +923,6 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     int32_t  frac = (int32_t)(m & (uint16_t)((1U << COGG_SHIFT) - 1U));   /* 0..31 */
     int32_t  ff   = (int32_t)g_cogg_lut[bin] +
                     ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
-    /* direction-split: add dirgate*(fwd-rev)/2; dirgate ramps -1..+1 across
-       +/-COGG_DIR_BLEND_RPM so it's the averaged map at standstill (continuous
-       through zero) and the direction-specific map in motion. */
-    if (g_cogg_dir_en != 0U)
-    {
-      int32_t dff  = (int32_t)g_cogg_lut_diff[bin] +
-                     ((((int32_t)g_cogg_lut_diff[nb] - (int32_t)g_cogg_lut_diff[bin]) * frac) >> COGG_SHIFT);
-      /* deadband: below COGG_DIR_DEADBAND_RPM the diff is off (noisy near-zero
-         velocity can't chatter it); above it, ramp 0..1 over COGG_DIR_BLEND_RPM.
-         Sign is the encoder-vs-cal-sweep flip (+speed -> -diff). */
-      float   sp   = g_enc_speed_rpm;
-      float   aspd = (sp < 0.0f) ? -sp : sp;
-      float   gate = 0.0f;
-      if (aspd > COGG_DIR_DEADBAND_RPM)
-      {
-        gate = (aspd - COGG_DIR_DEADBAND_RPM) * (1.0f / COGG_DIR_BLEND_RPM);
-        if (gate > 1.0f) { gate = 1.0f; }
-        if (sp > 0.0f)   { gate = -gate; }
-      }
-      ff += (int32_t)(gate * (float)dff);
-    }
     if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); } /* amplitude scale */
     if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
     if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
@@ -1359,10 +1327,7 @@ void Ropetow_EncoderUpdate(void)
           /* Capture the RESIDUAL = measured Iq minus the FF already applied. Pass 0
              (FF off) -> full cogging; refine passes (FF on) -> what still leaks
              through, which ILC folds back in. */
-          int32_t res = (int32_t)FOCVars[M1].Iqd.q - (int32_t)g_cogg_ff_now;
-          g_cogg_acc[cbin] += res;
-          /* direction-weighted sum on pass 0 only -> (fwd-rev)/2 after /cnt */
-          if (g_cogg_cal_pass == 0U) { g_cogg_acc_diff[cbin] += (int32_t)g_cogg_cal_dir * res; }
+          g_cogg_acc[cbin] += (int32_t)FOCVars[M1].Iqd.q - (int32_t)g_cogg_ff_now;
           if (g_cogg_cnt[cbin] < 0xFFFFU) { g_cogg_cnt[cbin]++; }
         }
       }
@@ -1795,7 +1760,7 @@ void Ropetow_CoggCalArm(void)
   /* Clear the bins and REQUEST the auto-sweep. The actual servo engage + sweep run
      in Ropetow_PositionControl (MF ctx) to avoid racing the control loop. Safe to
      clear here: the accumulator only writes while state==1, and we set state=3. */
-  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_acc[i] = 0; g_cogg_cnt[i] = 0U; g_cogg_acc_diff[i] = 0; }
+  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_acc[i] = 0; g_cogg_cnt[i] = 0U; }
   g_cogg_cal_abort = 0U;
   g_cogg_cal_pass  = 0U;   /* start at the initial-capture pass */
   g_cogg_cal_state = 3U;   /* start-requested -> PositionControl engages the sweep */
@@ -1840,28 +1805,6 @@ void Ropetow_CoggCalFinish(void)
     g_cogg_acc[i] = ((int32_t)g_cogg_lut[a] + (int32_t)g_cogg_lut[i] + (int32_t)g_cogg_lut[b]) / 3;
   }
   for (i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = (int16_t)g_cogg_acc[i]; }
-
-  /* Direction-split: on pass 0 (FF off), reduce the direction-weighted sum to the
-     diff map = (fwd-rev)/2 per bin (captures dead-time/friction that the average
-     cancels), then 3-tap smooth it (reusing g_cogg_acc_diff as scratch). Refine
-     passes leave it untouched -- the ILC refines only the averaged map. */
-  if (g_cogg_cal_pass == 0U)
-  {
-    for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
-    {
-      int32_t d = (g_cogg_cnt[i] != 0U) ? (g_cogg_acc_diff[i] / (int32_t)g_cogg_cnt[i]) : 0;
-      if (d >  32767) { d =  32767; }
-      if (d < -32768) { d = -32768; }
-      g_cogg_lut_diff[i] = (int16_t)d;
-    }
-    for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
-    {
-      uint16_t a = (uint16_t)((i + (uint16_t)COGG_NBINS - 1U) & (uint16_t)(COGG_NBINS - 1U));
-      uint16_t b = (uint16_t)((i + 1U) & (uint16_t)(COGG_NBINS - 1U));
-      g_cogg_acc_diff[i] = ((int32_t)g_cogg_lut_diff[a] + (int32_t)g_cogg_lut_diff[i] + (int32_t)g_cogg_lut_diff[b]) / 3;
-    }
-    for (i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut_diff[i] = (int16_t)g_cogg_acc_diff[i]; }
-  }
 }
 
 /* Frequency-domain denoise of the cogging map: DFT it, keep only the low (cogging)
@@ -1869,25 +1812,16 @@ void Ropetow_CoggCalFinish(void)
    broadband, so this rejects the noise and yields a near-noise-free map. Runs in the
    appTask (thread ctx) -- ~few ms via a sine table. COGG_NBINS is a power of two so
    the index wrap is a mask. */
-/* half-table sine: g_cogg_sintab holds sin(2pi*j/N) for j in [0,N/2); the second
-   half is the negated mirror (sin(x+pi) = -sin(x)). Saves half the table RAM. */
-static float cogg_sin_lut(uint32_t idx)
-{
-  idx &= (uint32_t)(COGG_NBINS - 1U);
-  return (idx < (uint32_t)(COGG_NBINS / 2U))
-           ? g_cogg_sintab[idx]
-           : -g_cogg_sintab[idx - (uint32_t)(COGG_NBINS / 2U)];
-}
-
 void Ropetow_CoggHarmonicFit(void)
 {
   static float ar[COGG_HARM_KMAX];
   static float br[COGG_HARM_KMAX];
-  const uint32_t q = (uint32_t)(COGG_NBINS / 4U);   /* +N/4 turns sin into cos */
+  const uint32_t mask = (uint32_t)(COGG_NBINS - 1U);
+  const uint32_t q    = (uint32_t)(COGG_NBINS / 4U);   /* +N/4 turns sin into cos */
   uint16_t i, k;
   if (g_cogg_sintab_ready == 0U)
   {
-    for (i = 0U; i < (uint16_t)(COGG_NBINS / 2U); i++)
+    for (i = 0U; i < (uint16_t)COGG_NBINS; i++)
     { g_cogg_sintab[i] = sinf(6.2831853f * (float)i / (float)COGG_NBINS); }
     g_cogg_sintab_ready = 1U;
   }
@@ -1899,8 +1833,8 @@ void Ropetow_CoggHarmonicFit(void)
     {
       uint32_t ki = (uint32_t)k * (uint32_t)i;
       float x = (float)g_cogg_lut[i];
-      a += x * cogg_sin_lut(ki + q);
-      b += x * cogg_sin_lut(ki);
+      a += x * g_cogg_sintab[(ki + q) & mask];
+      b += x * g_cogg_sintab[ki & mask];
     }
     ar[k - 1U] = a; br[k - 1U] = b;
   }
@@ -1911,7 +1845,7 @@ void Ropetow_CoggHarmonicFit(void)
     for (k = 1U; k <= (uint16_t)COGG_HARM_KMAX; k++)
     {
       uint32_t ki = (uint32_t)k * (uint32_t)i;
-      v += ar[k - 1U] * cogg_sin_lut(ki + q) + br[k - 1U] * cogg_sin_lut(ki);
+      v += ar[k - 1U] * g_cogg_sintab[(ki + q) & mask] + br[k - 1U] * g_cogg_sintab[ki & mask];
     }
     {
       int32_t o = (int32_t)((2.0f / (float)COGG_NBINS) * v);

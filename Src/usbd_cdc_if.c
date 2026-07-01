@@ -334,6 +334,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile float   g_cogg_gain;              /* 'E<percent>' -> anti-cogging FF amplitude scale */
   extern volatile float   g_cogg_cal_iq_a;          /* 'Z<mA>' -> cal calib current (torque authority) */
   extern volatile uint8_t g_cogg_freeze_en;         /* 'l' -> freeze anti-cogging FF at standstill */
+  extern volatile uint8_t g_cogg_dir_en;            /* 'n' -> direction-split anti-cogging on/off */
   extern volatile uint8_t g_cogg_enable;            /* anti-cogging FF on/off (mc_tasks_foc.c) */
   extern volatile int16_t g_cogg_clamp;             /* anti-cogging FF clamp (mc_tasks_foc.c) */
   extern volatile uint8_t g_fw_enable;              /* flux weakening on/off (mc_tasks_foc.c) */
@@ -450,6 +451,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'm': g_cogg_refine_req = 1U; break;  /* more ILC refine passes on the current map */
       case 'h': g_cogg_harm_enable ^= 1U; break; /* toggle harmonic denoise (applied next cal/refine) */
       case 'l': g_cogg_freeze_en  ^= 1U; break;  /* toggle standstill FF freeze (the "release at stop" fix) */
+      case 'n': g_cogg_dir_en     ^= 1U; break;  /* toggle direction-split anti-cogging (fwd/rev maps) */
       case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
       case 'k': g_cogg_enable = 0U;    break;   /* anti-cogging FF off          */
       case 'w': g_fw_enable ^= 1U;     break;   /* toggle flux weakening        */

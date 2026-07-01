@@ -279,7 +279,8 @@ int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied fro
    dirgate*diff where dirgate = clamp(speed/COGG_DIR_BLEND_RPM, -1, +1) -- so moving fwd
    uses the fwd map, rev the rev map, and at standstill it's just the averaged map
    (continuous through zero, no reversal kick). Captured on cal pass 0 (FF off). 'n' toggles. */
-#define COGG_DIR_BLEND_RPM 3.0f
+#define COGG_DIR_BLEND_RPM    3.0f
+#define COGG_DIR_DEADBAND_RPM 2.0f   /* below this |speed| the diff is OFF: the noisy near-zero velocity can't jitter it (stop vibration) */
 int16_t           g_cogg_lut_diff[COGG_NBINS];   /* (fwd-rev)/2 direction-dependent FF */
 volatile uint8_t  g_cogg_dir_en = 0U;            /* OFF by default (A/B'd worse w/ old sign; sign now flipped, CDC 'n' to retry) */
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
@@ -940,8 +941,18 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     {
       int32_t dff  = (int32_t)g_cogg_lut_diff[bin] +
                      ((((int32_t)g_cogg_lut_diff[nb] - (int32_t)g_cogg_lut_diff[bin]) * frac) >> COGG_SHIFT);
-      float   gate = g_enc_speed_rpm * (-1.0f / COGG_DIR_BLEND_RPM); /* sign: encoder speed is inverted vs cal sweep dir */
-      if (gate >  1.0f) { gate =  1.0f; } else if (gate < -1.0f) { gate = -1.0f; }
+      /* deadband: below COGG_DIR_DEADBAND_RPM the diff is off (noisy near-zero
+         velocity can't chatter it); above it, ramp 0..1 over COGG_DIR_BLEND_RPM.
+         Sign is the encoder-vs-cal-sweep flip (+speed -> -diff). */
+      float   sp   = g_enc_speed_rpm;
+      float   aspd = (sp < 0.0f) ? -sp : sp;
+      float   gate = 0.0f;
+      if (aspd > COGG_DIR_DEADBAND_RPM)
+      {
+        gate = (aspd - COGG_DIR_DEADBAND_RPM) * (1.0f / COGG_DIR_BLEND_RPM);
+        if (gate > 1.0f) { gate = 1.0f; }
+        if (sp > 0.0f)   { gate = -gate; }
+      }
       ff += (int32_t)(gate * (float)dff);
     }
     if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); } /* amplitude scale */

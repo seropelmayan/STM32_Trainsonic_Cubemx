@@ -281,7 +281,7 @@ int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied fro
    (continuous through zero, no reversal kick). Captured on cal pass 0 (FF off). 'n' toggles. */
 #define COGG_DIR_BLEND_RPM 3.0f
 int16_t           g_cogg_lut_diff[COGG_NBINS];   /* (fwd-rev)/2 direction-dependent FF */
-volatile uint8_t  g_cogg_dir_en = 1U;            /* apply the direction-split term (CDC 'n') */
+volatile uint8_t  g_cogg_dir_en = 0U;            /* OFF by default (A/B'd worse w/ old sign; sign now flipped, CDC 'n' to retry) */
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
 volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
 volatile float    g_cogg_gain   = 1.0f;          /* FF amplitude scale; CDC 'E<percent>' (e.g. E130=1.3x) */
@@ -940,7 +940,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     {
       int32_t dff  = (int32_t)g_cogg_lut_diff[bin] +
                      ((((int32_t)g_cogg_lut_diff[nb] - (int32_t)g_cogg_lut_diff[bin]) * frac) >> COGG_SHIFT);
-      float   gate = g_enc_speed_rpm * (1.0f / COGG_DIR_BLEND_RPM);
+      float   gate = g_enc_speed_rpm * (-1.0f / COGG_DIR_BLEND_RPM); /* sign: encoder speed is inverted vs cal sweep dir */
       if (gate >  1.0f) { gate =  1.0f; } else if (gate < -1.0f) { gate = -1.0f; }
       ff += (int32_t)(gate * (float)dff);
     }

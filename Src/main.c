@@ -32,6 +32,7 @@
 #include "usb_device.h"          /* MX_USB_Device_Init -- see appTask note      */
 #include "as5047.h"              /* AS5047P absolute encoder (SPI1) -- now USED for the FOC angle */
 #include "cogg_table.h"          /* COGG_NBINS -- anti-cogging map dump                       */
+#include "esp_link.h"            /* ESP32 <-> STM32 UART link on USART2 (PA2/PA3)             */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -798,6 +799,109 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+/* ===== ESP32 link on USART2 (PA2 TX / PA3 RX). The USB-CDC debug console is a
+   separate peripheral, so both run at once. See esp_link.c + protocol/. ======= */
+
+/* Non-blocking TX ring: the app thread (sole producer) fills head; the USART2
+   TXE interrupt (sole consumer) drains tail. Single-producer/single-consumer =>
+   lock-free. Keeps a slow TX from ever busy-waiting in a task or an ISR. */
+#define ESP_TX_RING 512u
+static volatile uint8_t  esp_tx_buf[ESP_TX_RING];
+static volatile uint16_t esp_tx_head = 0u, esp_tx_tail = 0u;
+
+/* Writer bound into esp_link: enqueue a byte and make sure TX interrupts run. */
+static void esp_uart_write_byte(uint8_t b)
+{
+  uint16_t next = (uint16_t)((esp_tx_head + 1u) % ESP_TX_RING);
+  if (next == esp_tx_tail) { return; }                     /* ring full -> drop (CRC catches) */
+  esp_tx_buf[esp_tx_head] = b;
+  esp_tx_head = next;
+  SET_BIT(USART2->CR1, USART_CR1_TXEIE_TXFNFIE);           /* ensure TXE interrupt is on */
+}
+
+/* USART2 interrupt: RX byte -> link parser (reading RDR clears RXNE; clear error
+   flags so an overrun can't wedge RX); TXE -> pop the TX ring. */
+void USART2_IRQHandler(void)
+{
+  uint32_t isr = USART2->ISR;
+  if ((isr & (USART_ISR_ORE | USART_ISR_FE | USART_ISR_NE)) != 0U)
+  {
+    USART2->ICR = USART_ICR_ORECF | USART_ICR_FECF | USART_ICR_NECF;
+  }
+  if ((isr & USART_ISR_RXNE_RXFNE) != 0U)
+  {
+    esp_link_feed((uint8_t)(USART2->RDR & 0xFFU));
+  }
+  if (((isr & USART_ISR_TXE_TXFNF) != 0U) && ((USART2->CR1 & USART_CR1_TXEIE_TXFNFIE) != 0U))
+  {
+    if (esp_tx_tail != esp_tx_head)
+    {
+      USART2->TDR = (uint16_t)esp_tx_buf[esp_tx_tail];
+      esp_tx_tail = (uint16_t)((esp_tx_tail + 1u) % ESP_TX_RING);
+    }
+    else
+    {
+      CLEAR_BIT(USART2->CR1, USART_CR1_TXEIE_TXFNFIE);      /* ring empty -> stop TX ints */
+    }
+  }
+}
+
+/* Fill the fast telemetry status from the live motor state. */
+static void esp_build_status(tsl_status_t *s)
+{
+  extern volatile float g_enc_speed_rpm;
+  s->speed_rpm   = (int16_t)g_enc_speed_rpm;
+  s->torque_mA   = (int16_t)((float)FOCVars[M1].Iqd.q * 1000.0f / (float)CURRENT_CONV_FACTOR);
+  s->id_mA       = (int16_t)((float)FOCVars[M1].Iqd.d * 1000.0f / (float)CURRENT_CONV_FACTOR);
+  s->vbus_mV     = (uint16_t)(VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super) * 1000u);
+  s->temp_c_x10  = (int16_t)((int32_t)NTC_GetAvTemp_C(&TempSensor_M1) * 10);
+  s->fault_flags = (uint16_t)MC_GetOccurredFaultsMotor1();/* raw MCSDK code for now; map later    */
+  switch (MC_GetSTMStateMotor1())
+  {
+    case RUN:        s->state = (uint8_t)TSL_STATE_RUN;   break;
+    case IDLE:       s->state = (uint8_t)TSL_STATE_IDLE;  break;
+    case ALIGNMENT:  s->state = (uint8_t)TSL_STATE_ALIGN; break;
+    case FAULT_NOW:
+    case FAULT_OVER: s->state = (uint8_t)TSL_STATE_FAULT; break;
+    default:         s->state = (uint8_t)TSL_STATE_STOP;  break;
+  }
+  s->flags = 0u;
+  {
+    static uint8_t  s_boot_ready = 0u;          /* latches on first RUN (alignment done) */
+    extern volatile uint8_t g_cogg_enable;      /* anti-cogging FF active     */
+    extern volatile uint8_t g_cogg_cal_state;   /* 0 idle, 1 sweep, 5 probe   */
+    extern volatile int32_t g_pos_counts;       /* multi-turn count, updated every MF tick */
+    if (s->state == (uint8_t)TSL_STATE_RUN) { s_boot_ready = 1u; }  /* boot+align complete */
+    if (s_boot_ready != 0u)     { s->flags |= (uint8_t)TSL_SFLAG_READY; }
+    if (g_cogg_enable != 0u)    { s->flags |= (uint8_t)TSL_SFLAG_COGGING_ON; }
+    if (g_cogg_cal_state != 0u) { s->flags |= (uint8_t)TSL_SFLAG_CALIBRATING; }
+    s->position = g_pos_counts;
+  }
+}
+
+/* ESP-link service, called from the ~1 kHz MF hook. This is the SOLE origin of
+   ESP-link TX (single-producer for the lock-free TX ring): reliable ACK/retransmit
+   every tick, telemetry at 50 Hz, and the link watchdog. Read-only MC/telemetry
+   getters only -- no MC_Start/Stop here (those are serviced in appTask). */
+void Ropetow_EspLinkService(void)
+{
+  static uint8_t div = 0u;
+  uint32_t now = HAL_GetTick();
+  esp_link_reliable_tick(now);
+  if (++div >= 7u)                                /* 1 kHz / 7 ~= 143 Hz telemetry + watchdog */
+  {
+    div = 0u;
+    tsl_status_t st;
+    esp_build_status(&st);
+    esp_link_send_status(&st);
+    if ((esp_link_rx_frames() > 0U) && (esp_link_ok(now) == 0U))
+    {
+      extern volatile int32_t g_torque_set_ma; extern volatile uint8_t g_torque_set_req;
+      g_torque_set_ma = 0; g_torque_set_req = 1U;  /* link lost -> safe: command 0 torque */
+    }
+  }
+}
+
 /* --- Encoder index (Z) on PB3 ---------------------------------------------
  * The AS5047 index pulses once per MECHANICAL revolution. EMI miscounts on the
  * ABI lines accumulate in TIM3->CNT and drift the commutation angle; this snaps
@@ -948,6 +1052,13 @@ static void StartAppTask(void const *argument)
   /* Let USB CDC enumerate and the supply settle before talking to anything. */
   osDelay(1000);
   LOG_Init();
+
+  /* ESP32 link: bind esp_link to USART2 (already MX-init'd) + enable RX interrupt.
+     Priority 6 -> below the FOC/ADC/encoder ISRs (0..4), so it never preempts control. */
+  esp_link_init(esp_uart_write_byte);
+  SET_BIT(USART2->CR1, USART_CR1_RXNEIE_RXFNEIE);
+  HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
 
   DRV8353_Status drv = DRV8353_Init();
 
@@ -1151,6 +1262,49 @@ static void StartAppTask(void const *argument)
       }
     }
 
+    /* ESP32 link commands (mode / enable / e-stop): the RX ISR set these request
+       flags; service them here in thread context where the MC API is safe. */
+    {
+      extern volatile uint8_t g_esp_estop_req, g_esp_enable_req, g_esp_enable_val;
+      extern volatile uint8_t g_esp_mode_req,  g_esp_mode_val;
+      if (g_esp_estop_req != 0U)
+      {
+        g_esp_estop_req = 0U;
+        MC_StopMotor1();                                   /* hard safe stop (FETs off) */
+        LOG_Printf("[esp] ESTOP -> motor stopped\r\n");
+      }
+      if (g_esp_enable_req != 0U)
+      {
+        uint8_t en = g_esp_enable_val; g_esp_enable_req = 0U;
+        if (en != 0U)
+        {
+          if (MC_GetSTMStateMotor1() != RUN)
+          {
+            (void)MC_AcknowledgeFaultMotor1();
+            MC_ProgramTorqueRampMotor1_F(0.0f, 0U);
+            (void)MC_StartMotor1();
+          }
+          LOG_Printf("[esp] ENABLE -> run\r\n");
+        }
+        else
+        {
+          MC_StopMotor1();
+          LOG_Printf("[esp] DISABLE -> stop\r\n");
+        }
+      }
+      if (g_esp_mode_req != 0U)
+      {
+        uint8_t mode = g_esp_mode_val; g_esp_mode_req = 0U;
+        if (MC_GetSTMStateMotor1() == RUN)
+        {
+          if (mode == (uint8_t)TSL_MODE_SPEED)       { MC_ProgramSpeedRampMotor1(0, 500U); }
+          else if (mode == (uint8_t)TSL_MODE_TORQUE) { MC_ProgramTorqueRampMotor1_F(0.0f, 200U); }
+          else                                       { MC_ProgramTorqueRampMotor1_F(0.0f, 0U); } /* IDLE */
+        }
+        LOG_Printf("[esp] mode -> %u\r\n", (unsigned)mode);
+      }
+    }
+
     /* Raw per-phase current log ('j<rpm>'): burst the measured phase currents
        (Ia, Ib, Ic = -(Ia+Ib)) to characterise the 3-shunt sense chain.
          j0      -> standstill, zero current commanded: residual DC = offset error,
@@ -1326,7 +1480,15 @@ static void StartAppTask(void const *argument)
       {
         g_cogg_cal_req = 0U;
         Ropetow_CoggCalArm();
-        LOG_Printf("cogg cal: auto-sweep + ILC + harmonic denoise (free shaft!) -- ~2.5min, dumps when done. 'Y'=abort\r\n");
+        LOG_Printf("cogg cal: probing cable (~20 deg)... then auto-sweep (free shaft!). 'Y'=abort\r\n");
+      }
+      {
+        extern volatile uint8_t g_cogg_probe_fail;
+        if (g_cogg_probe_fail != 0U)
+        {
+          g_cogg_probe_fail = 0U;
+          LOG_Printf("cogg cal ABORTED: cable not free (probe stalled) -- add slack or detach the cable\r\n");
+        }
       }
     }
     /* 'm' -> more ILC refine passes on the EXISTING map (keep refining until smooth). */
@@ -1435,6 +1597,17 @@ static void StartAppTask(void const *argument)
         if (gd == 0U)
         {
           if (g_cogg_harm_enable != 0U) { Ropetow_CoggHarmonicFit(); }  /* denoise once before dumping */
+          {
+            extern int16_t g_cogg_lut[];   /* peak of the FINAL map = exactly what 'X' will save */
+            int16_t pk = 0; uint16_t pb = 0U;
+            for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++)
+            {
+              int16_t v = g_cogg_lut[i]; int16_t a = (v < 0) ? (int16_t)(-v) : v;
+              if (a > pk) { pk = a; pb = i; }
+            }
+            LOG_Printf("[cogg] cal done: peak=%d@bin%u  (compare to boot 'restored peak')\r\n",
+                       (int)pk, (unsigned)pb);
+          }
           LOG_Printf("cogg_start nbins=%u harm=%u\r\n", (unsigned)COGG_NBINS, (unsigned)g_cogg_harm_enable);
         }
         for (; gd < end; gd++)
@@ -1496,6 +1669,96 @@ static void StartAppTask(void const *argument)
       continue;
     }
 
+    /* Encoder-alignment marker: proves the MCSDK EAC alignment actually ran this
+       boot (the small startup turn) even if you missed it during USB re-enumeration. */
+    {
+      extern volatile uint8_t g_enc_align_evt;
+      if (g_enc_align_evt != 0U) { g_enc_align_evt = 0U; LOG_Printf("[align] encoder alignment complete\r\n"); }
+    }
+
+    /* One-shot at boot: report what the saved calibration restored, so a "cogging
+       came back after reset" can be diagnosed at a glance -- peak!=0 proves the map
+       loaded intact; clamp/gain show the knobs were restored (not reset to default). */
+    {
+      extern volatile uint8_t g_cogg_from_flash;
+      extern volatile int16_t g_cogg_clamp;
+      extern volatile float   g_cogg_gain;
+      extern int16_t          g_cogg_lut[];
+      static uint8_t cogg_boot_logged = 0U;
+      if (cogg_boot_logged == 0U)
+      {
+        cogg_boot_logged = 1U;
+        if (g_cogg_from_flash != 0U)
+        {
+          int16_t pk = 0; uint16_t pkbin = 0U;
+          for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++)
+          {
+            int16_t v = g_cogg_lut[i];
+            int16_t a = (v < 0) ? (int16_t)(-v) : v;
+            if (a > pk) { pk = a; pkbin = i; }
+          }
+          LOG_Printf("[cogg] flash cal restored: peak=%d@bin%u clamp=%d gain=%d%%\r\n",
+                     (int)pk, (unsigned)pkbin, (int)g_cogg_clamp, (int)(g_cogg_gain * 100.0f));
+        }
+      }
+    }
+
+    /* Anti-cogging map persistence: 'X' saves the map, 'n' erases it. A flash
+       erase/program STALLS the CPU for tens of ms (code fetch from flash blocks),
+       which both breaks a live FOC loop AND wedges the USB/CDC link so the serial
+       never resumes in place. So we AUTO-STOP the motor, wait for IDLE (PWM off =
+       safe), do the flash op, then REBOOT: a clean reset re-enumerates USB (serial
+       reconnects) and re-runs the boot map-load -- the exact recovery a manual reset
+       already produces. On failure we don't reboot (keeps the freshly-cal'd RAM map
+       so you can retry the save). */
+    {
+      extern volatile uint8_t g_cogg_save_req;
+      extern volatile uint8_t g_cogg_erase_req;
+      extern uint8_t Ropetow_CoggSaveToFlash(void);
+      extern uint8_t Ropetow_CoggEraseFlash(void);
+      if ((g_cogg_save_req != 0U) || (g_cogg_erase_req != 0U))
+      {
+        uint8_t  do_save = g_cogg_save_req;
+        uint16_t guard   = 0U;
+        g_cogg_save_req = 0U; g_cogg_erase_req = 0U;
+
+        MC_StopMotor1();                                              /* command stop      */
+        while ((MC_GetSTMStateMotor1() != IDLE) && (guard++ < 250U))  /* wait <=1s for IDLE */
+        {
+          LOG_Process();
+          osDelay(4U);
+        }
+
+        if (MC_GetSTMStateMotor1() != IDLE)
+        {
+          /* couldn't reach IDLE -> do NOT touch flash; bring the drive back and bail */
+          LOG_Printf("[cogg] %s ABORTED: motor did not stop (state=%d)\r\n",
+                     (do_save ? "save" : "erase"), (int)MC_GetSTMStateMotor1());
+          (void)MC_AcknowledgeFaultMotor1();
+          MC_ProgramTorqueRampMotor1_F(0.0f, 0U);
+          (void)MC_StartMotor1();
+        }
+        else if ((do_save ? Ropetow_CoggSaveToFlash() : Ropetow_CoggEraseFlash()) != 0U)
+        {
+          /* success -> flush the log over USB, then reboot to reload cleanly. */
+          LOG_Printf("[cogg] %s OK -- rebooting to reload...\r\n",
+                     (do_save ? "save->flash" : "erase"));
+          for (uint16_t f = 0U; (LOG_Pending() > 0U) && (f < 200U); f++) { LOG_Process(); osDelay(2U); }
+          osDelay(50U);
+          NVIC_SystemReset();                 /* does not return */
+        }
+        else
+        {
+          /* flash op failed -> keep the RAM map, bring the drive back so you can retry */
+          LOG_Printf("[cogg] %s FAILED -- map kept in RAM, retry\r\n",
+                     (do_save ? "save" : "erase"));
+          (void)MC_AcknowledgeFaultMotor1();
+          MC_ProgramTorqueRampMotor1_F(0.0f, 0U);
+          (void)MC_StartMotor1();
+        }
+      }
+    }
+
     {
     extern volatile uint8_t g_cogg_cal_state;
     extern volatile uint8_t g_cogg_cal_pass;
@@ -1518,13 +1781,11 @@ static void StartAppTask(void const *argument)
     if (++idx_log >= 10U)                                    /* ~1 s: index health */
     {
       extern volatile uint32_t g_spi_err_count;     /* SPI read failures (mc_tasks_foc.c) */
-      extern volatile int16_t  g_dbg_spi_minus_tim3; /* SPI angle - TIM3 angle (s16)       */
-      extern volatile uint8_t  g_use_spi_speed;      /* speed source: 1=SPI, 0=TIM3        */
-      extern volatile float    g_enc_speed_rpm;      /* SPI-derived mech speed (rpm)       */
       extern volatile int16_t  g_dt_comp;            /* dead-time comp magnitude (s16 V)   */
       extern volatile int16_t  g_avg_iq;             /* avg Iq over ~0.3s (DC)             */
       extern volatile int16_t  g_avg_id;             /* avg Id over ~0.3s: !=0 => misaligned */
       extern volatile uint8_t  g_cogg_enable;        /* anti-cogging FF on/off             */
+      extern volatile uint8_t  g_cogg_from_flash;    /* 1 = map loaded from saved flash cal */
       extern volatile uint8_t  g_cogg_harm_enable;   /* harmonic denoise on/off ('h')      */
       extern volatile int16_t  g_cogg_clamp;         /* anti-cogging FF clamp (s16)        */
       extern volatile uint8_t  g_fw_enable;          /* flux weakening on/off              */
@@ -1534,12 +1795,13 @@ static void StartAppTask(void const *argument)
       extern volatile float    g_fw_id_now_a;        /* FW Id ACTUALLY applied (A, 0=idle) */
       extern volatile float    g_spdcap_rpm;         /* torque-mode speed cap (rpm, 0=off) */
       idx_log = 0U;
-      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s harm=%s clamp=%d | "
+      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s(%s) harm=%s clamp=%d | "
                  "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA | cap=%dr\r\n",
                  (unsigned long)g_spi_err_count, (int)spd_now,
                  (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
                  (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
-                 (g_cogg_enable ? "ON" : "off"), (g_cogg_harm_enable ? "ON" : "off"), (int)g_cogg_clamp,
+                 (g_cogg_enable ? "ON" : "off"), (g_cogg_from_flash ? "flash" : "init"),
+                 (g_cogg_harm_enable ? "ON" : "off"), (int)g_cogg_clamp,
                  (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
                  (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f),
                  (int)g_spdcap_rpm);
@@ -1561,6 +1823,8 @@ static void StartAppTask(void const *argument)
     }  /* end else-if (cal idle) */
     }  /* end cal-state telemetry gate */
     LOG_Process();
+    /* ESP-link TX/telemetry/watchdog now run at 50 Hz from the MF hook
+       (Ropetow_EspLinkService) -- keeps a single TX producer and steady timing. */
     osDelay(APP_LOOP_PERIOD_MS);
   }
 }

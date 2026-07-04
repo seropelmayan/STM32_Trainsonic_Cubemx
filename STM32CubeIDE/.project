@@ -56,6 +56,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Src/as5047.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/esp_link.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Src/esp_link.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/log.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Src/log.c</locationURI>

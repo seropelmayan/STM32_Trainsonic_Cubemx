@@ -96,6 +96,12 @@ __weak void MC_APP_PostMediumFrequencyHook_M1(void)
     extern void Ropetow_PositionControl(void);
     Ropetow_PositionControl();
   }
+  /* Ropetow: ESP32 UART link service (reliable ACK/retransmit every tick, telemetry
+     at 50 Hz, link watchdog). Sole producer of the link TX ring. */
+  {
+    extern void Ropetow_EspLinkService(void);
+    Ropetow_EspLinkService();
+  }
 /* USER SECTION END PostMediumFrequencyHookM1 */
 }
 

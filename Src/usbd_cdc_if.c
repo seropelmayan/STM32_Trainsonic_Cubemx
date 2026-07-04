@@ -327,9 +327,11 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_agc_log_req;            /* AGC sweep trigger (mc_tasks_foc.c) */
   extern volatile uint8_t g_enc_mon;                /* live raw-encoder monitor toggle (mc_tasks_foc.c) */
   extern volatile uint8_t g_cogg_cal_req;           /* anti-cogging cal arm (mc_tasks_foc.c) */
-  extern volatile uint8_t g_cogg_cal_state;         /* anti-cogging cal state (mc_tasks_foc.c) */
   extern volatile uint8_t g_cogg_cal_abort;         /* 'Y' -> finish auto-cal early */
   extern volatile uint8_t g_cogg_refine_req;        /* 'm' -> more ILC refine passes */
+  extern volatile uint8_t g_cogg_cal_passes;        /* 'T<n>' -> # of 'y' cal passes (1 = capture only) */
+  extern volatile uint8_t g_cogg_save_req;          /* 'X' -> save cogging map to flash */
+  extern volatile uint8_t g_cogg_erase_req;         /* 'n' -> erase saved cogging map   */
   extern volatile uint8_t g_cogg_harm_enable;       /* 'h' -> toggle harmonic denoise */
   extern volatile float   g_cogg_gain;              /* 'E<percent>' -> anti-cogging FF amplitude scale */
   extern volatile float   g_cogg_cal_iq_a;          /* 'Z<mA>' -> cal calib current (torque authority) */
@@ -427,6 +429,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'Z': { float a = (float)s_val / 1000.0f;            /* cal calib current, mA -> A */
                     if (a < 1.0f) { a = 1.0f; } if (a > 15.0f) { a = 15.0f; }
                     g_cogg_cal_iq_a = a; } break;
+        case 'T': { if (s_val < 1) { s_val = 1; } if (s_val > 12) { s_val = 12; } /* cal passes */
+                    g_cogg_cal_passes = (uint8_t)s_val; } break;
         default:  break;
       }
     }
@@ -448,6 +452,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'y': g_cogg_cal_req = 1U;   break;   /* start AUTO anti-cogging calibration (servo sweep) */
       case 'Y': g_cogg_cal_abort = 1U; break;   /* finish auto-cal early (then it auto-dumps) */
       case 'm': g_cogg_refine_req = 1U; break;  /* more ILC refine passes on the current map */
+      case 'X': g_cogg_save_req   = 1U; break;  /* save calibrated cogging map -> flash (motor stopped) */
+      case 'n': g_cogg_erase_req  = 1U; break;  /* erase saved cogging map from flash (motor stopped)   */
       case 'h': g_cogg_harm_enable ^= 1U; break; /* toggle harmonic denoise (applied next cal/refine) */
       case 'l': g_cogg_freeze_en  ^= 1U; break;  /* toggle standstill FF freeze (the "release at stop" fix) */
       case 'K': g_cogg_enable = 1U;    break;   /* anti-cogging FF on           */
@@ -460,7 +466,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J':
-      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z':
+      case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z': case 'T':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

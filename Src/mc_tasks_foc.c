@@ -75,6 +75,7 @@
 /* USER CODE BEGIN Includes */
 #include "as5047.h"                 /* AS5047P absolute-angle SPI read     */
 #include <math.h>                   /* sinf/cosf for the INL correction    */
+#include <string.h>                 /* memcpy for flash double-word packing */
 #include "flux_weakening_ctrl.h"    /* MCSDK native voltage-feedback FW component */
 #include "pid_regulator.h"          /* PID_HandleInit / PID_SetKI for the FW PID  */
 extern SPI_HandleTypeDef hspi1;     /* AS5047 SPI link (defined in main.c) */
@@ -308,6 +309,13 @@ volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 sweeping, 2 dump-r
    (no cable load) or the load is baked into the map. */
 #define COGG_CAL_STEP    2.5f    /* g_pos_target ramp, counts/tick (~9 rpm sweep)      */
 #define COGG_CAL_REVS    4U      /* full-rev sweeps PER PASS: 2 fwd + 2 back (averaging) */
+/* Pre-sweep "is the cable free?" probe: before the yank-prone full-rev sweep, gently
+   nudge the shaft ~20 deg in the start direction at a LOW current. If it moves, the
+   cable has slack -> run the sweep. If it stalls (cable taut / at end-stop), abort
+   without pulling hard. Catches "started with the cable already tight". */
+#define COGG_PROBE_COUNTS     910    /* ~20 deg (20/360 * 16384 counts)                 */
+#define COGG_PROBE_MIN_COUNTS 550    /* moved >= this (~12 deg) => cable is free         */
+#define COGG_PROBE_IQ_A       2.5f   /* gentle probe current (A): moves a free shaft, won't yank a taut cable */
 #define COGG_CAL_PASSES  6U      /* 'y': pass 0 = capture cogging; 1..5 = ILC refine   */
 #define COGG_REFINE_PASSES 3U    /* 'm': extra ILC refine passes on the existing map   */
 #define COGG_CAL_KP_MULT 4.0f    /* cal-sweep stiffness boost: firmer servo glides through the cogging
@@ -317,12 +325,23 @@ volatile uint8_t  g_cogg_cal_state = 0U;         /* 0 idle, 1 sweeping, 2 dump-r
 #define COGG_ILC_GAIN    0.4f    /* iterative-learning gain: map += L*residual / pass  */
 static   float    g_cogg_cal_sweep = 0.0f;       /* ramping target position (counts)  */
 static   float    g_cogg_cal_swept = 0.0f;       /* counts swept this direction       */
-static   int8_t   g_cogg_cal_dir   = 1;          /* +1 fwd / -1 back                  */
+static   int8_t   g_cogg_cal_dir   = 1;          /* +1 fwd / -1 back (sweep STARTS in reverse; see cal-start) */
 static   uint8_t  g_cogg_cal_revs  = 0U;         /* completed direction sweeps        */
 volatile uint8_t  g_cogg_cal_pass  = 0U;         /* 0 = initial capture, >=1 = refine (telemetry) */
 volatile uint8_t  g_cogg_cal_target = 0U;        /* stop after this many passes (telemetry) */
+volatile uint8_t  g_cogg_cal_passes = 1U;        /* CDC 'T<n>': total 'y' cal passes (1 = capture only, default; 2 = +1 ILC refine) */
+volatile uint8_t  g_cogg_probe_fail  = 0U;       /* probe stalled -> main.c logs "cable not free" */
 volatile uint8_t  g_cogg_cal_abort = 0U;         /* CDC 'Y' -> finish early            */
 volatile uint8_t  g_cogg_refine_req = 0U;        /* CDC 'm' -> more ILC passes (keep map) */
+/* Anti-cogging map persistence to STM32 internal flash (last 2 KB page). CDC 'X'
+   requests a save, 'n' requests an erase; both are serviced by appTask in THREAD
+   context and REFUSED while the motor is in RUN, because a flash erase/program
+   stalls the CPU (code fetch blocks) and would break the FOC ISR. The saved map
+   auto-loads at boot (Ropetow_CoggInit) so you calibrate once. */
+volatile uint8_t  g_cogg_save_req   = 0U;        /* CDC 'X' -> save g_cogg_lut to flash     */
+volatile uint8_t  g_cogg_erase_req  = 0U;        /* CDC 'n' -> erase the saved map          */
+volatile uint8_t  g_cogg_from_flash = 0U;        /* 1 = boot loaded a saved map (telemetry) */
+volatile uint8_t  g_enc_align_evt   = 0U;        /* set once when encoder alignment completes (boot diagnostic) */
 /* AGC-vs-position sweep (Phase 0 magnet diagnostic): CDC 'a' -> appTask logs
    AS5047 AGC/MAGL/MAGH + angle across a slow revolution. */
 volatile uint8_t  g_agc_log_req = 0U;
@@ -426,6 +445,9 @@ void Ropetow_CoggInit(void);          /* copy COGG_TABLE_INIT -> g_cogg_lut (MC_
 void Ropetow_CoggCalArm(void);        /* clear accumulators + request auto-sweep (appTask, CDC 'y') */
 void Ropetow_CoggCalFinish(void);     /* compute zero-mean cogging map from accumulators -> g_cogg_lut */
 void Ropetow_CoggHarmonicFit(void);   /* frequency-domain denoise: keep cogging orders 1..KMAX (CDC 'h') */
+uint8_t Ropetow_CoggSaveToFlash(void);  /* persist g_cogg_lut to flash (thread ctx, motor stopped) */
+uint8_t Ropetow_CoggLoadFromFlash(void);/* boot: load g_cogg_lut from flash if a valid map exists   */
+uint8_t Ropetow_CoggEraseFlash(void);   /* forget the saved map                                     */
 void Ropetow_CoggCalGet(uint16_t bin, int16_t *mean, uint16_t *count); /* read a cal bin (dump) */
 void Ropetow_GetOffsets(int32_t *a, int32_t *b, int32_t *c); /* calibrated 3-shunt offsets */
 void Ropetow_SetCurrentLpf(int32_t fc_hz); /* live current LPF cutoff (CDC 'f<n>') */
@@ -678,7 +700,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
               TSK_SetStopPermanencyTimeM1(STOPPERMANENCY_TICKS);
               Mci[M1].State = WAIT_STOP_MOTOR;
               /* USER CODE BEGIN MediumFrequencyTask M1 EndOfEncAlignment */
-
+              g_enc_align_evt = 1U;   /* appTask logs "alignment complete" -> proves EAC ran this boot */
               /* USER CODE END MediumFrequencyTask M1 EndOfEncAlignment */
             }
           }
@@ -877,6 +899,12 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     if (mec_unit < -32768) { mec_unit = -32768; }
     ENCODER_M1._Super.hAvrMecSpeedUnit = (int16_t)mec_unit;
   }
+  /* Silence the benign -Warray-bounds false-positive on the generated
+     FOCVars[bMotor] accesses below: NBR_OF_MOTORS==1 so FOCVars[1] looks out of
+     bounds to -Ofast, but bMotor is always M1 (0). push here / pop in section 1;
+     both are USER CODE, so this survives MC Workbench regeneration. */
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
   /* USER CODE END FOC_CalcCurrRef 0 */
   if (INTERNAL == FOCVars[bMotor].bDriveInput)
   {
@@ -897,6 +925,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
   /* Exit critical section */
   __enable_irq();
   /* USER CODE BEGIN FOC_CalcCurrRef 1 */
+  #pragma GCC diagnostic pop   /* end the -Warray-bounds suppression from section 0 */
   /* Step test: pin Iqref to the injected axis (other axis = 0) so the chosen
      current loop is exercised. Runs in the same ctx that just latched Iqdref, so
      overriding here is race-free. */
@@ -1577,12 +1606,16 @@ void Ropetow_PositionControl(void)
       g_pos_mode       = 1U;
       g_cogg_cal_sweep = (float)g_pos_counts;
       g_cogg_cal_swept = 0.0f;
-      g_cogg_cal_dir   = 1;
+      g_cogg_cal_dir   = -1;                 /* start the sweep in reverse */
       g_cogg_cal_revs  = 0U;
       g_cogg_cal_pass  = 0U;                 /* start with the capture pass */
-      g_cogg_cal_target = (uint8_t)COGG_CAL_PASSES;
+      g_cogg_cal_target = g_cogg_cal_passes;  /* CDC 'T<n>' sets this; 1 = capture only */
       g_cogg_enable    = 0U;                 /* pass 0: FF OFF -> capture full cogging */
-      g_cogg_cal_state = 1U;                 /* sweeping + accumulating */
+      /* Probe first: gently RAMP ~20 deg in the start dir at low current (same smooth
+         ramp as the sweep -- no step, no slam); the full sweep only runs if the shaft
+         actually moved (cable free). */
+      g_cogg_probe_fail  = 0U;
+      g_cogg_cal_state   = 5U;               /* 5 = pre-sweep cable-free probe */
     }
     else { g_cogg_cal_state = 0U; }          /* not in RUN -> abort */
   }
@@ -1600,7 +1633,7 @@ void Ropetow_PositionControl(void)
       g_pos_mode       = 1U;
       g_cogg_cal_sweep = (float)g_pos_counts;
       g_cogg_cal_swept = 0.0f;
-      g_cogg_cal_dir   = 1;
+      g_cogg_cal_dir   = -1;                 /* start the sweep in reverse */
       g_cogg_cal_revs  = 0U;
       g_cogg_cal_pass  = 1U;                 /* >=1 -> CoggCalFinish ADDS (refine) */
       g_cogg_cal_target = (uint8_t)(1U + COGG_REFINE_PASSES);
@@ -1609,10 +1642,44 @@ void Ropetow_PositionControl(void)
     }
     else { g_cogg_cal_state = 0U; }
   }
-  /* abort an in-progress cal if the drive leaves RUN, so it can't hang in state 1 */
-  if ((g_cogg_cal_state == 1U) && (Mci[M1].State != RUN)) { g_cogg_cal_state = 0U; }
+  /* abort an in-progress cal (sweep or probe) if the drive leaves RUN */
+  if (((g_cogg_cal_state == 1U) || (g_cogg_cal_state == 5U)) && (Mci[M1].State != RUN)) { g_cogg_cal_state = 0U; }
 
   if ((g_pos_mode == 0U) || (Mci[M1].State != RUN)) { return; }
+
+  /* Pre-sweep cable-free probe (state 5): the servo (below) drives ~20 deg at low
+     current; after the settle window, proceed to the sweep only if the shaft moved. */
+  if (g_cogg_cal_state == 5U)
+  {
+    if (g_cogg_cal_abort != 0U)               /* 'Y' cancels the probe too */
+    {
+      g_cogg_cal_abort = 0U; g_pos_mode = 0U; g_cogg_cal_state = 0U;
+      STC_ExecRamp(pSTC[M1], 0, 0U); return;
+    }
+    if (g_cogg_cal_swept < (float)COGG_PROBE_COUNTS)   /* still ramping the ~20 deg probe */
+    {
+      g_cogg_cal_sweep += (float)g_cogg_cal_dir * COGG_CAL_STEP;   /* same gentle ramp as the sweep */
+      g_pos_target      = (int32_t)g_cogg_cal_sweep;
+      g_cogg_cal_swept += COGG_CAL_STEP;
+    }
+    else                                               /* ramp done -> did the shaft follow? */
+    {
+      int32_t moved = g_pos_counts - g_pos_origin;
+      if (moved < 0) { moved = -moved; }
+      if (moved >= COGG_PROBE_MIN_COUNTS)              /* moved ~20 deg -> cable is free */
+      {
+        g_cogg_cal_sweep = (float)g_pos_counts;
+        g_cogg_cal_swept = 0.0f;
+        g_cogg_cal_revs  = 0U;
+        g_cogg_cal_state = 1U;                         /* fall through to the sweep below */
+      }
+      else                                             /* stalled -> cable taut, abort gently */
+      {
+        g_pos_mode = 0U; g_cogg_cal_state = 0U; g_cogg_probe_fail = 1U;
+        STC_ExecRamp(pSTC[M1], 0, 0U); return;
+      }
+    }
+  }
 
   /* Cogging-cal sweep: drive g_pos_target slowly through full mechanical revs (fwd
      then back); EncoderUpdate's accumulator bins holding Iq by position. 'Y'
@@ -1646,7 +1713,7 @@ void Ropetow_PositionControl(void)
         g_cogg_enable    = 1U;                   /* inject current map -> capture RESIDUAL */
         g_cogg_cal_sweep = (float)g_pos_counts;
         g_cogg_cal_swept = 0.0f;
-        g_cogg_cal_dir   = 1;
+        g_cogg_cal_dir   = -1;                 /* start the sweep in reverse */
         g_cogg_cal_revs  = 0U;
       }
       else
@@ -1667,9 +1734,12 @@ void Ropetow_PositionControl(void)
   /* During the cogging cal, use a STIFFER servo and a stronger "calib current" so the
      rotor glides smoothly through the detents (no stick-slip -> even capture); use the
      gentle user gains otherwise. */
-  float   kp_use  = (g_cogg_cal_state == 1U) ? (g_pos_kp * COGG_CAL_KP_MULT) : g_pos_kp;
-  float   kd_use  = (g_cogg_cal_state == 1U) ? (g_pos_kd * COGG_CAL_KD_MULT) : g_pos_kd;
-  float   miq_use = (g_cogg_cal_state == 1U) ? g_cogg_cal_iq_a               : g_pos_max_iq;
+  uint8_t cal_srv = (g_cogg_cal_state == 1U) || (g_cogg_cal_state == 5U);  /* stiff servo for sweep+probe */
+  float   kp_use  = cal_srv ? (g_pos_kp * COGG_CAL_KP_MULT) : g_pos_kp;
+  float   kd_use  = cal_srv ? (g_pos_kd * COGG_CAL_KD_MULT) : g_pos_kd;
+  float   miq_use = (g_cogg_cal_state == 5U) ? COGG_PROBE_IQ_A               /* gentle probe */
+                  : (g_cogg_cal_state == 1U) ? g_cogg_cal_iq_a               /* full cal current */
+                  : g_pos_max_iq;
   int32_t err = g_pos_target - g_pos_counts;
   float   u   = (kp_use * (float)err) - (kd_use * vel_rpm);
 
@@ -1745,11 +1815,177 @@ void Ropetow_SetTorqueKi(int32_t ki)
   PID_SetKI(&PIDIdHandle_M1, (int16_t)ki);
 }
 
-/* Copy the compiled anti-cogging table into the runtime LUT. Called from
-   MC_APP_BootHook so a regenerated/zeroed table simply means "no compensation". */
+/* Copy the compiled anti-cogging table into the runtime LUT, then override it with
+   a saved calibration from flash if one is present and valid. Called from
+   MC_APP_BootHook so a regenerated/zeroed table simply means "no compensation".
+   If a saved map loads, anti-cogging is auto-enabled so the device just works after
+   a one-time calibrate-and-save (CDC 'X'). */
 void Ropetow_CoggInit(void)
 {
   for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = COGG_TABLE_INIT[i]; }
+  if (Ropetow_CoggLoadFromFlash() != 0U)
+  {
+    g_cogg_from_flash = 1U;
+    g_cogg_enable     = 1U;   /* a user-saved calibration exists -> use it */
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Anti-cogging map persistence -- STM32G431CB internal flash.
+   The calibrated LUT (g_cogg_lut, COGG_NBINS int16) is stored in the LAST 2 KB
+   flash page so it survives power cycles. The G431CB has 128 KB flash in 2 KB
+   pages (page 63 @ 0x0801F800); the application is ~75 KB, so this top page is
+   free. Layout: a 24-byte header (magic/version/nbins/crc + the runtime knobs that
+   scale the map: clamp/gain/harm/freeze) followed by the LUT. Persisting the knobs
+   makes the saved calibration SELF-CONTAINED -- otherwise clamp/gain reset to their
+   defaults on reboot and the reloaded map is clipped/scaled differently, so cogging
+   comes back even though the map itself is byte-perfect.
+   Flash is programmed in 64-bit double-words, so every region is a multiple of 8.
+   WARNING: erase/program stalls the CPU (instruction fetch from flash blocks) for
+   tens of ms -- only ever call Save/Erase with the motor stopped, from thread
+   context, never from an ISR. Load reads flash normally (safe any time). */
+#define COGG_FLASH_PAGE   63U               /* last 2 KB page of the 128 KB device        */
+#define COGG_FLASH_ADDR   0x0801F800UL      /* = FLASH_BASE + 63*2KB                       */
+#define COGG_FLASH_MAGIC  0x43473231UL      /* "CG21" tag                                  */
+#define COGG_FLASH_VER    2U                /* v2: header also carries clamp/gain/harm/freeze */
+
+typedef struct                              /* 24 bytes, multiple of 8 for double-word pgm */
+{
+  uint32_t magic;                           /* 0                                            */
+  uint16_t version;                         /* 4                                            */
+  uint16_t nbins;                           /* 6                                            */
+  uint32_t crc;                             /* 8  CRC32 over the LUT payload bytes          */
+  int16_t  clamp;                           /* 12 g_cogg_clamp at save time                 */
+  uint8_t  harm_en;                         /* 14 g_cogg_harm_enable                        */
+  uint8_t  freeze_en;                       /* 15 g_cogg_freeze_en                          */
+  float    gain;                            /* 16 g_cogg_gain                               */
+  uint32_t pad;                             /* 20                                           */
+} cogg_flash_hdr_t;
+
+/* Plain bitwise CRC32 (poly 0xEDB88320). Runs a handful of times (boot/save), so
+   a table is not worth the flash it would cost. */
+static uint32_t cogg_crc32(const uint8_t *p, uint32_t n)
+{
+  uint32_t c = 0xFFFFFFFFUL;
+  for (uint32_t i = 0U; i < n; i++)
+  {
+    c ^= (uint32_t)p[i];
+    for (uint8_t b = 0U; b < 8U; b++)
+    {
+      c = (c & 1U) ? ((c >> 1) ^ 0xEDB88320UL) : (c >> 1);
+    }
+  }
+  return c ^ 0xFFFFFFFFUL;
+}
+
+/* Program a byte buffer (length must be a multiple of 8) as flash double-words.
+   memcpy avoids any alignment assumption on the source. Returns 1 on success. */
+static uint8_t cogg_flash_program(uint32_t addr, const uint8_t *data, uint32_t len)
+{
+  for (uint32_t i = 0U; i < len; i += 8U)
+  {
+    uint64_t dw;
+    (void)memcpy(&dw, data + i, 8U);
+    if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr + i, dw) != HAL_OK)
+    {
+      return 0U;
+    }
+  }
+  return 1U;
+}
+
+/* Raw single-page erase. Caller MUST have interrupts masked (a flash erase stalls
+   the flash bus; any ISR fetching code from this bank would stall/wedge the core). */
+static uint8_t cogg_flash_erase_raw(void)
+{
+  FLASH_EraseInitTypeDef er;
+  uint32_t perr = 0U;
+  er.TypeErase = FLASH_TYPEERASE_PAGES;
+  er.Banks     = FLASH_BANK_1;
+  er.Page      = COGG_FLASH_PAGE;
+  er.NbPages   = 1U;
+  return (HAL_FLASHEx_Erase(&er, &perr) == HAL_OK) ? 1U : 0U;
+}
+
+/* Erase the reserved page. Motor MUST be stopped (caller enforces). Interrupts are
+   masked for the whole flash op -- the 25 kHz FOC ISR runs from this same flash
+   bank, and letting it fetch during the erase can wedge the CPU. */
+uint8_t Ropetow_CoggEraseFlash(void)
+{
+  uint32_t primask = __get_PRIMASK();
+  uint8_t  ok;
+
+  __disable_irq();
+  (void)HAL_FLASH_Unlock();
+  ok = cogg_flash_erase_raw();
+  (void)HAL_FLASH_Lock();
+  if (primask == 0U) { __enable_irq(); }
+
+  if (ok != 0U) { g_cogg_from_flash = 0U; }
+  return ok;
+}
+
+/* Erase the page then write header + current LUT, all with interrupts masked.
+   Motor MUST be stopped (caller enforces). */
+uint8_t Ropetow_CoggSaveToFlash(void)
+{
+  cogg_flash_hdr_t hdr;
+  uint32_t primask;
+  uint8_t  ok;
+
+  hdr.magic     = COGG_FLASH_MAGIC;
+  hdr.version   = (uint16_t)COGG_FLASH_VER;
+  hdr.nbins     = (uint16_t)COGG_NBINS;
+  hdr.crc       = cogg_crc32((const uint8_t *)g_cogg_lut, (uint32_t)COGG_NBINS * 2U);
+  hdr.clamp     = g_cogg_clamp;             /* persist the knobs that scale the map's effect */
+  hdr.harm_en   = g_cogg_harm_enable;
+  hdr.freeze_en = g_cogg_freeze_en;
+  hdr.gain      = g_cogg_gain;
+  hdr.pad       = 0U;
+
+  primask = __get_PRIMASK();
+  __disable_irq();
+  (void)HAL_FLASH_Unlock();
+  ok = cogg_flash_erase_raw();
+  if (ok != 0U)
+  {
+    ok = cogg_flash_program(COGG_FLASH_ADDR, (const uint8_t *)&hdr, (uint32_t)sizeof(hdr));
+  }
+  if (ok != 0U)
+  {
+    ok = cogg_flash_program(COGG_FLASH_ADDR + (uint32_t)sizeof(hdr),
+                            (const uint8_t *)g_cogg_lut, (uint32_t)COGG_NBINS * 2U);
+  }
+  (void)HAL_FLASH_Lock();
+  if (primask == 0U) { __enable_irq(); }
+
+  if (ok != 0U) { g_cogg_from_flash = 1U; }
+  return ok;
+}
+
+/* Boot load: validate magic/version/nbins/crc; on success copy into g_cogg_lut.
+   Reading mapped flash is a normal load -- safe to call any time. Returns 1 if a
+   valid saved map was loaded. */
+uint8_t Ropetow_CoggLoadFromFlash(void)
+{
+  const cogg_flash_hdr_t *hdr = (const cogg_flash_hdr_t *)COGG_FLASH_ADDR;
+  const int16_t *src = (const int16_t *)(COGG_FLASH_ADDR + (uint32_t)sizeof(cogg_flash_hdr_t));
+  uint32_t crc;
+
+  if (hdr->magic   != COGG_FLASH_MAGIC)      { return 0U; }
+  if (hdr->version != (uint16_t)COGG_FLASH_VER) { return 0U; }
+  if (hdr->nbins   != (uint16_t)COGG_NBINS)  { return 0U; }
+  crc = cogg_crc32((const uint8_t *)src, (uint32_t)COGG_NBINS * 2U);
+  if (crc != hdr->crc)                       { return 0U; }
+
+  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = src[i]; }
+
+  /* restore the knobs that scale the map so the feel matches the saved calibration */
+  g_cogg_clamp       = hdr->clamp;
+  g_cogg_gain        = hdr->gain;
+  g_cogg_harm_enable = hdr->harm_en;
+  g_cogg_freeze_en   = hdr->freeze_en;
+  return 1U;
 }
 
 /* Clear the calibration accumulators and arm a capture (thread context: 512-entry

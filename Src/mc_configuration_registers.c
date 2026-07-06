@@ -56,7 +56,7 @@ static const MotorConfig_reg_t M1_MotorConfig_reg =
   .rs         = 0.74,
   .ls         = 0.0014*1.000,
   .ld         = 0.0014,
-  .maxCurrent = 8.2,
+  .maxCurrent = 29.0, /* raised from 8.2 (hand-edit; REDO IN MC WORKBENCH on regen) */
   .name = "Trainsonic"
 };
 

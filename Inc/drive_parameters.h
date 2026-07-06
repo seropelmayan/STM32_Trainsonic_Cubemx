@@ -94,7 +94,7 @@
 /* USER CODE END PID_SPEED_INTEGRAL_INIT_DIV */
 
 #define SPD_DIFFERENTIAL_TERM_ENABLING      DISABLE
-#define IQMAX_A                             8.2
+#define IQMAX_A                             29.0 /* raised from 8.2 (hand-edit; REDO IN MC WORKBENCH on regen) */
 
 /* Default settings */
 #define DEFAULT_CONTROL_MODE                MCM_SPEED_MODE

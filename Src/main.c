@@ -881,14 +881,16 @@ static void esp_build_status(tsl_status_t *s)
 
 /* ESP-link service, called from the ~1 kHz MF hook. This is the SOLE origin of
    ESP-link TX (single-producer for the lock-free TX ring): reliable ACK/retransmit
-   every tick, telemetry at 50 Hz, and the link watchdog. Read-only MC/telemetry
+   every tick, telemetry at 250 Hz, and the link watchdog. Read-only MC/telemetry
    getters only -- no MC_Start/Stop here (those are serviced in appTask). */
 void Ropetow_EspLinkService(void)
 {
   static uint8_t div = 0u;
   uint32_t now = HAL_GetTick();
   esp_link_reliable_tick(now);
-  if (++div >= 7u)                                /* 1 kHz / 7 ~= 143 Hz telemetry + watchdog */
+  if (++div >= 4u)                                /* 1 kHz / 4 = 250 Hz telemetry + watchdog
+                                                     (~6.5 kB/s of 11.5 kB/s @115200 -> safe;
+                                                     500 Hz/1 kHz would need a baud bump BOTH sides) */
   {
     div = 0u;
     tsl_status_t st;
@@ -898,6 +900,26 @@ void Ropetow_EspLinkService(void)
     {
       extern volatile int32_t g_torque_set_ma; extern volatile uint8_t g_torque_set_req;
       g_torque_set_ma = 0; g_torque_set_req = 1U;  /* link lost -> safe: command 0 torque */
+    }
+  }
+
+  /* Live torque-current setpoint -- applied EVERY MF tick (~1 kHz) so an ESP-side
+     PID (or the CDC 't') actuates with ~1 ms latency instead of the old 10 Hz
+     app-task rate. Both 't<mA>' and the heartbeat set g_torque_set_req; the
+     link-lost watchdog above sets 0. Zero ramp = immediate; the outer loop and the
+     current loop provide the smoothing. Fires only on a NEW setpoint (req cleared
+     after apply), so at most the heartbeat rate, not every tick. No LOG here: it
+     would flood at up to 1 kHz and race the log ring. */
+  {
+    extern volatile int32_t g_torque_set_ma;
+    extern volatile uint8_t g_torque_set_req;
+    if ((g_torque_set_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
+    {
+      int32_t ma = g_torque_set_ma;
+      g_torque_set_req = 0U;
+      if (ma >  29000) { ma =  29000; }
+      if (ma < -29000) { ma = -29000; }
+      MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 0U);   /* 0 ms = immediate */
     }
   }
 }
@@ -1202,22 +1224,11 @@ static void StartAppTask(void const *argument)
       }
     }
 
-    /* Live torque-current setpoint ('t<mA>', signed): command Iq in torque
-       control, clamped to a safe +/-8 A. Negative = reverse torque (e.g. t-200).
-       Switches the motor to torque mode at that current. */
-    {
-      extern volatile int32_t g_torque_set_ma;
-      extern volatile uint8_t g_torque_set_req;
-      if ((g_torque_set_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
-      {
-        int32_t ma = g_torque_set_ma;
-        g_torque_set_req = 0U;
-        if (ma >  8000) { ma =  8000; }
-        if (ma < -8000) { ma = -8000; }
-        MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 200U);
-        LOG_Printf("torque set -> %ld mA\r\n", (long)ma);
-      }
-    }
+    /* Live torque-current setpoint ('t<mA>' / ESP heartbeat) is now applied in
+       Ropetow_EspLinkService() at ~1 kHz (0 ms ramp) instead of here at 10 Hz --
+       moved so an ESP-side PID actuates with ~1 ms latency. See that function.
+       (The old console "torque set -> N mA" confirmation was dropped to avoid
+       flooding the log at up to 1 kHz; ask if you want a throttled version.) */
 
     /* Live SPEED setpoint ('s<rpm>'): command a speed ramp (switches to / stays in
        speed control). Clamped to a safe 0..600 rpm. Sweep this to find where the

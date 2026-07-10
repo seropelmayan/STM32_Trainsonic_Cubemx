@@ -452,18 +452,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     /* then act on this character */
     switch (ch)
     {
-      case 'e':                                 /* decoupling FF: step gain 0->25->50->100% */
-      {                                         /* (repurposed from dead INL enable)        */
-        extern volatile uint8_t g_ffd_gain_pct;
-        g_ffd_gain_pct = (g_ffd_gain_pct == 0U) ? 25U :
-                         ((g_ffd_gain_pct == 25U) ? 50U :
-                          ((g_ffd_gain_pct == 50U) ? 100U : 100U));
-      } break;
-      case 'd':                                 /* decoupling FF: INSTANT OFF (kill switch) */
-      {
-        extern volatile uint8_t g_ffd_gain_pct;
-        g_ffd_gain_pct = 0U;
-      } break;
+      case 'e': g_inl_enable = 1U;     break;
+      case 'd': g_inl_enable = 0U;     break;
       case '+': g_inl_sign   = 1.0f;   break;
       case '-': g_inl_sign   = -1.0f;  break;
       case 'c': g_cal_idx = 0U; g_cal_state = 0U; break;

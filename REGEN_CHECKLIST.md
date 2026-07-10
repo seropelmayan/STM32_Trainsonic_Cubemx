@@ -55,12 +55,10 @@ hand-written blocks (all were OUTSIDE USER CODE guards):
   stores, post-Circle_Limitation Vqd). Feeds the flux-weakening voltage filter
   at 25 kHz; without it FW never engages (avV stays 0) since the MF-rate call
   was removed.
-- **`Vqd = FF_VqdConditioning(&FF_M1, Vqd);` between the two PI_Controller
-  calls and Circle_Limitation**, and **`FF_DataProcess(&FF_M1);` at the tail**
-  next to FW_DataProcess. dq decoupling feed-forward (hand-wired; constants
-  derived first-principles in mc_tasks_foc.c -- NEVER reuse .wb FF constants,
-  they overflow int32). Without the conditioning call the FF component computes
-  but never acts.
+- (dq decoupling FF was trialled and STRIPPED 2026-07-10 -- see commit fe7304d
+  for the full parked implementation and FW_OPTIMIZATION_AUDIT.md for the
+  re-attempt plan. If it returns, its two calls in this function come back too.
+  NEVER reuse .wb FF constants: they overflow int32.)
 - Note: new FF code now lives in this function too — keep it; integrate dead-time
   comp after the FF/Circle_Limitation stage.
 

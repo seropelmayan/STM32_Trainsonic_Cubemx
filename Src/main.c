@@ -1048,11 +1048,10 @@ static void motor_status_log(void)
     extern volatile float    g_spdcap_rpm;
     extern volatile float    g_spdcap_brake_now_a;
     extern volatile uint32_t g_spi_err_count;
-    extern volatile uint8_t  g_ffd_gain_pct;     /* decoupling FF gain, % ('e'/'d') */
     extern int16_t Ropetow_McFwAvVolt(void);
     extern int16_t Ropetow_McFwVTarget(void);
     LOG_Printf("[m] %s spd=%ld cap=%d brk=%d | Iqref=%d Iq=%d Id=%d IdFW=%d | "
-               "avV=%d/%d ffd=%u | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
+               "avV=%d/%d | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
                mc_state_name(state),
                (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT,
                (int)g_spdcap_rpm,
@@ -1062,7 +1061,6 @@ static void motor_status_log(void)
                (int)FOCVars[M1].Iqd.d,
                (int)FOCVars[M1].Iqdref.d,
                (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
-               (unsigned)g_ffd_gain_pct,
                i_tenths / 10, i_tenths % 10,
                (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
                MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",

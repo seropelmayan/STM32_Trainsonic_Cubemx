@@ -55,14 +55,10 @@ hand-written blocks (all were OUTSIDE USER CODE guards):
   stores, post-Circle_Limitation Vqd). Feeds the flux-weakening voltage filter
   at 25 kHz; without it FW never engages (avV stays 0) since the MF-rate call
   was removed.
-- **The smoothed FF application block between the two PI_Controller calls and
-  Circle_Limitation** (a ~1 ms LPF on FF_M1.Vqdff + inline saturating add +
-  VqdPIout update -- ST's FF_VqdConditioning equivalent with anti-hiss
-  smoothing), and **`FF_DataProcess(&FF_M1);` at the tail** next to
-  FW_DataProcess. dq decoupling feed-forward, ROUND 2 constants from measured
-  L=1.10mH / lambda=0.0178 (mc_tasks_foc.c has the derivation) -- NEVER reuse
-  .wb FF constants, they overflow int32. Without the application block the FF
-  component computes but never acts.
+- (dq decoupling FF was trialled and STRIPPED 2026-07-10 -- see commit fe7304d
+  for the full parked implementation and FW_OPTIMIZATION_AUDIT.md for the
+  re-attempt plan. If it returns, its two calls in this function come back too.
+  NEVER reuse .wb FF constants: they overflow int32.)
 - Note: new FF code now lives in this function too — keep it; integrate dead-time
   comp after the FF/Circle_Limitation stage.
 

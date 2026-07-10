@@ -77,6 +77,7 @@
 #include <math.h>                   /* sinf/cosf for the INL correction    */
 #include <string.h>                 /* memcpy for flash double-word packing */
 #include "flux_weakening_ctrl.h"    /* MCSDK native voltage-feedback FW component */
+#include "feed_forward_ctrl.h"      /* MCSDK dq decoupling feed-forward (hand-wired, see FF_M1) */
 #include "pid_regulator.h"          /* PID_HandleInit / PID_SetKI for the FW PID  */
 extern SPI_HandleTypeDef hspi1;     /* AS5047 SPI link (defined in main.c) */
 /* USER CODE END Includes */
@@ -492,6 +493,55 @@ FW_Handle_t FW_M1 =
 };
 volatile uint8_t  g_mcfw_enable = 1U;   /* CDC 'x': 1 = use MCSDK native FW (replaces custom g_fw_); ON at boot */
 
+/* ---- dq DECOUPLING FEED-FORWARD (ST feed_forward_ctrl, hand-instantiated) ----
+   Cancels the speed-proportional cross-coupling at the source: Vq += we*(Ld*Id
+   + lambda), Vd -= we*Lq*Iq, computed each MF tick from the FINAL Iqdref (incl.
+   FW's Id) and added onto the PI outputs in FOC_CurrControllerM1 (before the
+   circle limiter). Without it, every FW Id transient shoves ~2.6 V/A/(900rpm)
+   into the torque axis and the Iq PI must reject it reactively (felt at the
+   handle). See FW_OPTIMIZATION_AUDIT.md gun #1.
+
+   CONSTANTS -- derived from first principles, all unit conventions read from
+   THIS tree's source (do NOT reuse .wb-recorded values: the old recipe numbers
+   C1=280527866/C2=29234572 are ~200-400x oversized and make ST's int32 math in
+   FF_VqdffComputation OVERFLOW -> wrapped voltages -> the violent vibration of
+   the 2026-06-19 FF attempt).
+     conventions: dpp = we*65536/(2pi*25000)      [SPD_GetElSpeedDpp @ 25 kHz]
+                  Id_s16 = Id_A * CCF (992)       [current scaling today]
+                  hAvBusVoltage_d = Vbus_V*65536/80.29/2   [3.3 V / 0.0411 div]
+                  Vs16: 32767 = Vbus/sqrt(3) phase peak
+     matching runtime code to physics gives:
+       C1 = Ld*sqrt3*32767 / (dppPerRad * CCF * 2/32768 / hAvPerVolt)
+          = 1,283,420   (Ld = Lq = 1.4 mH)
+       C2 = lambda*sqrt3*32767 / (dppPerRad * 16 / hAvPerVolt)
+          = 66,966      (lambda = 0.0193 Wb, from Ke 49.4 Vrms-ll/krpm)
+     self-check: C2 term at 550 rpm predicts 22.2 V = we*lambda exactly. Worst-
+     case int32 products (1150 rpm, 12 A): 4.7e8 < 2^31 -- no overflow.
+     If Ld/Lq or lambda are re-measured, scale C1 by L/1.4mH, C2 by lam/0.0193.
+   SAFETY: OFF at boot; CDC 'e' steps gain 0->25->50->100% (staged bring-up),
+   'd' = instant off; disabled during step-test; Vqdff forced 0 when off so the
+   conditioning call is a pure pass-through; enable near standstill (engaging at
+   speed causes one small blip while the PIs shed the compensation they held). */
+/* ROUND 2 (2026-07-10): constants rescaled to BENCH-MEASURED parameters from
+   the A700 steady-FW capture (100 steady points, 14 carrying Id -4..-12 A;
+   fit RMS 0.70 V vs 1.43 V for datasheet values; L confirmed independently by
+   the Id-rich subset alone):
+     L      = 1.10 mH at working currents (datasheet 1.4 mH is small-signal;
+              -21% = magnetic saturation)      -> C1 x (1.10/1.40)
+     lambda = 0.0178 Wb measured (ds 0.0193)   -> C2 x (0.0178/0.0193)
+   Round 1 with datasheet L over-decoupled by ~27% -> hiss + no Iq-tracking
+   benefit. Round-1 values for reference: C1=1283420, C2=66966. */
+#define FFD_CONST1         1008400
+#define FFD_CONST2         61760
+FF_Handle_t FF_M1 =
+{
+  .wDefConstant_1D        = FFD_CONST1,
+  .wDefConstant_1Q        = FFD_CONST1,
+  .wDefConstant_2         = FFD_CONST2,
+  .hVqdLowPassFilterBW    = 32U,          /* VqdAvPIout averaging (telemetry/bumpless) @25 kHz */
+  .hVqdLowPassFilterBWLOG = 5U,
+};
+volatile uint8_t  g_ffd_gain_pct = 0U;  /* 0=OFF (boot). 'e' steps 25/50/100, 'd' -> 0 */
 volatile float    g_fwff_ma_per_rpm = 0.0f;   /* speed-scheduled Id feed-forward gain, mA per rpm over
                                                  the knee (CDC 'q<n>'; 0 = FF OFF -- the baked default).
                                                  Bench verdict 2026-07-10: q0 is SMOOTHER than any gain.
@@ -1132,6 +1182,30 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     }
   }
 
+  /* dq decoupling feed-forward: compute Vqdff from the FINAL Iqdref (incl. the
+     FW Id just written above) once per MF tick. Gain-staged: the computed terms
+     are scaled by g_ffd_gain_pct before the HF loop adds them (FF_VqdConditioning
+     in FOC_CurrControllerM1). When off/stopped/step-test the terms are forced to
+     zero -> the HF conditioning call is a strict pass-through. */
+  {
+    static uint8_t s_ffd_prev = 0U;
+    if ((bMotor == M1) && (g_ffd_gain_pct > 0U) && (g_inj_override == 0U) &&
+        (Mci[M1].State == RUN))
+    {
+      if (s_ffd_prev == 0U) { FF_Clear(&FF_M1); }   /* clean state on (re)enable */
+      s_ffd_prev = 1U;
+      FF_VqdffComputation(&FF_M1, FOCVars[M1].Iqdref, pSTC[M1]);
+      FF_M1.Vqdff.q = (int16_t)(((int32_t)FF_M1.Vqdff.q * (int32_t)g_ffd_gain_pct) / 100);
+      FF_M1.Vqdff.d = (int16_t)(((int32_t)FF_M1.Vqdff.d * (int32_t)g_ffd_gain_pct) / 100);
+    }
+    else
+    {
+      s_ffd_prev = 0U;
+      FF_M1.Vqdff.q = 0;
+      FF_M1.Vqdff.d = 0;
+    }
+  }
+
   if ((bMotor == M1) && (g_inj_override == 0U) && (g_mcfw_enable == 0U))
   {
     if (Mci[M1].State == RUN)
@@ -1479,6 +1553,28 @@ inline uint16_t FOC_CurrControllerM1(void)
     Vqd.q = 0;
     Vqd.d = 0;
   }
+  /* Decoupling feed-forward, applied through a ~1 ms smoother (ROUND 2): the
+     terms are recomputed at 1 kHz (MF), and adding the raw 1 kHz staircase at
+     25 kHz was audible as a hiss in round one. LPF the terms here (tau ~1 ms;
+     they evolve on the ~10 ms speed timescale, so the lag is immaterial), then
+     do ST's FF_VqdConditioning equivalent inline: saturating add onto the PI
+     outputs, keeping VqdPIout updated so FF_DataProcess stays meaningful.
+     Pass-through when g_ffd_gain_pct==0 (terms zeroed each MF tick; smoother
+     decays to 0 in ~3 ms). ST canonical position: after the PIs, BEFORE the
+     circle limiter. REGEN NOTE: re-add after regen (REGEN_CHECKLIST.md). */
+  {
+    static float s_ffq = 0.0f, s_ffd_v = 0.0f;
+    int32_t wtmp;
+    s_ffq   += ((float)FF_M1.Vqdff.q - s_ffq)   * 0.04f;   /* tau ~1 ms @25 kHz */
+    s_ffd_v += ((float)FF_M1.Vqdff.d - s_ffd_v) * 0.04f;
+    FF_M1.VqdPIout = Vqd;                 /* PI-only output, for FF_DataProcess */
+    wtmp = (int32_t)Vqd.q + (int32_t)s_ffq;
+    if (wtmp > 32767) { wtmp = 32767; } else if (wtmp < -32767) { wtmp = -32767; }
+    Vqd.q = (int16_t)wtmp;
+    wtmp = (int32_t)Vqd.d + (int32_t)s_ffd_v;
+    if (wtmp > 32767) { wtmp = 32767; } else if (wtmp < -32767) { wtmp = -32767; }
+    Vqd.d = (int16_t)wtmp;
+  }
   Vqd = Circle_Limitation(&CircleLimitationM1, Vqd);
   Valphabeta = MCM_Rev_Park(Vqd, hElAngle);
 
@@ -1520,6 +1616,8 @@ inline uint16_t FOC_CurrControllerM1(void)
      REGEN NOTE: this function is regenerated -- re-add this call (see
      REGEN_CHECKLIST.md). */
   FW_DataProcess(&FW_M1, Vqd);
+  FF_DataProcess(&FF_M1);   /* averages the PI-out captured by FF_VqdConditioning
+                               (telemetry/bumpless support). REGEN NOTE: re-add. */
 
   return (hCodeError);
 }
@@ -1726,6 +1824,10 @@ void Ropetow_McFwInit(void)
   PID_HandleInit(&PIDFluxWeakeningHandle_M1);
   FW_Init(&FW_M1, &PIDSpeedHandle_M1, &PIDFluxWeakeningHandle_M1);
   FW_Clear(&FW_M1);
+  /* Decoupling feed-forward: bind bus sensor + current PIs, start cleared.
+     Inert until g_ffd_gain_pct > 0 (CDC 'e'). */
+  FF_Init(&FF_M1, &BusVoltageSensor_M1._Super, &PIDIdHandle_M1, &PIDIqHandle_M1);
+  FF_Clear(&FF_M1);
 }
 
 void Ropetow_SetMcFwVRef(int32_t v)

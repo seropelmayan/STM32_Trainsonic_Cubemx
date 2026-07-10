@@ -1132,8 +1132,6 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     }
   }
 
-  }
-
   if ((bMotor == M1) && (g_inj_override == 0U) && (g_mcfw_enable == 0U))
   {
     if (Mci[M1].State == RUN)

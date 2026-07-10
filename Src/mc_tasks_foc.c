@@ -277,6 +277,12 @@ int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied fro
 volatile uint8_t  g_cogg_enable = 0U;            /* 0 = off (safe default); CDC 'K'/'k'        */
 volatile int16_t  g_cogg_clamp  = 800;           /* max |FF|, s16 current units (~0.4 A); CDC 'C<n>' */
 volatile float    g_cogg_gain   = 1.0f;          /* FF amplitude scale; CDC 'E<percent>' (e.g. E130=1.3x) */
+volatile float    g_cogg_fade_lo_rpm = 1.0e6f;   /* cogging-FF speed fade: DORMANT (bench A/B 2026-07-10:
+                                                    no audible change from fading the FF out at speed, so
+                                                    keep anti-cogging active always). To re-test, lower
+                                                    these via debugger (e.g. 150/350): full FF below lo,
+                                                    linear to zero at hi. */
+volatile float    g_cogg_fade_hi_rpm = 1.0e6f;
 volatile float    g_cogg_cal_iq_a = 10.0f;       /* calib current: torque authority during the cal sweep (A); CDC 'Z<mA>' */
 /* Standstill FF freeze: at ~0 speed the rotor (with its cogging detent now cancelled)
    micro-creeps under a constant pull; the position-indexed FF would TRACK that creep
@@ -360,7 +366,8 @@ volatile uint8_t  g_enc_mon = 0U;
    ST's voltage-feedback FW PI -- start small (-1 A) and raise while watching Vqd
    headroom in the status log. Applied in FOC_CalcCurrRef (MF, guarded). Tune live
    over USB CDC: 'w' toggle, 'W<rpm>' threshold, 'J<mA>' weakening magnitude. */
-volatile uint8_t  g_fw_enable        = 1U;      /* 1 = flux weakening active (CDC 'w')        */
+volatile uint8_t  g_fw_enable        = 0U;      /* legacy constant-Id FW: OFF at boot, superseded
+                                                   by the native MCSDK FW below (toggle CDC 'w') */
 volatile float    g_fw_speed_thr_rpm = 525.0f;  /* |mech rpm| above which FW engages (CDC 'W')*/
 volatile float    g_fw_hyst_rpm      = 50.0f;   /* engage hysteresis: drop out below thr-hyst (CDC 'H') */
 volatile float    g_fw_id_target_a   = -1.0f;   /* d-axis current target, A, negative (CDC 'J')*/
@@ -368,17 +375,59 @@ volatile float    g_fw_id_slew_a_s   = 5.0f;    /* Id slew rate, A/s -- limits t
 volatile float    g_fw_id_now_a      = 0.0f;    /* slewed Id ACTUALLY applied, A (0 = FW idle) */
 static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 once below thr-hyst */
 /* ---- Torque-mode speed cap / governor (Ropetow) -----------------------------
-   Caps top speed by rolling Iqref toward 0 as |mech speed| approaches the cap, so
-   the drive LEVELS OFF short of the MAX_APPLICATION_SPEED (700 rpm) over-speed
-   fault instead of tripping it. Primarily for torque mode (no speed loop), but it
-   runs in any mode as a backstop -- harmless in speed mode as long as the cap is
-   above the commanded speed. Only the ACCELERATING torque is rolled off (q and
-   speed same sign); braking torque always passes so you can decelerate. Uses the
-   MCSDK average speed (hAvrMecSpeedUnit), whose sign matches Iqref.q. The
-   over-speed fault is intentionally LEFT ENABLED as a hard backstop below this.
-   0 = cap disabled. Set live via CDC 'V<rpm>'. */
-volatile float    g_spdcap_rpm       = 500.0f; /* speed cap, rpm (0 = off); keep < 700 fault */
-#define SPDCAP_BAND_RPM   40.0f                 /* roll-off band below the cap (rpm)          */
+   Caps top speed by rolling Iqref toward 0 as |mech speed| approaches the cap,
+   then ABOVE the cap injects BRAKING torque (q opposing speed, growing with the
+   overspeed) so the drive holds the cap even against an overhauling load instead
+   of coasting into the 800 rpm over-speed fault (mc_config_common.c). Primarily
+   for torque mode (no speed loop), but it runs in any mode as a backstop --
+   harmless in speed mode as long as the cap is above the commanded speed. Only
+   the ACCELERATING torque is rolled off (q and speed same sign); commanded
+   braking always passes, and above the cap the STRONGER of (commanded braking,
+   governor braking) wins. Speed feedback: magnitude and sign from the SAME
+   (averaged) sensor -- reversal-safe (see the note in the block below).
+   The over-speed fault is intentionally LEFT ENABLED as a
+   hard backstop above this. The governor is ALWAYS active in RUN: it enforces
+   min(g_spdcap_rpm, g_spdcap_hard_rpm), and the hard ceiling alone when no cap
+   is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
+   regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
+volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
+volatile float    g_spdcap_hard_rpm  = 600.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+                                                  min(requested, hard), and enforces hard even when the
+                                                  request is 0/absent. NOT writable from the ESP link --
+                                                  the STM32 has the last word on top speed (drum release
+                                                  overspeed + the ~715 rpm voltage wall live above this).
+                                                  Keep < the 800 rpm over-speed fault. */
+#define SPDCAP_BAND_RPM   120.0f                /* roll-off band below the cap (rpm). Widened 40->120:
+                                                   VESC-documented anti-limit-cycle rule is band >> speed
+                                                   ripple -- at 40 the derating acted as a relay (7 A
+                                                   command chopped full<->zero by +/-25 rpm of speed
+                                                   noise = the release vibration); at 120 the slope is
+                                                   ~3x gentler and noise moves torque only ~+/-1.5 A. */
+volatile float    g_spdcap_brake_a_per_rpm = 0.06f; /* braking P gain: A per rpm over the cap. Kept LOW:
+                                                       P x speed-ripple is felt as force grain, and P x
+                                                       LPF-lag is the loop gain of a brake<->speed limit
+                                                       cycle (bench: 150 ms LPF + P 0.10 oscillated at
+                                                       ~4 Hz). The 16 A ceiling + integral do the work. */
+volatile float    g_spdcap_brake_a_per_rpm2 = 0.0012f; /* PROGRESSIVE (quadratic) brake term, A per rpm^2
+                                                       over the cap: soft near the cap (at +20 rpm it adds
+                                                       only ~0.5 A to the linear term -> smooth feel), hard
+                                                       against whips (+100 rpm -> +12 A -> ceiling). Solves
+                                                       the linear-P dilemma where one slope had to be both
+                                                       gentle at the cap and stiff against 1000 rpm yanks. */
+volatile float    g_spdcap_brake_lpf_ms    = 60.0f; /* brake output LPF, ms. This lag sits INSIDE the
+                                                       brake<->speed loop: too big oscillates (150 ms
+                                                       did), too small passes speed-ripple grain to the
+                                                       hand (raw P did). 60 ms cleared both on bench. */
+volatile float    g_spdcap_brake_ki        = 0.2f;  /* braking I gain: A per rpm-second of overspeed --
+                                                       removes the P-only droop (holds AT the cap)      */
+volatile float    g_spdcap_brake_max_a     = 16.0f; /* braking Iq ceiling, A. Raised 8->16: brake force
+                                                       only matters RELATIVE to the resistance setting
+                                                       (8 A on a 7 A pull is +14% = imperceptible; logs
+                                                       showed 1002 rpm pulls with brk pinned). 16 A over
+                                                       a 7 A setting is a real wall, and the current
+                                                       vector stays <=20 A even with FW at its 12 A
+                                                       floor (sqrt(16^2+12^2), motor rated 29 A).      */
+volatile float    g_spdcap_brake_now_a     = 0.0f;  /* braking ACTUALLY applied, A (telemetry, 0=idle)  */
 /* ---- MCSDK native flux weakening (voltage-feedback) -- hand-instantiated -----
    The project was generated without FW, so ST's FW_Handle (flux_weakening_ctrl.c)
    is wired up here by hand. It is the ADAPTIVE voltage-feedback FW: a PI on the
@@ -386,22 +435,45 @@ volatile float    g_spdcap_rpm       = 500.0f; /* speed cap, rpm (0 = off); keep
    the voltage saturates. Safe in our LOW-torque torque mode: FW_CalcCurrRef only
    clamps Iq via the current circle sqrt(Inom^2 - Id^2), which never bites at
    ~0.5 A; and its pSpeedPID integral-limit writes are harmless on the (idle)
-   speed PID. Hard floor = hDemagCurrent. Default OFF; enable with CDC 'x', tune
-   FW_V_Ref with 'A<tenths-%>' and the FW PI Ki with 'B<n>'. When ON it REPLACES
-   the custom g_fw_ block. */
-#define FW_V_REF_DEFAULT   950U      /* target |Vqd| as tenths-of-% of MaxModule (950 = 95%) */
-#define FW_DEMAG_A         8.0f      /* hard floor on FW |Id| (A); motor takes 29A, tune via 'S<mA>' */
-#define FW_VQD_BWLOG       4U        /* Vqd 1st-order LPF: 2^4 = 16                           */
-#define FW_PID_KP_DEFAULT  0         /* FW PI: start integral-only (Kp=0), tune live          */
-#define FW_PID_KI_DEFAULT  200       /* FW PI Ki -- conservative start; raise via 'B<n>'      */
+   speed PID. Hard floor = hDemagCurrent. Default ON at boot (toggle with CDC
+   'x'); tune FW_V_Ref with 'A<tenths-%>' and the FW PI Ki with 'B<n>'. When ON
+   it REPLACES the custom g_fw_ block (whose g_fw_enable boots OFF). */
+#define FW_V_REF_DEFAULT   850U      /* target |Vqd| as tenths-of-% of MaxModule (850 = 85%).
+                                        Chosen from bench sweeps: at 975 the current loop keeps
+                                        ~no voltage margin near the cap and Iq COLLAPSES during
+                                        releases (Iqref -6988 vs Iq -1087 in logs = the buzz);
+                                        at 850 regulation pinned cleanly with Iq tracking. Below
+                                        ~850 the demag budget saturates for no extra benefit.
+                                        Live-tune with 'A<tenths-%>' -- NOT persistent, defaults
+                                        return on every boot. */
+#define FW_DEMAG_A         12.0f     /* hard floor on FW |Id| (A); raised 8->12 (log showed FW pinned
+                                        at the 8 A floor). Heat is duty-cycled by the short pulls, but
+                                        DEMAG risk is instantaneous: profile lists 8.2 A demag (likely
+                                        a Workbench default = old nominal, unverified) -- push past 12
+                                        only via 'S<mA>' tests while watching for Ke loss (lower avV at
+                                        the same rpm/Vbus = weakened magnets, back off immediately). */
+#define FW_VQD_BWLOG       5U        /* Vqd 1st-order LPF: 2^5 = 32 samples. FW_DataProcess now
+                                        runs at the 25 kHz FOC rate -> ~1.3 ms lag, ~124 Hz pole
+                                        (was 8 samples @1 kHz = 8 ms / 20 Hz, the old speed limit) */
+#define FW_PID_KP_DEFAULT  60        /* FW PI Kp (div 512 -> 0.12 eff): damping/lead for the PI
+                                        zero -- safe against the fast 25 kHz filter, kills the
+                                        high-Ki overshoot-vibration. 0 = integral-only. */
+#define FW_PID_KI_DEFAULT  1500      /* FW PI Ki (1 kHz PI, ~124 Hz measurement pole): crossover
+                                        ~44 Hz at the worst case (800 rpm, sagged pack, G~3),
+                                        PM ~60 deg -> Id responds in ~10 ms instead of ~40 ms.
+                                        Headroom to ~B2200 before margin thins; tune via 'B<n>' */
 PID_Handle_t PIDFluxWeakeningHandle_M1 =
 {
   .hDefKpGain          = (int16_t)FW_PID_KP_DEFAULT,
   .hDefKiGain          = (int16_t)FW_PID_KI_DEFAULT,
   .wUpperIntegralLimit = 0,                  /* FW only weakens: NO positive windup (anti-windup) */
-  .wLowerIntegralLimit = -(int32_t)INT16_MAX * (int32_t)TF_KIDIV,
+  .wLowerIntegralLimit = -(int32_t)(FW_DEMAG_A * (float)CURRENT_CONV_FACTOR) * (int32_t)TF_KIDIV,
+                                             /* integral bounded at the demag floor: winding deeper
+                                                than FW_CalcCurrRef can apply would only delay Id
+                                                recovery when speed drops back below the wall */
   .hUpperOutputLimit   = 0,                  /* output <= 0 => weaken-or-nothing; can't wind up at low speed */
-  .hLowerOutputLimit   = -INT16_MAX,         /* hDemagCurrent is the real floor  */
+  .hLowerOutputLimit   = -(int16_t)(FW_DEMAG_A * (float)CURRENT_CONV_FACTOR),
+                                             /* == hDemagCurrent; kept in sync by Ropetow_SetMcFwDemag */
   .hKpDivisor          = (uint16_t)TF_KPDIV,
   .hKiDivisor          = (uint16_t)TF_KIDIV,
   .hKpDivisorPOW2      = (uint16_t)TF_KPDIV_LOG,
@@ -418,7 +490,11 @@ FW_Handle_t FW_M1 =
   .hVqdLowPassFilterBW    = (uint16_t)(1U << FW_VQD_BWLOG),
   .hVqdLowPassFilterBWLOG = (uint16_t)FW_VQD_BWLOG,
 };
-volatile uint8_t  g_mcfw_enable = 0U;   /* CDC 'x': 1 = use MCSDK native FW (replaces custom g_fw_) */
+volatile uint8_t  g_mcfw_enable = 1U;   /* CDC 'x': 1 = use MCSDK native FW (replaces custom g_fw_); ON at boot */
+volatile float    g_fwff_ma_per_rpm = 25.0f;  /* speed-scheduled Id feed-forward gain, mA per rpm over
+                                                 the knee (CDC 'q<n>'; 0 = FF off). 25 -> 5 A at 700 rpm,
+                                                 sized from bench logs (steady FW Id at 650-700 was 4-6 A) */
+volatile float    g_fwff_knee_rpm   = 500.0f; /* FF starts above this |speed| (SPI speed, rpm) */
 /* USER CODE END Private Variables */
 
 /* Private functions ---------------------------------------------------------*/
@@ -953,6 +1029,19 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     int32_t  ff   = (int32_t)g_cogg_lut[bin] +
                     ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
     if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); } /* amplitude scale */
+    {
+      /* Speed fade-out: full FF below fade_lo, linear to ZERO by fade_hi. At
+         speed the position-indexed FF becomes an audible multi-kHz Iq whine
+         (bench: 'k' at speed removed the noise) while real cogging is already
+         inertia-filtered -- so keep the FF only where it does its job. */
+      float aspd = fabsf(g_enc_speed_rpm);
+      if      (aspd >= g_cogg_fade_hi_rpm) { ff = 0; }
+      else if (aspd >  g_cogg_fade_lo_rpm)
+      {
+        float f = (g_cogg_fade_hi_rpm - aspd) / (g_cogg_fade_hi_rpm - g_cogg_fade_lo_rpm);
+        ff = (int32_t)((float)ff * f);
+      }
+    }
     if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
     if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
     /* Anti-cogging applied at ALL speeds incl. standstill (constant "gravity" force).
@@ -999,10 +1088,37 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     {
       if (s_mcfw_prev == 0U) { FW_Clear(&FW_M1); }  /* reset FW integral + Vqd filter on (re)enable */
       s_mcfw_prev = 1U;
-      FW_DataProcess(&FW_M1, FOCVars[M1].Vqd);
-      __disable_irq();
-      FOCVars[M1].Iqdref = FW_CalcCurrRef(&FW_M1, FOCVars[M1].Iqdref);
-      __enable_irq();
+      /* (FW_DataProcess now runs at 25 kHz in FOC_CurrControllerM1; only the
+         PI + Iq circle clamp remain here at the 1 kHz MF rate.) */
+      {
+        /* Speed-scheduled Id FEED-FORWARD + PI trim. The Id a given speed needs
+           is predictable (BEMF grows linearly with speed), so schedule the bulk
+           of it straight from the fresh SPI speed -- it arrives WITH the whip
+           instead of ~1 loop-response after it. The voltage-error PI then only
+           trims the small residual, so it can stay soft (no hunting vibration)
+           without being late (no clipping buzz) -- resolves the low-B-buzz vs
+           high-B-vibration trade-off seen on the bench.
+           Composition uses ST's own mechanism: the FF is seeded via iqd.d, which
+           FW_CalcCurrRef latches as hIdRefOffset while its PI is idle and adds
+           the PI output on top once active. Re-seeding every tick from
+           UserIdref+FF (never from FW's previous output) also keeps the
+           anti-ratchet property. Total is clamped to hDemagCurrent inside
+           FW_CalcCurrRef. Tune gain live with 'q<mA-per-rpm>' (q0 = FF off). */
+        int32_t idff = 0;
+        float   arpm = fabsf(g_enc_speed_rpm);
+        if ((arpm > g_fwff_knee_rpm) && (g_fwff_ma_per_rpm > 0.0f))
+        {
+          idff = -(int32_t)((arpm - g_fwff_knee_rpm) * g_fwff_ma_per_rpm * 0.001f *
+                            (float)CURRENT_CONV_FACTOR);
+          if (idff < (int32_t)FW_M1.hDemagCurrent) { idff = (int32_t)FW_M1.hDemagCurrent; }
+        }
+        qd_t iqd = FOCVars[M1].Iqdref;
+        iqd.d = (int16_t)((int32_t)FOCVars[M1].UserIdref + idff);
+        iqd = FW_CalcCurrRef(&FW_M1, iqd);
+        __disable_irq();
+        FOCVars[M1].Iqdref = iqd;
+        __enable_irq();
+      }
     }
     else
     {
@@ -1035,31 +1151,118 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     }
   }
 
-  /* Torque-mode speed cap (governor): roll the q-axis reference toward 0 as
-     |speed| approaches g_spdcap_rpm, so the drive plateaus BELOW the
-     MAX_APPLICATION_SPEED over-speed fault rather than tripping it. Only the
-     ACCELERATING component is limited (q and speed same sign) -- braking torque
-     passes through so deceleration always works. Uses the MCSDK average speed
-     (hAvrMecSpeedUnit) so its sign is consistent with Iqref.q. Runs LAST so it
-     caps the final q reference (incl. anti-cogging FF). Skipped during the
-     step-test override. */
-  if ((bMotor == M1) && (g_inj_override == 0U) && (g_spdcap_rpm > 0.0f) &&
-      (Mci[M1].State == RUN))
+  /* Torque-mode speed cap (governor), PI braking:
+     - Approaching the cap: accelerating q (q and speed same sign) rolls linearly
+       to 0 across SPDCAP_BAND_RPM. Commanded braking always passes.
+     - Above the cap: braking Iq = P (g_spdcap_brake_a_per_rpm x overspeed)
+       + I (g_spdcap_brake_ki integrates the overspeed). The integral removes the
+       P-only droop, so a sustained overhauling load is held AT the cap instead
+       of cap + brake/slope (e.g. +50 rpm for a 4 A brake). Integral is clamped
+       [0, max]: brake-only, and below the cap the negative error drains it
+       smoothly (no windup, no separate reset path). Braking is applied whenever
+       P+I > 0 -- also just below the cap while the integral releases -- and the
+       STRONGER of (commanded braking, governor braking) wins.
+     Uses the MCSDK average speed (hAvrMecSpeedUnit) so its sign is consistent
+     with Iqref.q. Runs LAST so it caps the final q reference (incl. anti-cogging
+     FF and the FW circle clamp). Integral resets when stopped / cap off /
+     step-test. g_spdcap_brake_now_a publishes the applied brake for telemetry. */
   {
-    int32_t spd_rpm = ((int32_t)ENCODER_M1._Super.hAvrMecSpeedUnit * U_RPM) / SPEED_UNIT;
-    int32_t aspd    = (spd_rpm < 0) ? -spd_rpm : spd_rpm;
-    if ((float)aspd > (g_spdcap_rpm - SPDCAP_BAND_RPM))
+    static float s_brk_integ_a = 0.0f;    /* brake integral, A */
+    static float s_brk_lpf     = 0.0f;    /* smoothed applied brake, A (see LPF note below) */
+    if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN))
     {
-      float f = (g_spdcap_rpm - (float)aspd) / SPDCAP_BAND_RPM;  /* 1 -> 0 across band */
-      if (f < 0.0f) { f = 0.0f; }
-      if (f > 1.0f) { f = 1.0f; }
-      int16_t q = FOCVars[M1].Iqdref.q;
-      if (((int32_t)q * spd_rpm) > 0)        /* torque is accelerating |speed| */
+      /* Effective cap = min(requested, hard ceiling). A request of 0 ("no cap")
+         still enforces the hard ceiling -- whatever the ESP asks for, the STM32
+         never lets the drum past g_spdcap_hard_rpm. */
+      float cap = g_spdcap_rpm;
+      if ((cap <= 0.0f) || (cap > g_spdcap_hard_rpm)) { cap = g_spdcap_hard_rpm; }
+      /* Speed: magnitude AND sign from the same (averaged) sensor. A fast-
+         magnitude/slow-sign hybrid was tried 2026-07-10 and REVERTED: around a
+         direction reversal the fresh magnitude is already large while the
+         averaged sign is still stale, so the brake/roll-off fired at full
+         strength in the WRONG direction (felt as kicks on every reversal).
+         Same-sensor feedback is reversal-safe by construction: |speed| passes
+         through zero together with the sign change. */
+      int32_t spd_rpm = ((int32_t)ENCODER_M1._Super.hAvrMecSpeedUnit * U_RPM) / SPEED_UNIT;
+      int32_t aspd    = (spd_rpm < 0) ? -spd_rpm : spd_rpm;
+      float   err     = (float)aspd - cap;             /* > 0 = over the cap */
+
+      s_brk_integ_a += (g_spdcap_brake_ki * err) / (float)SPEED_LOOP_FREQUENCY_HZ;
+      if (s_brk_integ_a < 0.0f)                 { s_brk_integ_a = 0.0f; }
+      if (s_brk_integ_a > g_spdcap_brake_max_a) { s_brk_integ_a = g_spdcap_brake_max_a; }
+
+      int16_t q    = FOCVars[M1].Iqdref.q;
+      int16_t qnew = q;
+
+      if (err > -SPDCAP_BAND_RPM)               /* inside roll-off band or above cap */
+      {
+        float f = -err / SPDCAP_BAND_RPM;       /* 1 -> 0 across the band, <0 over cap */
+        if (f < 0.0f) { f = 0.0f; }
+        if (f > 1.0f) { f = 1.0f; }
+        if (((int32_t)q * spd_rpm) > 0)         /* torque is accelerating |speed| */
+        {
+          qnew = (int16_t)((float)q * f);
+        }
+      }
+
+      float brake_a = s_brk_integ_a;
+      if (err > 0.0f) { brake_a += err * (g_spdcap_brake_a_per_rpm + err * g_spdcap_brake_a_per_rpm2); }
+      if (brake_a > g_spdcap_brake_max_a) { brake_a = g_spdcap_brake_max_a; }
+      /* Low-pass the applied brake (g_spdcap_brake_lpf_ms): the P term rides on +/-25 rpm of
+         speed-measurement ripple, and at LOW resistance settings the brake
+         DOMINATES the felt force (stronger-of rule) -- unfiltered, the user's
+         hand feels the ripple as 1.5-5 A force chatter (bench: low-torque pull
+         vibration). 80 ms smooths that out while costing only a fraction of a
+         whip event (~150 ms) in brake onset; FW covers the voltage meanwhile. */
+      s_brk_lpf += (brake_a - s_brk_lpf) *
+                   (1000.0f / (g_spdcap_brake_lpf_ms * (float)SPEED_LOOP_FREQUENCY_HZ));
+      brake_a = s_brk_lpf;   /* telemetry (g_spdcap_brake_now_a) is set after the gate below */
+      /* Brake application, guarded twice:
+         - Deadband (>0.3 A): the LPF tail never reaches exactly zero; a raw >0
+           check let milliamp residue REPLACE the user's torque at standstill on
+           every speed-sign flicker (violent low-speed reversal vibration).
+         - SMOOTH speed gate: exactly zero below (cap-band), fading linearly to
+           full over the next 60 rpm. The first version was a binary gate at
+           (cap-band) -- a relay inside the brake<->speed loop that stepped the
+           felt force by the full brake value on every crossing and PUMPED the
+           cap oscillation (bench log: force snapping command<->command+5A as
+           speed crossed 480). The fade keeps the low-speed guarantee without
+           the discontinuity. */
+      {
+        float bgate = ((float)aspd - (cap - SPDCAP_BAND_RPM)) / 60.0f;
+        if (bgate < 0.0f) { bgate = 0.0f; }
+        if (bgate > 1.0f) { bgate = 1.0f; }
+        float brk_app = brake_a * bgate;
+        g_spdcap_brake_now_a = brk_app;         /* telemetry: brake actually applied */
+        /* PRODUCT RULE: the brake acts ONLY on motor-driven motion (q and speed
+           same sign = the machine spinning itself, i.e. release/rewind whip).
+           When the USER drives the speed (pulling against resistance, q opposes
+           speed) the machine must never fight harder than the resistance dial --
+           earlier builds braking fast pulls felt as a wrong "extra torque at
+           high rpm". Pull overspeed is instead handled by FW (proven in control
+           to 1068 rpm, costs volts not felt force) + the raised over-speed
+           fault (mc_config_common.c) sitting above human-reachable speed. */
+        if ((brk_app > 0.3f) && (spd_rpm != 0) && (((int32_t)q * spd_rpm) > 0))
+        {
+          int32_t brk = (int32_t)(brk_app * (float)CURRENT_CONV_FACTOR);
+          if (brk > INT16_MAX) { brk = INT16_MAX; }
+          if (spd_rpm > 0) { if (qnew > (int16_t)-brk) { qnew = (int16_t)-brk; } }
+          else             { if (qnew < (int16_t)brk)  { qnew = (int16_t)brk;  } }
+        }
+      }
+
+      if (qnew != q)
       {
         __disable_irq();
-        FOCVars[M1].Iqdref.q = (int16_t)((float)q * f);
+        FOCVars[M1].Iqdref.q = qnew;
         __enable_irq();
       }
+    }
+    else
+    {
+      s_brk_integ_a = 0.0f;                     /* stopped / step-test */
+      s_brk_lpf     = 0.0f;
+      g_spdcap_brake_now_a = 0.0f;
     }
   }
   /* USER CODE END FOC_CalcCurrRef 1 */
@@ -1273,6 +1476,14 @@ inline uint16_t FOC_CurrControllerM1(void)
   FOCVars[M1].Iqd = Iqd;
   FOCVars[M1].Valphabeta = Valphabeta;
   FOCVars[M1].hElAngle = hElAngle;
+
+  /* Feed the FW voltage filter at the FULL 25 kHz FOC rate (ST's canonical call
+     site, cf. Trainsonic). Was at the 1 kHz MF rate, which made the filter lag
+     ~8 ms and forced a slow FW PI -- too slow for the release whip (0->660 rpm
+     in <100 ms). Unconditional: also keeps avV telemetry live when mcfw is off.
+     REGEN NOTE: this function is regenerated -- re-add this call (see
+     REGEN_CHECKLIST.md). */
+  FW_DataProcess(&FW_M1, Vqd);
 
   return (hCodeError);
 }
@@ -1496,17 +1707,24 @@ void Ropetow_SetMcFwKi(int32_t ki)
 }
 
 /* FW demag clamp: max |Id| the flux-weakening loop may command, in mA. Bounds the
-   weakening headroom (and is the demag safety floor). Keep < the motor/FET limit. */
+   weakening headroom (and is the demag safety floor). Keep < the motor/FET limit.
+   Also re-bounds the FW PI lower output/integral limits to the same floor, so the
+   integrator can never wind deeper than FW_CalcCurrRef will apply -- otherwise Id
+   stays pinned at the floor for hundreds of ms after a deep FW episode while the
+   excess integral unwinds. */
 void Ropetow_SetMcFwDemag(int32_t ma)
 {
   if (ma < 0) { ma = 0; }
   /* Convert mA -> s16A and HARD-clamp to int16 range BEFORE negating, or the
      cast wraps and the demag "floor" flips POSITIVE (commands +Id = field
-     strengthening / runaway current). Max |Id| in s16A = 32767 (~16.5 A at the
-     ICS/3-shunt gain), which is also the current-sense saturation limit. */
+     strengthening / runaway current). Max |Id| in s16A = 32767 (~33 A at the
+     present 0.05 V/A sense gain: 5 mOhm shunt x 10 V/V CSA), which is also the
+     current-sense saturation limit. */
   int32_t s16 = (int32_t)(((float)ma / 1000.0f) * (float)CURRENT_CONV_FACTOR);
   if (s16 > INT16_MAX) { s16 = INT16_MAX; }
   FW_M1.hDemagCurrent = (int16_t)(-s16);
+  PID_SetLowerIntegralTermLimit(&PIDFluxWeakeningHandle_M1, -s16 * (int32_t)TF_KIDIV);
+  PID_SetLowerOutputLimit(&PIDFluxWeakeningHandle_M1, (int16_t)(-s16));
 }
 
 /* PLL bandwidth: set natural frequency f_n (Hz); kp=2*wn, ki=wn^2 at zeta=1.

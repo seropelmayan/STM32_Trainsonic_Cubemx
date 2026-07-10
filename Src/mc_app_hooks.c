@@ -60,7 +60,8 @@ __weak void MC_APP_BootHook(void)
     Ropetow_CoggInit();
   }
   /* Ropetow: hand-instantiate ST's native voltage-feedback flux weakening
-     (FW_Init + PID_HandleInit). Inactive until enabled via CDC 'x'. */
+     (FW_Init + PID_HandleInit). Active from boot (g_mcfw_enable = 1); toggle
+     live with CDC 'x'. The legacy constant-Id g_fw_ block boots disabled. */
   {
     extern void Ropetow_McFwInit(void);
     Ropetow_McFwInit();

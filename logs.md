@@ -1,635 +1,834 @@
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=4 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=2 Iq=20 Id=11 Vq=-84 cnt=288 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=4 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=4 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=5 Iq=10 Id=-5 Vq=-50 cnt=288 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=5 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=5 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=7 Iq=10 Id=-5 Vq=-69 cnt=288 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=5 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=5 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=5 Iq=12 Id=27 Vq=-62 cnt=288 pwm=1
-cogg cal: probing cable (~20 deg)... then auto-sweep (free shaft!). 'Y'=abort
-[cogg] pass 1/1  Iq=182  (sweeping)
-[cogg] pass 1/1  Iq=183  (sweeping)
-[cogg] pass 1/1  Iq=172  (sweeping)
-[cogg] pass 1/1  Iq=173  (sweeping)
-[cogg] pass 1/1  Iq=180  (sweeping)
-[cogg] pass 1/1  Iq=179  (sweeping)
-[cogg] pass 1/1  Iq=182  (sweeping)
-[cogg] pass 1/1  Iq=185  (sweeping)
-[cogg] pass 1/1  Iq=179  (sweeping)
-[cogg] pass 1/1  Iq=170  (sweeping)
-[cogg] pass 1/1  Iq=174  (sweeping)
-[cogg] pass 1/1  Iq=176  (sweeping)
-[cogg] pass 1/1  Iq=172  (sweeping)
-[cogg] pass 1/1  Iq=172  (sweeping)
-[cogg] pass 1/1  Iq=-111  (sweeping)
-[cogg] pass 1/1  Iq=-169  (sweeping)
-[cogg] pass 1/1  Iq=-168  (sweeping)
-[cogg] pass 1/1  Iq=-163  (sweeping)
-[cogg] pass 1/1  Iq=-163  (sweeping)
-[cogg] pass 1/1  Iq=-165  (sweeping)
-[cogg] pass 1/1  Iq=-168  (sweeping)
-[cogg] pass 1/1  Iq=-165  (sweeping)
-[cogg] pass 1/1  Iq=-169  (sweeping)
-[cogg] pass 1/1  Iq=-168  (sweeping)
-[cogg] pass 1/1  Iq=-163  (sweeping)
-[cogg] pass 1/1  Iq=-177  (sweeping)
-[cogg] pass 1/1  Iq=-182  (sweeping)
-[cogg] pass 1/1  Iq=129  (sweeping)
-[cogg] pass 1/1  Iq=186  (sweeping)
-[cogg] pass 1/1  Iq=172  (sweeping)
-[cogg] pass 1/1  Iq=177  (sweeping)
-[cogg] pass 1/1  Iq=181  (sweeping)
-[cogg] pass 1/1  Iq=180  (sweeping)
-[cogg] pass 1/1  Iq=182  (sweeping)
-[cogg] pass 1/1  Iq=176  (sweeping)
-[cogg] pass 1/1  Iq=170  (sweeping)
-[cogg] pass 1/1  Iq=174  (sweeping)
-[cogg] pass 1/1  Iq=176  (sweeping)
-[cogg] pass 1/1  Iq=171  (sweeping)
-[cogg] pass 1/1  Iq=173  (sweeping)
-[cogg] pass 1/1  Iq=-111  (sweeping)
-[cogg] pass 1/1  Iq=-164  (sweeping)
-[cogg] pass 1/1  Iq=-168  (sweeping)
-[cogg] pass 1/1  Iq=-169  (sweeping)
-[cogg] pass 1/1  Iq=-163  (sweeping)
-[cogg] pass 1/1  Iq=-169  (sweeping)
-[cogg] pass 1/1  Iq=-168  (sweeping)
-[cogg] pass 1/1  Iq=-164  (sweeping)
-[cogg] pass 1/1  Iq=-169  (sweeping)
-[cogg] pass 1/1  Iq=-171  (sweeping)
-[cogg] pass 1/1  Iq=-165  (sweeping)
-[cogg] pass 1/1  Iq=-177  (sweeping)
-[cogg] pass 1/1  Iq=-182  (sweeping)
-[cogg] cal done: peak=165@bin382  (compare to boot 'restored peak')
-cogg_start nbins=512 harm=1
-0,86,58
-1,34,66
-2,-21,65
-3,-72,55
-4,-109,47
-5,-129,59
-6,-130,55
-7,-117,45
-8,-96,48
-9,-72,43
-10,-49,53
-11,-31,43
-12,-18,49
-13,-10,44
-14,-6,60
-15,-4,60
-16,-3,39
-17,2,39
-18,14,55
-19,34,47
-20,63,46
-21,97,54
-22,128,39
-23,149,38
-24,151,55
-25,132,72
-26,94,56
-27,42,61
-28,-12,66
-29,-61,52
-30,-96,49
-31,-114,66
-32,-118,49
-33,-110,45
-34,-98,50
-35,-83,52
-36,-69,47
-37,-54,44
-38,-38,49
-39,-21,52
-40,-5,50
-41,8,43
-42,20,52
-43,30,45
-44,40,46
-45,53,51
-46,71,48
-47,92,44
-48,112,51
-49,124,51
-50,122,52
-51,102,61
-52,68,55
-53,23,63
-54,-22,60
-55,-62,55
-56,-90,59
-57,-105,47
-58,-109,55
-59,-106,57
-60,-100,38
-61,-94,47
-62,-85,57
-63,-72,60
-64,-55,44
-65,-32,40
-66,-7,40
-67,17,52
-68,39,51
-69,57,41
-70,72,45
-71,85,60
-72,98,42
-73,108,42
-74,114,58
-75,110,52
-76,94,60
-77,65,65
-78,28,57
-79,-12,49
-80,-48,57
-81,-73,60
-82,-87,47
-83,-90,60
-84,-87,53
-85,-82,42
-86,-79,43
-87,-77,64
-88,-75,53
-89,-70,43
-90,-59,47
-91,-42,56
-92,-19,45
-93,6,37
-94,34,39
-95,61,53
-96,86,50
-97,109,47
-98,126,49
-99,134,47
-100,130,52
-101,112,58
-102,79,70
-103,36,51
-104,-8,59
-105,-49,67
-106,-78,46
-107,-94,51
-108,-96,62
-109,-90,40
-110,-81,46
-111,-73,57
-112,-69,50
-113,-68,43
-114,-66,59
-115,-61,57
-116,-52,43
-117,-38,44
-118,-20,47
-119,1,52
-120,25,41
-121,52,43
-122,81,44
-123,110,53
-124,134,43
-125,148,46
-126,146,56
-127,125,68
-128,86,52
-129,35,66
-130,-18,65
-131,-64,48
-132,-97,63
-133,-112,53
-134,-111,49
-135,-100,51
-136,-85,48
-137,-70,40
-138,-59,40
-139,-50,64
-140,-42,61
-141,-33,40
-142,-23,45
-143,-12,51
-144,0,49
-145,11,44
-146,25,42
-147,43,57
-148,66,50
-149,94,40
-150,121,41
-151,140,49
-152,144,52
-153,128,67
-154,93,65
-155,43,56
-156,-10,61
-157,-60,57
-158,-97,56
-159,-117,53
-160,-121,54
-161,-115,48
-162,-102,45
-163,-88,55
-164,-74,49
-165,-60,41
-166,-44,53
-167,-27,51
-168,-9,44
-169,8,46
-170,22,50
-171,35,49
-172,47,42
-173,61,49
-174,78,54
-175,98,45
-176,116,47
-177,127,49
-178,123,57
-179,103,57
-180,68,57
-181,22,64
-182,-24,59
-183,-64,59
-184,-91,55
-185,-106,49
-186,-110,58
-187,-108,48
-188,-103,45
-189,-96,50
-190,-87,55
-191,-74,52
-192,-55,50
-193,-31,38
-194,-4,41
-195,20,44
-196,43,58
-197,60,46
-198,75,43
-199,87,50
-200,99,49
-201,110,51
-202,115,46
-203,110,48
-204,92,71
-205,62,61
-206,23,54
-207,-17,60
-208,-52,50
-209,-78,54
-210,-91,56
-211,-94,56
-212,-92,53
-213,-89,46
-214,-88,48
-215,-87,54
-216,-85,49
-217,-77,52
-218,-62,49
-219,-40,49
-220,-15,43
-221,11,42
-222,38,40
-223,63,49
-224,86,48
-225,108,53
-226,127,50
-227,139,40
-228,139,52
-229,124,57
-230,92,69
-231,48,57
-232,0,60
-233,-45,66
-234,-78,47
-235,-96,52
-236,-98,54
-237,-90,42
-238,-78,53
-239,-68,53
-240,-62,49
-241,-61,47
-242,-61,56
-243,-59,58
-244,-52,44
-245,-41,43
-246,-26,52
-247,-7,48
-248,14,43
-249,39,38
-250,68,52
-251,100,48
-252,131,39
-253,154,49
-254,162,52
-255,150,61
-256,117,61
-257,67,61
-258,9,63
-259,-44,57
-260,-87,64
-261,-111,44
-262,-116,57
-263,-108,54
-264,-93,44
-265,-77,43
-266,-64,43
-267,-55,56
-268,-47,60
-269,-40,47
-270,-31,49
-271,-21,49
-272,-11,46
-273,0,43
-274,13,45
-275,30,53
-276,54,51
-277,84,42
-278,116,45
-279,144,48
-280,160,41
-281,156,46
-282,129,88
-283,84,46
-284,28,72
-285,-27,59
-286,-73,45
-287,-103,59
-288,-118,58
-289,-119,54
-290,-112,45
-291,-101,47
-292,-88,54
-293,-73,45
-294,-56,48
-295,-35,43
-296,-14,52
-297,5,51
-298,19,49
-299,28,45
-300,34,42
-301,42,53
-302,56,52
-303,78,42
-304,105,44
-305,129,44
-306,142,61
-307,136,56
-308,110,56
-309,66,63
-310,15,57
-311,-32,60
-312,-69,62
-313,-91,45
-314,-101,57
-315,-103,58
-316,-103,42
-317,-103,47
-318,-102,54
-319,-97,61
-320,-83,48
-321,-61,39
-322,-31,43
-323,0,45
-324,26,47
-325,47,47
-326,63,42
-327,76,58
-328,90,53
-329,106,37
-330,121,42
-331,129,56
-332,125,60
-333,104,56
-334,68,68
-335,23,62
-336,-21,47
-337,-56,54
-338,-78,58
-339,-86,51
-340,-85,63
-341,-82,46
-342,-81,42
-343,-83,51
-344,-85,63
-345,-85,48
-346,-76,41
-347,-60,53
-348,-36,54
-349,-10,41
-350,17,33
-351,42,38
-352,67,61
-353,92,51
-354,116,39
-355,135,51
-356,145,50
-357,140,48
-358,116,65
-359,74,70
-360,23,47
-361,-27,74
-362,-68,51
-363,-92,51
-364,-98,56
-365,-90,46
-366,-77,48
-367,-65,48
-368,-58,55
-369,-57,50
-370,-59,50
-371,-59,55
-372,-55,49
-373,-44,48
-374,-29,45
-375,-10,46
-376,10,50
-377,35,43
-378,64,43
-379,96,51
-380,128,38
-381,154,43
-382,165,55
-383,155,64
-384,122,58
-385,71,64
-386,11,64
-387,-46,53
-388,-90,58
-389,-114,56
-390,-119,51
-391,-110,57
-392,-94,45
-393,-78,40
-394,-65,40
-395,-55,61
-396,-48,60
-397,-41,45
-398,-32,44
-399,-22,57
-400,-12,44
-401,-1,40
-402,12,43
-403,30,60
-404,55,49
-405,85,41
-406,117,42
-407,141,48
-408,152,48
-409,141,55
-410,109,78
-411,61,53
-412,6,61
-413,-45,62
-414,-85,52
-415,-109,56
-416,-117,54
-417,-113,48
-418,-103,46
-419,-90,57
-420,-76,46
-421,-60,42
-422,-43,44
-423,-25,57
-424,-7,49
-425,8,44
-426,19,49
-427,27,51
-428,36,46
-429,47,44
-430,65,47
-431,87,51
-432,109,51
-433,123,45
-434,122,56
-435,103,65
-436,66,51
-437,20,57
-438,-27,67
-439,-67,53
-440,-94,59
-441,-108,51
-442,-111,55
-443,-109,49
-444,-105,44
-445,-100,49
-446,-93,50
-447,-81,64
-448,-62,45
-449,-37,40
-450,-9,37
-451,18,49
-452,41,56
-453,60,38
-454,75,50
-455,87,53
-456,98,48
-457,107,44
-458,111,49
-459,105,59
-460,86,54
-461,55,70
-462,16,58
-463,-24,52
-464,-60,53
-465,-85,55
-466,-98,53
-467,-102,59
-468,-99,54
-469,-96,40
-470,-93,50
-471,-91,57
-472,-86,50
-473,-77,45
-474,-61,52
-475,-39,51
-476,-13,43
-477,13,42
-478,40,41
-479,66,45
-480,90,52
-481,111,49
-482,126,49
-483,133,46
-484,128,53
-485,107,60
-486,72,66
-487,27,55
-488,-19,60
-489,-61,64
-490,-90,50
-491,-104,52
-492,-104,52
-493,-96,49
-494,-86,46
-495,-77,50
-496,-72,51
-497,-69,50
-498,-67,59
-499,-62,51
-500,-51,43
-501,-36,44
-502,-16,52
-503,6,40
-504,32,50
-505,59,38
-506,88,49
-507,116,50
-508,139,45
-509,151,44
-510,148,60
-511,126,63
-cogg_end
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=-21 Id=-6 Vq=33 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-178 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.1A Vbus=48V enc=BAD Iqref=-29 Iq=-52 Id=31 Vq=102 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=-28 Id=12 Vq=10 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.1A Vbus=48V enc=BAD Iqref=-30 Iq=-64 Id=17 Vq=105 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-30 Iq=-39 Id=-3 Vq=48 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.1A Vbus=48V enc=BAD Iqref=-29 Iq=-51 Id=-18 Vq=96 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=-33 Id=-20 Vq=31 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=-46 Id=13 Vq=88 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=-21 Id=-6 Vq=32 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
-[motor] RUN spd=0/0 rpm I=0.0A Vbus=48V enc=BAD Iqref=-29 Iq=4 Id=-26 Vq=-23 cnt=524 pwm=1
-spi: err=0 spd=0 | PI Kp=10000 Ki=10000 dt=45 | avgIq=-29 avgId=0 | cogg=ON(flash) harm=ON clamp=800 | fw=ON thr=525r hys=50r Id*=-1000mA Idnow=0mA | cap=500r
-mcfw=off avV=0/31128 Idref=0 | ff=40 | pll=off/50Hz e=0
+
+=== Trainsonic boot ===
+DRV8353_Init=0
+[DRV8353] FAULT1=0x000 VGS2=0x000
+[DRV8353]   FAULT=0 VDS_OCP=0 GDF=0 UVLO=0 OTSD=0
+[DRV8353] DRV_CTRL=0x080 GATE_HS=0x3FF GATE_LS=0x1FF
+[DRV8353] OCP_CTRL=0x029 CSA_CTRL=0x243
+AS5047_Init=0
+[AS5047] ERRFL=0x000 DIAAGC=0x1D8
+[AS5047]   MAGL=0 MAGH=0 COF=0 LF=1 AGC=216
+[AS5047] SETTINGS1=0x025 (ABIBIN=1 UVW_ABI=0 DIR=1)
+[AS5047] SETTINGS2=0x000 (ABIRES=0 -> 4096 steps / 1024 PPR)
+[AS5047] angle=0x0C6B (69.85 deg) comm=OK
+=== end boot diagnostics ===
+Motor start commanded -> torque mode, Iq=0 mA over 500 ms
+[cogg] flash cal restored: peak=165@bin382 clamp=800 gain=100%
+[m] IDLE spd=0 cap=650 brk=0 | Iqref=0 Iq=-242 Id=156 IdFW=0 | avV=0/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=62 Id=145 IdFW=135 | avV=0/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-2 Id=705 IdFW=701 | avV=0/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=6 Id=1265 IdFW=1267 | avV=0/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-39 Id=1825 IdFW=1833 | avV=0/27851 | I=1.8A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-2 Id=2401 IdFW=2400 | avV=0/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-2 Id=2977 IdFW=2966 | avV=0/27851 | I=3.0A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-2 Id=3521 IdFW=3532 | avV=0/27851 | I=3.5A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=6 Id=4081 IdFW=4098 | avV=0/27851 | I=4.1A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=6 Id=4657 IdFW=4664 | avV=0/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=25 Id=5233 IdFW=5230 | avV=0/27851 | I=5.3A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=34 Id=5825 IdFW=5796 | avV=0/27851 | I=5.9A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-11 Id=6353 IdFW=6362 | avV=0/27851 | I=6.4A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=6 Id=6929 IdFW=6928 | avV=0/27851 | I=7.0A Vb=46V enc=ok err=0
+[m] ALIGNMENT spd=0 cap=650 brk=0 | Iqref=0 Iq=-11 Id=7473 IdFW=7494 | avV=0/27851 | I=7.5A Vb=46V enc=ok err=0
+[align] encoder alignment complete
+[m] WAIT_STOP_MOTOR spd=12 cap=650 brk=0 | Iqref=0 Iq=54 Id=65 IdFW=0 | avV=0/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=650 brk=0 | Iqref=0 Iq=17 Id=33 IdFW=0 | avV=0/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=26 Id=49 IdFW=0 | avV=0/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=44 Id=49 IdFW=0 | avV=0/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=-39 Id=2 IdFW=0 | avV=0/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=26 Id=49 IdFW=0 | avV=0/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=-2 Id=34 IdFW=0 | avV=0/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] WAIT_STOP_MOTOR spd=0 cap=600 brk=0 | Iqref=0 Iq=26 Id=49 IdFW=0 | avV=0/27851 | I=0.1A Vb=46V enc=ok err=0
+offsets(3-shunt): A=33086 B=32819 C=33044  spread=267
+[m] RUN spd=0 cap=600 brk=0 | Iqref=52 Iq=62 Id=-15 IdFW=0 | avV=36/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=52 Iq=53 Id=-31 IdFW=0 | avV=50/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=53 Iq=43 Id=19 IdFW=0 | avV=55/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=80 Id=19 IdFW=0 | avV=55/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=54 Iq=34 Id=2 IdFW=0 | avV=43/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=44 Id=-14 IdFW=0 | avV=55/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=54 Iq=63 Id=-13 IdFW=0 | avV=60/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=54 Iq=53 Id=5 IdFW=0 | avV=47/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=51 Iq=53 Id=3 IdFW=0 | avV=52/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=54 Iq=62 Id=19 IdFW=0 | avV=59/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=52 Iq=72 Id=-29 IdFW=0 | avV=51/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=17 Id=-30 IdFW=0 | avV=63/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=34 Id=-31 IdFW=0 | avV=69/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=17 Id=-30 IdFW=0 | avV=79/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=51 Iq=43 Id=19 IdFW=0 | avV=59/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=53 Iq=62 Id=19 IdFW=0 | avV=65/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=51 Iq=63 Id=-13 IdFW=0 | avV=59/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=51 Iq=53 Id=3 IdFW=0 | avV=64/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=25 Id=18 IdFW=0 | avV=72/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=53 Id=3 IdFW=0 | avV=44/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=53 Iq=35 Id=-30 IdFW=0 | avV=67/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=80 Id=19 IdFW=0 | avV=57/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=90 Id=36 IdFW=0 | avV=61/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=52 Iq=62 Id=19 IdFW=0 | avV=51/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=90 Id=36 IdFW=0 | avV=69/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=53 Id=3 IdFW=0 | avV=69/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=34 Id=2 IdFW=0 | avV=64/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=44 Id=-14 IdFW=0 | avV=58/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=34 Id=2 IdFW=0 | avV=62/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=53 Id=3 IdFW=0 | avV=58/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=51 Iq=61 Id=21 IdFW=0 | avV=61/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=90 Id=6 IdFW=0 | avV=76/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=50 Iq=53 Id=4 IdFW=0 | avV=89/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=18 Id=-30 IdFW=0 | avV=83/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=18 Id=-30 IdFW=0 | avV=75/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=34 Id=3 IdFW=0 | avV=124/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=48 Iq=44 Id=-12 IdFW=0 | avV=80/27851 | I=0.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=71 Id=5 IdFW=0 | avV=69/27851 | I=0.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=49 Iq=26 Id=-13 IdFW=0 | avV=81/27851 | I=0.0A Vb=46V enc=ok err=0
+[esp] mode -> 1
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-342 Iq=-308 Id=1 IdFW=0 | avV=815/27851 | I=0.3A Vb=46V enc=ok err=0
+[esp] ENABLE -> run
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-295 Iq=-309 Id=3 IdFW=0 | avV=307/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-297 Iq=-274 Id=-11 IdFW=0 | avV=274/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-295 Iq=-309 Id=3 IdFW=0 | avV=271/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-296 Iq=-297 Id=33 IdFW=0 | avV=275/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-297 Iq=-306 Id=-15 IdFW=0 | avV=293/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-296 Iq=-292 Id=-4 IdFW=0 | avV=269/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-297 Iq=-323 Id=-9 IdFW=0 | avV=282/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-296 Iq=-309 Id=3 IdFW=0 | avV=266/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-297 Iq=-295 Id=14 IdFW=0 | avV=288/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-295 Iq=-295 Id=14 IdFW=0 | avV=282/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-297 Iq=-309 Id=3 IdFW=0 | avV=279/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-293 Iq=-305 Id=-23 IdFW=0 | avV=278/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-294 Iq=-307 Id=-6 IdFW=0 | avV=278/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-288 Iq=-289 Id=5 IdFW=0 | avV=307/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-285 Iq=-289 Id=4 IdFW=0 | avV=287/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-287 Iq=-322 Id=3 IdFW=0 | avV=295/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-286 Iq=-273 Id=-4 IdFW=0 | avV=286/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-286 Iq=-289 Id=4 IdFW=0 | avV=283/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-288 Iq=-274 Id=15 IdFW=0 | avV=290/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-288 Iq=-289 Id=4 IdFW=0 | avV=294/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-291 Iq=-241 Id=-2 IdFW=0 | avV=273/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-292 Iq=-322 Id=3 IdFW=0 | avV=265/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-294 Iq=-258 Id=7 IdFW=0 | avV=271/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-294 Iq=-322 Id=21 IdFW=0 | avV=289/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-295 Iq=-289 Id=4 IdFW=0 | avV=273/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-298 Iq=-355 Id=38 IdFW=0 | avV=286/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-303 Iq=-322 Id=-7 IdFW=0 | avV=274/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-306 Iq=-323 Id=-9 IdFW=0 | avV=288/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-308 Iq=-330 Id=18 IdFW=0 | avV=297/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-308 Iq=-295 Id=6 IdFW=0 | avV=304/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-308 Iq=-312 Id=12 IdFW=0 | avV=299/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-310 Iq=-327 Id=0 IdFW=0 | avV=303/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-312 Iq=-312 Id=2 IdFW=0 | avV=269/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-320 Iq=-335 Id=-7 IdFW=0 | avV=224/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-330 Iq=-336 Id=13 IdFW=0 | avV=263/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-343 Iq=-325 Id=18 IdFW=0 | avV=307/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-346 Iq=-318 Id=15 IdFW=0 | avV=341/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-348 Iq=-353 Id=-18 IdFW=0 | avV=376/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-353 Iq=-355 Id=15 IdFW=0 | avV=381/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-350 Iq=-333 Id=-28 IdFW=0 | avV=384/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-352 Iq=-382 Id=-15 IdFW=0 | avV=362/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-359 Iq=-348 Id=10 IdFW=0 | avV=348/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-364 Iq=-348 Id=-12 IdFW=0 | avV=359/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-368 Iq=-396 Id=-16 IdFW=0 | avV=366/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-372 Iq=-372 Id=-6 IdFW=0 | avV=363/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-375 Iq=-403 Id=-9 IdFW=0 | avV=371/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-376 Iq=-380 Id=13 IdFW=0 | avV=369/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-376 Iq=-384 Id=-4 IdFW=0 | avV=362/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-377 Iq=-376 Id=20 IdFW=0 | avV=365/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-381 Iq=-384 Id=2 IdFW=0 | avV=362/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-381 Iq=-398 Id=-16 IdFW=0 | avV=358/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-396 Iq=-386 Id=26 IdFW=0 | avV=199/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-441 Iq=-429 Id=22 IdFW=0 | avV=130/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-468 Iq=-482 Id=26 IdFW=0 | avV=93/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-475 Iq=-426 Id=-21 IdFW=0 | avV=118/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-478 Iq=-472 Id=-15 IdFW=0 | avV=178/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-478 Iq=-480 Id=-13 IdFW=0 | avV=204/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-462 Id=-7 IdFW=0 | avV=203/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-507 Id=13 IdFW=0 | avV=215/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-475 Id=5 IdFW=0 | avV=224/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-515 Id=-4 IdFW=0 | avV=206/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-444 Id=-19 IdFW=0 | avV=207/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-493 Id=-1 IdFW=0 | avV=220/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-493 Id=-16 IdFW=0 | avV=188/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-503 Id=15 IdFW=0 | avV=194/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-471 Id=-9 IdFW=0 | avV=205/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-486 Id=21 IdFW=0 | avV=205/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-486 Id=3 IdFW=0 | avV=191/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-471 Id=8 IdFW=0 | avV=192/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-489 Id=3 IdFW=0 | avV=196/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-534 Id=22 IdFW=0 | avV=198/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-489 Id=3 IdFW=0 | avV=198/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-503 Id=15 IdFW=0 | avV=200/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-479 Iq=-471 Id=8 IdFW=0 | avV=199/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-503 Id=23 IdFW=0 | avV=203/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-471 Id=-6 IdFW=0 | avV=193/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-483 Id=24 IdFW=0 | avV=188/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-469 Id=13 IdFW=0 | avV=198/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-469 Id=12 IdFW=0 | avV=190/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-471 Id=-6 IdFW=0 | avV=200/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-503 Id=-1 IdFW=0 | avV=190/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-440 Id=-11 IdFW=0 | avV=195/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-489 Id=-6 IdFW=0 | avV=185/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-469 Id=-3 IdFW=0 | avV=175/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-480 Iq=-469 Id=-2 IdFW=0 | avV=181/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-469 Id=-2 IdFW=0 | avV=190/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-486 Id=-9 IdFW=0 | avV=192/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-513 Id=-2 IdFW=0 | avV=184/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-483 Id=-6 IdFW=0 | avV=184/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-499 Id=6 IdFW=0 | avV=191/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-467 Id=1 IdFW=0 | avV=196/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-515 Id=-1 IdFW=0 | avV=197/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-515 Id=-2 IdFW=0 | avV=183/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-482 Iq=-481 Id=12 IdFW=0 | avV=182/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=100 brk=0 | Iqref=-481 Iq=-481 Id=13 IdFW=0 | avV=198/27851 | I=0.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-86 Iq=-161 Id=-14 IdFW=0 | avV=463/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-192 Iq=-158 Id=10 IdFW=0 | avV=640/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-213 Iq=-198 Id=20 IdFW=0 | avV=187/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-213 Iq=-212 Id=2 IdFW=0 | avV=194/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-213 Iq=-208 Id=-16 IdFW=0 | avV=189/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-215 Iq=-251 Id=31 IdFW=0 | avV=194/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-204 Iq=-208 Id=-16 IdFW=0 | avV=185/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-214 Iq=-208 Id=-16 IdFW=0 | avV=188/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-216 Iq=-247 Id=12 IdFW=0 | avV=196/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-216 Iq=-247 Id=12 IdFW=0 | avV=215/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-218 Iq=-208 Id=-16 IdFW=0 | avV=191/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-214 Iq=-208 Id=-16 IdFW=0 | avV=190/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-217 Iq=-226 Id=-11 IdFW=0 | avV=197/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-214 Iq=-194 Id=-4 IdFW=0 | avV=182/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-219 Iq=-252 Id=23 IdFW=0 | avV=195/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-224 Iq=-247 Id=-3 IdFW=0 | avV=195/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-246 Iq=-250 Id=-2 IdFW=0 | avV=142/27851 | I=0.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-309 Iq=-225 Id=-53 IdFW=0 | avV=121/27851 | I=0.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-357 Iq=-369 Id=16 IdFW=0 | avV=180/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-464 Iq=-445 Id=14 IdFW=0 | avV=122/27851 | I=0.4A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-589 Iq=-614 Id=-35 IdFW=0 | avV=167/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-831 Iq=-855 Id=18 IdFW=0 | avV=283/27851 | I=0.9A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1018 Iq=-986 Id=24 IdFW=0 | avV=111/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1031 Iq=-1024 Id=-19 IdFW=0 | avV=183/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1064 Iq=-1065 Id=15 IdFW=0 | avV=129/27851 | I=1.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1192 Iq=-1188 Id=-7 IdFW=0 | avV=615/27851 | I=1.2A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1314 Iq=-1324 Id=16 IdFW=0 | avV=352/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1518 Iq=-1518 Id=-36 IdFW=0 | avV=318/27851 | I=1.5A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-1783 Iq=-1762 Id=-26 IdFW=0 | avV=282/27851 | I=1.8A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1871 Iq=-1887 Id=38 IdFW=0 | avV=423/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1848 Iq=-1832 Id=-31 IdFW=0 | avV=522/27851 | I=1.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2007 Iq=-2002 Id=7 IdFW=0 | avV=941/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-2144 Iq=-2161 Id=-11 IdFW=0 | avV=866/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-2336 Iq=-2342 Id=31 IdFW=0 | avV=375/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=30 cap=600 brk=0 | Iqref=-2454 Iq=-2457 Id=21 IdFW=0 | avV=576/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=54 cap=600 brk=0 | Iqref=-2500 Iq=-2492 Id=-25 IdFW=0 | avV=2072/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=84 cap=600 brk=0 | Iqref=-2355 Iq=-2375 Id=76 IdFW=0 | avV=3592/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=114 cap=600 brk=0 | Iqref=-2523 Iq=-2534 Id=63 IdFW=0 | avV=5269/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=162 cap=600 brk=0 | Iqref=-2335 Iq=-2336 Id=62 IdFW=0 | avV=7345/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=210 cap=600 brk=0 | Iqref=-2445 Iq=-2529 Id=-50 IdFW=0 | avV=9796/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=240 cap=600 brk=0 | Iqref=-2436 Iq=-2504 Id=-97 IdFW=0 | avV=11198/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=276 cap=600 brk=0 | Iqref=-2501 Iq=-2548 Id=6 IdFW=0 | avV=13805/27851 | I=2.6A Vb=47V enc=ok err=0
+[m] RUN spd=300 cap=600 brk=0 | Iqref=-2457 Iq=-2431 Id=41 IdFW=0 | avV=14613/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=306 cap=600 brk=0 | Iqref=-2288 Iq=-2213 Id=-70 IdFW=0 | avV=14757/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=336 cap=600 brk=0 | Iqref=-2428 Iq=-2506 Id=15 IdFW=0 | avV=16498/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=432 cap=600 brk=0 | Iqref=-2333 Iq=-2421 Id=-87 IdFW=0 | avV=21959/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=558 cap=600 brk=0 | Iqref=-2491 Iq=-2406 Id=-2260 IdFW=-1867 | avV=26653/27851 | I=3.3A Vb=47V enc=ok err=0
+[m] RUN spd=570 cap=600 brk=0 | Iqref=-2390 Iq=-2383 Id=-1671 IdFW=-1581 | avV=26100/27851 | I=2.9A Vb=47V enc=ok err=0
+[m] RUN spd=438 cap=600 brk=0 | Iqref=-2492 Iq=-2370 Id=173 IdFW=0 | avV=20217/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=192 cap=600 brk=0 | Iqref=-2479 Iq=-2348 Id=24 IdFW=0 | avV=6499/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-42 cap=600 brk=0 | Iqref=-2438 Iq=-2391 Id=-53 IdFW=0 | avV=4092/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-138 cap=600 brk=0 | Iqref=-2283 Iq=-2221 Id=-134 IdFW=0 | avV=9063/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-222 cap=600 brk=0 | Iqref=-2369 Iq=-2334 Id=-62 IdFW=0 | avV=13585/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-318 cap=600 brk=0 | Iqref=-2302 Iq=-2244 Id=116 IdFW=0 | avV=19028/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-414 cap=600 brk=0 | Iqref=-2482 Iq=-2412 Id=-5 IdFW=0 | avV=23555/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2277 Iq=-2304 Id=-58 IdFW=0 | avV=24824/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-2443 Iq=-2458 Id=-168 IdFW=0 | avV=25540/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-438 cap=600 brk=0 | Iqref=-2477 Iq=-2510 Id=208 IdFW=0 | avV=23712/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-366 cap=600 brk=0 | Iqref=-2297 Iq=-2337 Id=-31 IdFW=0 | avV=19786/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-264 cap=600 brk=0 | Iqref=-2300 Iq=-2379 Id=-7 IdFW=0 | avV=14673/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-138 cap=600 brk=0 | Iqref=-2491 Iq=-2601 Id=-24 IdFW=0 | avV=7605/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2317 Iq=-2335 Id=5 IdFW=0 | avV=543/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=102 cap=600 brk=0 | Iqref=-2439 Iq=-2618 Id=39 IdFW=0 | avV=5699/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=408 cap=600 brk=0 | Iqref=-2518 Iq=-2759 Id=160 IdFW=0 | avV=22154/27851 | I=2.8A Vb=46V enc=ok err=0
+[m] RUN spd=690 cap=600 brk=2546 | Iqref=-2480 Iq=-2393 Id=-4550 IdFW=-4523 | avV=28899/27851 | I=5.2A Vb=47V enc=ok err=0
+[m] RUN spd=702 cap=600 brk=10158 | Iqref=-2517 Iq=-2053 Id=-6378 IdFW=-6023 | avV=28514/27851 | I=6.7A Vb=47V enc=ok err=0
+[m] RUN spd=654 cap=600 brk=12620 | Iqref=-2465 Iq=-2586 Id=-3513 IdFW=-3836 | avV=27158/27851 | I=4.4A Vb=47V enc=ok err=0
+[m] RUN spd=510 cap=600 brk=3675 | Iqref=-2348 Iq=-2200 Id=-206 IdFW=0 | avV=23815/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=288 cap=600 brk=0 | Iqref=-2338 Iq=-2177 Id=157 IdFW=0 | avV=11818/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2477 Iq=-2388 Id=-33 IdFW=0 | avV=3777/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-204 cap=600 brk=0 | Iqref=-2450 Iq=-2292 Id=-57 IdFW=0 | avV=13260/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-360 cap=600 brk=0 | Iqref=-2356 Iq=-2321 Id=-62 IdFW=0 | avV=21265/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-504 cap=600 brk=54 | Iqref=-2012 Iq=-1930 Id=-269 IdFW=-305 | avV=26884/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=-504 cap=600 brk=23 | Iqref=-1843 Iq=-1905 Id=-331 IdFW=0 | avV=26745/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=2 | Iqref=-2277 Iq=-2419 Id=-162 IdFW=0 | avV=26966/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-2480 Iq=-2488 Id=31 IdFW=0 | avV=26058/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-444 cap=600 brk=0 | Iqref=-2278 Iq=-2265 Id=164 IdFW=0 | avV=24026/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-366 cap=600 brk=0 | Iqref=-2415 Iq=-2434 Id=-26 IdFW=0 | avV=19744/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-234 cap=600 brk=0 | Iqref=-2464 Iq=-2552 Id=-71 IdFW=0 | avV=12672/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2343 Iq=-2431 Id=-33 IdFW=0 | avV=4791/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-2324 Iq=-2375 Id=35 IdFW=0 | avV=147/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=150 cap=600 brk=0 | Iqref=-2530 Iq=-2714 Id=-69 IdFW=0 | avV=8168/27851 | I=2.7A Vb=46V enc=ok err=0
+[m] RUN spd=456 cap=600 brk=0 | Iqref=-2414 Iq=-2699 Id=-178 IdFW=0 | avV=24721/27851 | I=2.7A Vb=46V enc=ok err=0
+[m] RUN spd=810 cap=600 brk=4968 | Iqref=-2468 Iq=-1622 Id=-8569 IdFW=-7581 | avV=29023/27851 | I=8.8A Vb=47V enc=ok err=0
+[m] RUN spd=816 cap=600 brk=11239 | Iqref=-2485 Iq=-2509 Id=-8753 IdFW=-8746 | avV=27774/27851 | I=9.2A Vb=47V enc=ok err=0
+[m] RUN spd=762 cap=600 brk=13945 | Iqref=-2409 Iq=-2019 Id=-7499 IdFW=-7179 | avV=27643/27851 | I=7.8A Vb=48V enc=ok err=0
+[m] RUN spd=642 cap=600 brk=14033 | Iqref=-2513 Iq=-2348 Id=-3745 IdFW=-3182 | avV=26714/27851 | I=4.5A Vb=48V enc=ok err=0
+[m] RUN spd=444 cap=600 brk=0 | Iqref=-2402 Iq=-2304 Id=142 IdFW=0 | avV=20085/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=162 cap=600 brk=0 | Iqref=-2352 Iq=-2133 Id=17 IdFW=0 | avV=5301/27851 | I=2.1A Vb=47V enc=ok err=0
+[m] RUN spd=-66 cap=600 brk=0 | Iqref=-2375 Iq=-2340 Id=-31 IdFW=0 | avV=5078/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-120 cap=600 brk=0 | Iqref=-2292 Iq=-2335 Id=91 IdFW=0 | avV=8367/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-198 cap=600 brk=0 | Iqref=-2377 Iq=-2304 Id=-44 IdFW=0 | avV=12366/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-300 cap=600 brk=0 | Iqref=-2332 Iq=-2321 Id=-185 IdFW=0 | avV=17703/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-390 cap=600 brk=0 | Iqref=-2306 Iq=-2333 Id=-44 IdFW=0 | avV=21497/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-444 cap=600 brk=0 | Iqref=-2514 Iq=-2521 Id=-113 IdFW=0 | avV=25402/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=2 | Iqref=-2351 Iq=-2374 Id=146 IdFW=0 | avV=26562/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-468 cap=600 brk=0 | Iqref=-2473 Iq=-2613 Id=133 IdFW=0 | avV=25544/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-432 cap=600 brk=0 | Iqref=-2413 Iq=-2482 Id=-170 IdFW=0 | avV=23919/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-396 cap=600 brk=0 | Iqref=-2471 Iq=-2464 Id=-160 IdFW=0 | avV=21578/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-348 cap=600 brk=0 | Iqref=-2440 Iq=-2458 Id=14 IdFW=0 | avV=19220/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-300 cap=600 brk=0 | Iqref=-2329 Iq=-2382 Id=32 IdFW=0 | avV=16533/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-222 cap=600 brk=0 | Iqref=-2326 Iq=-2401 Id=10 IdFW=0 | avV=12454/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-108 cap=600 brk=0 | Iqref=-2399 Iq=-2468 Id=-25 IdFW=0 | avV=6402/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2467 Iq=-2464 Id=6 IdFW=0 | avV=818/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=60 cap=600 brk=0 | Iqref=-2443 Iq=-2552 Id=11 IdFW=0 | avV=2795/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=258 cap=600 brk=0 | Iqref=-2458 Iq=-2752 Id=102 IdFW=0 | avV=13859/27851 | I=2.8A Vb=46V enc=ok err=0
+[m] RUN spd=630 cap=600 brk=104 | Iqref=-2489 Iq=-2661 Id=-3421 IdFW=-3722 | avV=30237/27851 | I=4.4A Vb=47V enc=ok err=0
+[m] RUN spd=900 cap=600 brk=8738 | Iqref=-2512 Iq=-1885 Id=-10406 IdFW=-10446 | avV=29878/27851 | I=10.6A Vb=47V enc=ok err=0
+[m] RUN spd=972 cap=600 brk=12866 | Iqref=-2528 Iq=-2187 Id=-11005 IdFW=-10889 | avV=27828/27851 | I=11.3A Vb=48V enc=ok err=0
+[m] RUN spd=816 cap=600 brk=14647 | Iqref=-2278 Iq=-1837 Id=-8708 IdFW=-8673 | avV=28555/27851 | I=9.0A Vb=48V enc=ok err=0
+[m] RUN spd=552 cap=600 brk=13983 | Iqref=-2353 Iq=-2211 Id=-1152 IdFW=-1111 | avV=24649/27851 | I=2.5A Vb=48V enc=ok err=0
+[m] RUN spd=240 cap=600 brk=0 | Iqref=-2408 Iq=-2192 Id=37 IdFW=0 | avV=8607/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-36 cap=600 brk=0 | Iqref=-2268 Iq=-2243 Id=15 IdFW=0 | avV=3904/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2388 Iq=-2395 Id=25 IdFW=0 | avV=5009/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-60 cap=600 brk=0 | Iqref=-2487 Iq=-2508 Id=-51 IdFW=0 | avV=4302/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=-60 cap=600 brk=0 | Iqref=-2503 Iq=-2490 Id=-2 IdFW=0 | avV=4892/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=-120 cap=600 brk=0 | Iqref=-2284 Iq=-2225 Id=-66 IdFW=0 | avV=8475/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=-216 cap=600 brk=0 | Iqref=-2287 Iq=-2240 Id=72 IdFW=0 | avV=13404/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-312 cap=600 brk=0 | Iqref=-2404 Iq=-2358 Id=-70 IdFW=0 | avV=18278/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-378 cap=600 brk=0 | Iqref=-2424 Iq=-2396 Id=4 IdFW=0 | avV=21219/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-420 cap=600 brk=0 | Iqref=-2479 Iq=-2398 Id=-130 IdFW=0 | avV=23982/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-2290 Iq=-2317 Id=70 IdFW=0 | avV=25127/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-450 cap=600 brk=0 | Iqref=-2468 Iq=-2443 Id=72 IdFW=0 | avV=24761/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-438 cap=600 brk=0 | Iqref=-2295 Iq=-2302 Id=-32 IdFW=0 | avV=23922/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-414 cap=600 brk=0 | Iqref=-2286 Iq=-2416 Id=-360 IdFW=0 | avV=22528/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-354 cap=600 brk=0 | Iqref=-2529 Iq=-2508 Id=331 IdFW=0 | avV=19473/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-294 cap=600 brk=0 | Iqref=-2416 Iq=-2512 Id=-124 IdFW=0 | avV=16119/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-186 cap=600 brk=0 | Iqref=-2479 Iq=-2541 Id=64 IdFW=0 | avV=10586/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-84 cap=600 brk=0 | Iqref=-2453 Iq=-2521 Id=-28 IdFW=0 | avV=5098/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2294 Iq=-2270 Id=-12 IdFW=0 | avV=1034/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-2302 Iq=-2318 Id=42 IdFW=0 | avV=777/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=36 cap=600 brk=0 | Iqref=-2468 Iq=-2543 Id=14 IdFW=0 | avV=1350/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=156 cap=600 brk=0 | Iqref=-2406 Iq=-2552 Id=-29 IdFW=0 | avV=7920/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=408 cap=600 brk=0 | Iqref=-2441 Iq=-2624 Id=-324 IdFW=0 | avV=21671/27851 | I=2.7A Vb=47V enc=ok err=0
+[m] RUN spd=750 cap=600 brk=3322 | Iqref=-2487 Iq=-2061 Id=-7071 IdFW=-5969 | avV=28550/27851 | I=7.4A Vb=47V enc=ok err=0
+[m] RUN spd=804 cap=600 brk=10528 | Iqref=-2341 Iq=-2975 Id=-7367 IdFW=-8492 | avV=28365/27851 | I=8.0A Vb=47V enc=ok err=0
+[m] RUN spd=786 cap=600 brk=13638 | Iqref=-2290 Iq=-2149 Id=-7875 IdFW=-7725 | avV=27257/27851 | I=8.2A Vb=48V enc=ok err=0
+[m] RUN spd=726 cap=600 brk=14981 | Iqref=-2394 Iq=-2410 Id=-5786 IdFW=-5385 | avV=26629/27851 | I=6.3A Vb=48V enc=ok err=0
+[m] RUN spd=516 cap=600 brk=6883 | Iqref=-2260 Iq=-2018 Id=-468 IdFW=-549 | avV=23589/27851 | I=2.1A Vb=48V enc=ok err=0
+[m] RUN spd=258 cap=600 brk=0 | Iqref=-2275 Iq=-2025 Id=91 IdFW=0 | avV=10210/27851 | I=2.0A Vb=47V enc=ok err=0
+[m] RUN spd=-12 cap=600 brk=0 | Iqref=-2378 Iq=-2299 Id=2 IdFW=0 | avV=3334/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-84 cap=600 brk=0 | Iqref=-2301 Iq=-2309 Id=35 IdFW=0 | avV=6055/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-168 cap=600 brk=0 | Iqref=-2334 Iq=-2282 Id=-97 IdFW=0 | avV=11132/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-342 cap=600 brk=0 | Iqref=-2414 Iq=-2280 Id=-295 IdFW=0 | avV=20619/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-540 cap=600 brk=146 | Iqref=-1172 Iq=-1166 Id=-896 IdFW=-896 | avV=27993/27851 | I=1.5A Vb=46V enc=ok err=0
+[m] RUN spd=-546 cap=600 brk=63 | Iqref=-1037 Iq=-935 Id=-846 IdFW=-1244 | avV=28301/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=-564 cap=600 brk=27 | Iqref=-752 Iq=-685 Id=-1311 IdFW=-1446 | avV=27142/27851 | I=1.5A Vb=46V enc=ok err=0
+[m] RUN spd=-540 cap=600 brk=11 | Iqref=-1252 Iq=-1143 Id=-679 IdFW=-915 | avV=27873/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=-534 cap=600 brk=4 | Iqref=-1360 Iq=-1444 Id=-798 IdFW=-642 | avV=27731/27851 | I=1.7A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-2181 Iq=-2108 Id=212 IdFW=0 | avV=26915/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2303 Iq=-2401 Id=93 IdFW=0 | avV=24579/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-354 cap=600 brk=0 | Iqref=-2489 Iq=-2531 Id=-42 IdFW=0 | avV=18886/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-240 cap=600 brk=0 | Iqref=-2489 Iq=-2552 Id=61 IdFW=0 | avV=13289/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-180 cap=600 brk=0 | Iqref=-2409 Iq=-2392 Id=19 IdFW=0 | avV=10500/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-144 cap=600 brk=0 | Iqref=-2514 Iq=-2523 Id=68 IdFW=0 | avV=8766/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-126 cap=600 brk=0 | Iqref=-1861 Iq=-1907 Id=-3 IdFW=0 | avV=7087/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-942 Iq=-976 Id=4 IdFW=0 | avV=195/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1019 Iq=-1034 Id=-18 IdFW=0 | avV=292/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1031 Iq=-1006 Id=0 IdFW=0 | avV=252/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1010 Iq=-1016 Id=-15 IdFW=0 | avV=558/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-998 Iq=-1011 Id=32 IdFW=0 | avV=71/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1229 Iq=-1234 Id=-7 IdFW=0 | avV=539/27851 | I=1.2A Vb=46V enc=ok err=0
+[m] RUN spd=30 cap=600 brk=0 | Iqref=-1585 Iq=-1638 Id=27 IdFW=0 | avV=1256/27851 | I=1.6A Vb=46V enc=ok err=0
+[m] RUN spd=72 cap=600 brk=0 | Iqref=-2331 Iq=-2381 Id=40 IdFW=0 | avV=3124/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=216 cap=600 brk=0 | Iqref=-2302 Iq=-2508 Id=90 IdFW=0 | avV=11920/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=552 cap=600 brk=0 | Iqref=-2294 Iq=-2408 Id=-2444 IdFW=-2016 | avV=27803/27851 | I=3.5A Vb=47V enc=ok err=0
+[m] RUN spd=870 cap=600 brk=7531 | Iqref=-2322 Iq=-2534 Id=-8916 IdFW=-9148 | avV=28642/27851 | I=9.3A Vb=47V enc=ok err=0
+[m] RUN spd=972 cap=600 brk=12345 | Iqref=-2335 Iq=-1346 Id=-11902 IdFW=-11637 | avV=28990/27851 | I=12.1A Vb=48V enc=ok err=0
+[m] RUN spd=966 cap=600 brk=14422 | Iqref=-2498 Iq=-2326 Id=-11284 IdFW=-10874 | avV=26792/27851 | I=11.6A Vb=48V enc=ok err=0
+[m] RUN spd=876 cap=600 brk=15319 | Iqref=-2443 Iq=-1380 Id=-10795 IdFW=-9512 | avV=27626/27851 | I=11.0A Vb=48V enc=ok err=0
+[m] RUN spd=648 cap=600 brk=15706 | Iqref=-2471 Iq=-2602 Id=-2948 IdFW=-3169 | avV=26177/27851 | I=4.0A Vb=48V enc=ok err=0
+[m] RUN spd=432 cap=600 brk=0 | Iqref=-2398 Iq=-2292 Id=31 IdFW=0 | avV=18911/27851 | I=2.3A Vb=48V enc=ok err=0
+[m] RUN spd=174 cap=600 brk=0 | Iqref=-2441 Iq=-2291 Id=11 IdFW=0 | avV=5868/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-12 cap=600 brk=0 | Iqref=-2264 Iq=-2233 Id=-19 IdFW=0 | avV=2542/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-72 cap=600 brk=0 | Iqref=-2317 Iq=-2286 Id=-10 IdFW=0 | avV=5822/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-126 cap=600 brk=0 | Iqref=-2357 Iq=-2293 Id=16 IdFW=0 | avV=8926/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-222 cap=600 brk=0 | Iqref=-2346 Iq=-2263 Id=-157 IdFW=0 | avV=13249/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-300 cap=600 brk=0 | Iqref=-2500 Iq=-2414 Id=68 IdFW=0 | avV=17671/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-396 cap=600 brk=0 | Iqref=-2494 Iq=-2414 Id=-24 IdFW=0 | avV=22475/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2365 Iq=-2371 Id=-83 IdFW=0 | avV=26046/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=2 | Iqref=-2233 Iq=-2168 Id=209 IdFW=0 | avV=27209/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=2 | Iqref=-2169 Iq=-2262 Id=-195 IdFW=0 | avV=27022/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-2364 Iq=-2354 Id=46 IdFW=0 | avV=26527/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-2382 Iq=-2320 Id=-6 IdFW=0 | avV=26489/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-474 cap=600 brk=0 | Iqref=-2472 Iq=-2510 Id=-292 IdFW=0 | avV=26148/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-432 cap=600 brk=0 | Iqref=-2294 Iq=-2395 Id=100 IdFW=0 | avV=23898/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-366 cap=600 brk=0 | Iqref=-2477 Iq=-2510 Id=53 IdFW=0 | avV=20213/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-252 cap=600 brk=0 | Iqref=-2476 Iq=-2515 Id=-50 IdFW=0 | avV=13469/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-108 cap=600 brk=0 | Iqref=-2475 Iq=-2588 Id=0 IdFW=0 | avV=6017/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2319 Iq=-2343 Id=-15 IdFW=0 | avV=1062/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-2377 Iq=-2377 Id=11 IdFW=0 | avV=527/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=60 cap=600 brk=0 | Iqref=-2281 Iq=-2298 Id=46 IdFW=0 | avV=2605/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=162 cap=600 brk=0 | Iqref=-2328 Iq=-2444 Id=-27 IdFW=0 | avV=7983/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=336 cap=600 brk=0 | Iqref=-2470 Iq=-2628 Id=-215 IdFW=0 | avV=17738/27851 | I=2.7A Vb=47V enc=ok err=0
+[m] RUN spd=618 cap=600 brk=45 | Iqref=-2278 Iq=-2407 Id=-3000 IdFW=-3258 | avV=29618/27851 | I=3.9A Vb=47V enc=ok err=0
+[m] RUN spd=834 cap=600 brk=8469 | Iqref=-2462 Iq=-2698 Id=-8466 IdFW=-8911 | avV=28624/27851 | I=8.9A Vb=47V enc=ok err=0
+[m] RUN spd=954 cap=600 brk=12750 | Iqref=-2513 Iq=-2972 Id=-9182 IdFW=-9978 | avV=28235/27851 | I=9.7A Vb=47V enc=ok err=0
+[m] RUN spd=798 cap=600 brk=14597 | Iqref=-2492 Iq=-2134 Id=-8201 IdFW=-8211 | avV=28311/27851 | I=8.5A Vb=48V enc=ok err=0
+[m] RUN spd=600 cap=600 brk=14545 | Iqref=-2388 Iq=-2425 Id=-2053 IdFW=-2135 | avV=26186/27851 | I=3.2A Vb=48V enc=ok err=0
+[m] RUN spd=342 cap=600 brk=0 | Iqref=-2477 Iq=-2221 Id=48 IdFW=0 | avV=14574/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=36 cap=600 brk=0 | Iqref=-2382 Iq=-2203 Id=3 IdFW=0 | avV=1151/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-54 cap=600 brk=0 | Iqref=-2513 Iq=-2475 Id=40 IdFW=0 | avV=4531/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=-102 cap=600 brk=0 | Iqref=-2294 Iq=-2231 Id=-77 IdFW=0 | avV=7393/27851 | I=2.2A Vb=47V enc=ok err=0
+[m] RUN spd=-174 cap=600 brk=0 | Iqref=-2503 Iq=-2389 Id=2 IdFW=0 | avV=11025/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-282 cap=600 brk=0 | Iqref=-2460 Iq=-2338 Id=-58 IdFW=0 | avV=16542/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-384 cap=600 brk=0 | Iqref=-2522 Iq=-2465 Id=-20 IdFW=0 | avV=22245/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2400 Iq=-2422 Id=68 IdFW=0 | avV=26060/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-504 cap=600 brk=9 | Iqref=-1831 Iq=-1827 Id=-158 IdFW=0 | avV=26927/27851 | I=1.8A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=1 | Iqref=-2337 Iq=-2440 Id=-168 IdFW=0 | avV=25989/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-474 cap=600 brk=0 | Iqref=-2485 Iq=-2552 Id=287 IdFW=0 | avV=26513/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-2279 Iq=-2345 Id=19 IdFW=0 | avV=24915/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-408 cap=600 brk=0 | Iqref=-2447 Iq=-2386 Id=129 IdFW=0 | avV=21971/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-366 cap=600 brk=0 | Iqref=-2448 Iq=-2488 Id=-94 IdFW=0 | avV=20459/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-294 cap=600 brk=0 | Iqref=-2316 Iq=-2355 Id=-24 IdFW=0 | avV=16301/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-210 cap=600 brk=0 | Iqref=-2434 Iq=-2579 Id=-51 IdFW=0 | avV=11470/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-2524 Iq=-2584 Id=89 IdFW=0 | avV=5169/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2292 Iq=-2330 Id=22 IdFW=0 | avV=1026/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2342 Iq=-2373 Id=11 IdFW=0 | avV=996/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-2417 Iq=-2480 Id=41 IdFW=0 | avV=392/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=108 cap=600 brk=0 | Iqref=-2489 Iq=-2623 Id=-59 IdFW=0 | avV=5308/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=300 cap=600 brk=0 | Iqref=-2413 Iq=-2635 Id=-25 IdFW=0 | avV=16027/27851 | I=2.7A Vb=47V enc=ok err=0
+[m] RUN spd=594 cap=600 brk=0 | Iqref=-2484 Iq=-2517 Id=-2793 IdFW=-2643 | avV=27875/27851 | I=3.8A Vb=47V enc=ok err=0
+[m] RUN spd=780 cap=600 brk=7169 | Iqref=-2529 Iq=-2553 Id=-7293 IdFW=-7308 | avV=28050/27851 | I=7.8A Vb=47V enc=ok err=0
+[m] RUN spd=810 cap=600 brk=12188 | Iqref=-2285 Iq=-2451 Id=-8107 IdFW=-8512 | avV=28596/27851 | I=8.5A Vb=47V enc=ok err=0
+[m] RUN spd=726 cap=600 brk=14355 | Iqref=-2284 Iq=-2298 Id=-6221 IdFW=-6016 | avV=26872/27851 | I=6.7A Vb=48V enc=ok err=0
+[m] RUN spd=666 cap=600 brk=14627 | Iqref=-2401 Iq=-2483 Id=-3528 IdFW=-3459 | avV=26862/27851 | I=4.3A Vb=48V enc=ok err=0
+[m] RUN spd=498 cap=600 brk=3005 | Iqref=-2482 Iq=-2335 Id=-36 IdFW=0 | avV=23108/27851 | I=2.4A Vb=48V enc=ok err=0
+[m] RUN spd=282 cap=600 brk=0 | Iqref=-2492 Iq=-2344 Id=21 IdFW=0 | avV=11835/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=36 cap=600 brk=0 | Iqref=-2495 Iq=-2347 Id=-40 IdFW=0 | avV=931/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2321 Iq=-2274 Id=29 IdFW=0 | avV=5761/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-138 cap=600 brk=0 | Iqref=-2312 Iq=-2307 Id=64 IdFW=0 | avV=9057/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-210 cap=600 brk=0 | Iqref=-2445 Iq=-2448 Id=2 IdFW=0 | avV=13324/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=-294 cap=600 brk=0 | Iqref=-2404 Iq=-2327 Id=-140 IdFW=0 | avV=17296/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-372 cap=600 brk=0 | Iqref=-2504 Iq=-2443 Id=179 IdFW=0 | avV=21207/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-420 cap=600 brk=0 | Iqref=-2508 Iq=-2464 Id=186 IdFW=0 | avV=23800/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2360 Iq=-2335 Id=-127 IdFW=0 | avV=25584/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-2386 Iq=-2383 Id=-124 IdFW=0 | avV=26112/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2441 Iq=-2397 Id=154 IdFW=0 | avV=25893/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-450 cap=600 brk=0 | Iqref=-2514 Iq=-2593 Id=113 IdFW=0 | avV=24718/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-408 cap=600 brk=0 | Iqref=-2512 Iq=-2456 Id=192 IdFW=0 | avV=21621/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-342 cap=600 brk=0 | Iqref=-2497 Iq=-2477 Id=7 IdFW=0 | avV=19264/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-246 cap=600 brk=0 | Iqref=-2497 Iq=-2632 Id=200 IdFW=0 | avV=13093/27851 | I=2.7A Vb=46V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-2357 Iq=-2436 Id=-60 IdFW=0 | avV=5402/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2452 Iq=-2462 Id=44 IdFW=0 | avV=1052/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-2270 Iq=-2264 Id=-24 IdFW=0 | avV=241/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=54 cap=600 brk=0 | Iqref=-2512 Iq=-2583 Id=-22 IdFW=0 | avV=2173/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=150 cap=600 brk=0 | Iqref=-2488 Iq=-2632 Id=-72 IdFW=0 | avV=7573/27851 | I=2.7A Vb=46V enc=ok err=0
+[m] RUN spd=366 cap=600 brk=0 | Iqref=-2319 Iq=-2514 Id=20 IdFW=0 | avV=19249/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=660 cap=600 brk=536 | Iqref=-2423 Iq=-2424 Id=-4356 IdFW=-3583 | avV=28784/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=768 cap=600 brk=9177 | Iqref=-2520 Iq=-2178 Id=-7182 IdFW=-7317 | avV=29232/27851 | I=7.6A Vb=47V enc=ok err=0
+[m] RUN spd=822 cap=600 brk=13055 | Iqref=-2452 Iq=-2710 Id=-8046 IdFW=-8342 | avV=27407/27851 | I=8.6A Vb=47V enc=ok err=0
+[m] RUN spd=786 cap=600 brk=14729 | Iqref=-2318 Iq=-1661 Id=-8250 IdFW=-7289 | avV=27321/27851 | I=8.5A Vb=47V enc=ok err=0
+[m] RUN spd=600 cap=600 brk=13066 | Iqref=-2414 Iq=-2385 Id=-2143 IdFW=-2177 | avV=25536/27851 | I=3.2A Vb=48V enc=ok err=0
+[m] RUN spd=390 cap=600 brk=0 | Iqref=-2529 Iq=-2397 Id=-192 IdFW=0 | avV=17201/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=156 cap=600 brk=0 | Iqref=-2479 Iq=-2344 Id=-29 IdFW=0 | avV=5365/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-18 cap=600 brk=0 | Iqref=-2375 Iq=-2338 Id=40 IdFW=0 | avV=3117/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-72 cap=600 brk=0 | Iqref=-2364 Iq=-2313 Id=-4 IdFW=0 | avV=5662/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-132 cap=600 brk=0 | Iqref=-2470 Iq=-2381 Id=-46 IdFW=0 | avV=8553/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-216 cap=600 brk=0 | Iqref=-2435 Iq=-2379 Id=11 IdFW=0 | avV=13193/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-306 cap=600 brk=0 | Iqref=-2506 Iq=-2492 Id=61 IdFW=0 | avV=18383/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-402 cap=600 brk=0 | Iqref=-2487 Iq=-2318 Id=211 IdFW=0 | avV=23261/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-2312 Iq=-2318 Id=-179 IdFW=0 | avV=25935/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=2 | Iqref=-2135 Iq=-2192 Id=-272 IdFW=-131 | avV=27635/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-2362 Iq=-2339 Id=179 IdFW=0 | avV=26605/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-2478 Iq=-2449 Id=81 IdFW=0 | avV=25378/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-426 cap=600 brk=0 | Iqref=-2331 Iq=-2363 Id=38 IdFW=0 | avV=23509/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-372 cap=600 brk=0 | Iqref=-2480 Iq=-2554 Id=-200 IdFW=0 | avV=20418/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-294 cap=600 brk=0 | Iqref=-2296 Iq=-2348 Id=-36 IdFW=0 | avV=16217/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-162 cap=600 brk=0 | Iqref=-2495 Iq=-2609 Id=54 IdFW=0 | avV=8956/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-48 cap=600 brk=0 | Iqref=-2284 Iq=-2378 Id=2 IdFW=0 | avV=3291/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2263 Iq=-2322 Id=-21 IdFW=0 | avV=727/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=24 cap=600 brk=0 | Iqref=-2460 Iq=-2497 Id=3 IdFW=0 | avV=462/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=84 cap=600 brk=0 | Iqref=-2497 Iq=-2585 Id=-35 IdFW=0 | avV=3671/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=192 cap=600 brk=0 | Iqref=-2266 Iq=-2394 Id=68 IdFW=0 | avV=9794/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=324 cap=600 brk=0 | Iqref=-2529 Iq=-2638 Id=-13 IdFW=0 | avV=16296/27851 | I=2.7A Vb=47V enc=ok err=0
+[m] RUN spd=438 cap=600 brk=0 | Iqref=-2471 Iq=-2521 Id=-53 IdFW=0 | avV=22007/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=534 cap=600 brk=0 | Iqref=-2463 Iq=-2479 Id=-807 IdFW=-1062 | avV=26427/27851 | I=2.6A Vb=47V enc=ok err=0
+[m] RUN spd=618 cap=600 brk=841 | Iqref=-2281 Iq=-2230 Id=-3083 IdFW=-3078 | avV=27415/27851 | I=3.8A Vb=47V enc=ok err=0
+[m] RUN spd=612 cap=600 brk=1614 | Iqref=-2439 Iq=-2544 Id=-2670 IdFW=-2915 | avV=27742/27851 | I=3.7A Vb=47V enc=ok err=0
+[m] RUN spd=618 cap=600 brk=3005 | Iqref=-2284 Iq=-2171 Id=-3052 IdFW=-2926 | avV=26956/27851 | I=3.8A Vb=47V enc=ok err=0
+[m] RUN spd=510 cap=600 brk=844 | Iqref=-2416 Iq=-2324 Id=71 IdFW=-10 | avV=24203/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=330 cap=600 brk=0 | Iqref=-2274 Iq=-2090 Id=25 IdFW=0 | avV=14036/27851 | I=2.1A Vb=47V enc=ok err=0
+[m] RUN spd=66 cap=600 brk=0 | Iqref=-2482 Iq=-2255 Id=26 IdFW=0 | avV=479/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2284 Iq=-2275 Id=11 IdFW=0 | avV=6171/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-156 cap=600 brk=0 | Iqref=-2376 Iq=-2350 Id=-13 IdFW=0 | avV=9965/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-246 cap=600 brk=0 | Iqref=-2384 Iq=-2316 Id=-88 IdFW=0 | avV=14906/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-354 cap=600 brk=0 | Iqref=-2304 Iq=-2222 Id=-10 IdFW=0 | avV=21196/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-2447 Iq=-2447 Id=-253 IdFW=0 | avV=25584/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=0 | Iqref=-2118 Iq=-1964 Id=179 IdFW=0 | avV=27165/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=0 | Iqref=-2033 Iq=-2068 Id=-8 IdFW=0 | avV=26850/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=0 | Iqref=-2027 Iq=-2187 Id=-413 IdFW=0 | avV=26286/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-2328 Iq=-2324 Id=201 IdFW=0 | avV=25733/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-438 cap=600 brk=0 | Iqref=-2491 Iq=-2520 Id=127 IdFW=0 | avV=24133/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-348 cap=600 brk=0 | Iqref=-2328 Iq=-2377 Id=16 IdFW=0 | avV=18097/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-216 cap=600 brk=0 | Iqref=-2525 Iq=-2640 Id=122 IdFW=0 | avV=11876/27851 | I=2.7A Vb=46V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-2422 Iq=-2461 Id=-21 IdFW=0 | avV=5419/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2408 Iq=-2402 Id=-24 IdFW=0 | avV=1067/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=24 cap=600 brk=0 | Iqref=-2294 Iq=-2329 Id=-11 IdFW=0 | avV=502/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=96 cap=600 brk=0 | Iqref=-2387 Iq=-2444 Id=-5 IdFW=0 | avV=4068/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=198 cap=600 brk=0 | Iqref=-2303 Iq=-2397 Id=32 IdFW=0 | avV=9884/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=342 cap=600 brk=0 | Iqref=-2516 Iq=-2558 Id=-296 IdFW=0 | avV=16927/27851 | I=2.6A Vb=47V enc=ok err=0
+[m] RUN spd=480 cap=600 brk=0 | Iqref=-2343 Iq=-2454 Id=0 IdFW=0 | avV=24850/27851 | I=2.5A Vb=47V enc=ok err=0
+[m] RUN spd=624 cap=600 brk=144 | Iqref=-2493 Iq=-2580 Id=-2843 IdFW=-3119 | avV=28644/27851 | I=3.9A Vb=47V enc=ok err=0
+[m] RUN spd=666 cap=600 brk=6052 | Iqref=-2376 Iq=-2324 Id=-4383 IdFW=-4399 | avV=28075/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=678 cap=600 brk=8147 | Iqref=-2256 Iq=-2243 Id=-5082 IdFW=-4709 | avV=27937/27851 | I=5.6A Vb=47V enc=ok err=0
+[m] RUN spd=594 cap=600 brk=7488 | Iqref=-2512 Iq=-2612 Id=-1961 IdFW=-2338 | avV=26109/27851 | I=3.3A Vb=47V enc=ok err=0
+[m] RUN spd=450 cap=600 brk=0 | Iqref=-2314 Iq=-2123 Id=220 IdFW=0 | avV=20767/27851 | I=2.1A Vb=47V enc=ok err=0
+[m] RUN spd=252 cap=600 brk=0 | Iqref=-2512 Iq=-2362 Id=-18 IdFW=0 | avV=10360/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-2418 Iq=-2273 Id=10 IdFW=0 | avV=2053/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2429 Iq=-2343 Id=-4 IdFW=0 | avV=6020/27851 | I=2.4A Vb=47V enc=ok err=0
+[m] RUN spd=-150 cap=600 brk=0 | Iqref=-2352 Iq=-2273 Id=-18 IdFW=0 | avV=10106/27851 | I=2.3A Vb=47V enc=ok err=0
+[m] RUN spd=-240 cap=600 brk=0 | Iqref=-2489 Iq=-2445 Id=-34 IdFW=0 | avV=14319/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-348 cap=600 brk=0 | Iqref=-2490 Iq=-2389 Id=269 IdFW=0 | avV=20414/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-444 cap=600 brk=0 | Iqref=-2500 Iq=-2371 Id=53 IdFW=0 | avV=25555/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=1 | Iqref=-2097 Iq=-2069 Id=-68 IdFW=0 | avV=26269/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=0 | Iqref=-1961 Iq=-2064 Id=-504 IdFW=-180 | avV=27406/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-2219 Iq=-2315 Id=-72 IdFW=0 | avV=26846/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-474 cap=600 brk=0 | Iqref=-2290 Iq=-2312 Id=128 IdFW=0 | avV=26057/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-420 cap=600 brk=0 | Iqref=-2482 Iq=-2520 Id=-18 IdFW=0 | avV=23350/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-330 cap=600 brk=0 | Iqref=-2449 Iq=-2465 Id=-69 IdFW=0 | avV=17699/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-222 cap=600 brk=0 | Iqref=-2269 Iq=-2353 Id=11 IdFW=0 | avV=12704/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-150 cap=600 brk=0 | Iqref=-2290 Iq=-2365 Id=2 IdFW=0 | avV=9207/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-102 cap=600 brk=0 | Iqref=-2322 Iq=-2381 Id=-16 IdFW=0 | avV=6391/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-60 cap=600 brk=0 | Iqref=-2539 Iq=-2578 Id=-13 IdFW=0 | avV=4128/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-36 cap=600 brk=0 | Iqref=-2309 Iq=-2338 Id=-25 IdFW=0 | avV=3039/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-18 cap=600 brk=0 | Iqref=-2472 Iq=-2445 Id=-10 IdFW=0 | avV=2206/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-54 cap=600 brk=0 | Iqref=-2329 Iq=-2289 Id=78 IdFW=0 | avV=4242/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2499 Iq=-2509 Id=40 IdFW=0 | avV=5440/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-84 cap=600 brk=0 | Iqref=-2391 Iq=-2393 Id=-30 IdFW=0 | avV=6061/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2419 Iq=-2408 Id=-14 IdFW=0 | avV=5218/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-72 cap=600 brk=0 | Iqref=-2512 Iq=-2520 Id=70 IdFW=0 | avV=5343/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-2279 Iq=-2329 Id=-9 IdFW=0 | avV=6353/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-2463 Iq=-2470 Id=5 IdFW=0 | avV=6049/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-2281 Iq=-2303 Id=83 IdFW=0 | avV=5451/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-72 cap=600 brk=0 | Iqref=-2441 Iq=-2453 Id=-19 IdFW=0 | avV=4910/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-66 cap=600 brk=0 | Iqref=-2492 Iq=-2483 Id=7 IdFW=0 | avV=4515/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-42 cap=600 brk=0 | Iqref=-2524 Iq=-2579 Id=-35 IdFW=0 | avV=3424/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-36 cap=600 brk=0 | Iqref=-2324 Iq=-2341 Id=-29 IdFW=0 | avV=3524/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-36 cap=600 brk=0 | Iqref=-2461 Iq=-2457 Id=-25 IdFW=0 | avV=3408/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-42 cap=600 brk=0 | Iqref=-2514 Iq=-2490 Id=1 IdFW=0 | avV=3510/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-24 cap=600 brk=0 | Iqref=-2315 Iq=-2346 Id=-11 IdFW=0 | avV=2727/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2349 Iq=-2324 Id=6 IdFW=0 | avV=1306/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2355 Iq=-2363 Id=17 IdFW=0 | avV=1233/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2364 Iq=-2381 Id=37 IdFW=0 | avV=1271/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2433 Iq=-2414 Id=30 IdFW=0 | avV=1763/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-18 cap=600 brk=0 | Iqref=-2502 Iq=-2482 Id=-53 IdFW=0 | avV=2538/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-42 cap=600 brk=0 | Iqref=-2330 Iq=-2342 Id=-4 IdFW=0 | avV=3335/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-30 cap=600 brk=0 | Iqref=-2433 Iq=-2410 Id=-33 IdFW=0 | avV=3310/27851 | I=2.4A Vb=46V enc=ok err=0
+[m] RUN spd=-30 cap=600 brk=0 | Iqref=-2540 Iq=-2554 Id=1 IdFW=0 | avV=2921/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-24 cap=600 brk=0 | Iqref=-2223 Iq=-2245 Id=-51 IdFW=0 | avV=2836/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1865 Iq=-1887 Id=34 IdFW=0 | avV=1029/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1859 Iq=-1850 Id=-47 IdFW=0 | avV=1039/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1855 Iq=-1871 Id=8 IdFW=0 | avV=1162/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1862 Iq=-1855 Id=-3 IdFW=0 | avV=1220/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1905 Iq=-1893 Id=17 IdFW=0 | avV=1270/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1912 Iq=-1910 Id=23 IdFW=0 | avV=1074/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1906 Iq=-1920 Id=-16 IdFW=0 | avV=1018/27851 | I=1.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2069 Iq=-2080 Id=-14 IdFW=0 | avV=1110/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2266 Iq=-2234 Id=-5 IdFW=0 | avV=1244/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2206 Iq=-2227 Id=14 IdFW=0 | avV=1075/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2314 Iq=-2296 Id=5 IdFW=0 | avV=1100/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2484 Iq=-2485 Id=-10 IdFW=0 | avV=1809/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2476 Iq=-2471 Id=-20 IdFW=0 | avV=1906/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2349 Iq=-2331 Id=9 IdFW=0 | avV=1925/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2301 Iq=-2303 Id=17 IdFW=0 | avV=1494/27851 | I=2.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2184 Iq=-2220 Id=44 IdFW=0 | avV=1250/27851 | I=2.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2120 Iq=-2104 Id=-10 IdFW=0 | avV=1235/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2029 Iq=-2041 Id=-34 IdFW=0 | avV=1501/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-12 cap=600 brk=0 | Iqref=-2033 Iq=-2030 Id=-34 IdFW=0 | avV=1977/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-1637 Iq=-1653 Id=-8 IdFW=0 | avV=1233/27851 | I=1.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1531 Iq=-1529 Id=11 IdFW=0 | avV=1058/27851 | I=1.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1382 Iq=-1382 Id=5 IdFW=0 | avV=964/27851 | I=1.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1335 Iq=-1355 Id=24 IdFW=0 | avV=839/27851 | I=1.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1337 Iq=-1328 Id=39 IdFW=0 | avV=814/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1330 Iq=-1326 Id=3 IdFW=0 | avV=816/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1329 Iq=-1334 Id=-2 IdFW=0 | avV=822/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1311 Iq=-1325 Id=13 IdFW=0 | avV=831/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1267 Iq=-1274 Id=13 IdFW=0 | avV=1106/27851 | I=1.3A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-1007 Iq=-991 Id=-9 IdFW=0 | avV=1209/27851 | I=1.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-871 Iq=-860 Id=10 IdFW=0 | avV=672/27851 | I=0.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-889 Iq=-910 Id=7 IdFW=0 | avV=575/27851 | I=0.9A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1064 Iq=-1068 Id=-10 IdFW=0 | avV=411/27851 | I=1.1A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-1572 Iq=-1601 Id=17 IdFW=0 | avV=441/27851 | I=1.6A Vb=46V enc=ok err=0
+[m] RUN spd=24 cap=600 brk=0 | Iqref=-2052 Iq=-2058 Id=-32 IdFW=0 | avV=312/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=30 cap=600 brk=0 | Iqref=-2942 Iq=-2981 Id=16 IdFW=0 | avV=279/27851 | I=3.0A Vb=46V enc=ok err=0
+[m] RUN spd=48 cap=600 brk=0 | Iqref=-4100 Iq=-4104 Id=-36 IdFW=0 | avV=649/27851 | I=4.1A Vb=46V enc=ok err=0
+[m] RUN spd=96 cap=600 brk=0 | Iqref=-4886 Iq=-5016 Id=75 IdFW=0 | avV=3751/27851 | I=5.1A Vb=46V enc=ok err=0
+[m] RUN spd=228 cap=600 brk=0 | Iqref=-4903 Iq=-5014 Id=28 IdFW=0 | avV=10708/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=408 cap=600 brk=0 | Iqref=-4796 Iq=-4989 Id=181 IdFW=0 | avV=19515/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=660 cap=600 brk=699 | Iqref=-4933 Iq=-4454 Id=-4573 IdFW=-3838 | avV=29626/27851 | I=6.4A Vb=47V enc=ok err=0
+[m] RUN spd=888 cap=600 brk=9254 | Iqref=-4750 Iq=-4809 Id=-9051 IdFW=-8944 | avV=28383/27851 | I=10.3A Vb=48V enc=ok err=0
+[m] RUN spd=822 cap=600 brk=13089 | Iqref=-4757 Iq=-4297 Id=-8897 IdFW=-8506 | avV=28056/27851 | I=9.9A Vb=48V enc=ok err=0
+[m] RUN spd=678 cap=600 brk=14743 | Iqref=-4675 Iq=-4970 Id=-3795 IdFW=-4190 | avV=25999/27851 | I=6.3A Vb=48V enc=ok err=0
+[m] RUN spd=438 cap=600 brk=0 | Iqref=-4829 Iq=-4653 Id=134 IdFW=0 | avV=18153/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=72 cap=600 brk=0 | Iqref=-4888 Iq=-4626 Id=19 IdFW=0 | avV=1225/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=-168 cap=600 brk=0 | Iqref=-4935 Iq=-4899 Id=-87 IdFW=0 | avV=11981/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=-282 cap=600 brk=0 | Iqref=-4919 Iq=-4795 Id=128 IdFW=0 | avV=17894/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-396 cap=600 brk=0 | Iqref=-4915 Iq=-4934 Id=-195 IdFW=0 | avV=24033/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=-468 cap=600 brk=0 | Iqref=-4776 Iq=-4948 Id=-151 IdFW=-54 | avV=27954/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-4850 Iq=-4770 Id=64 IdFW=0 | avV=26772/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-4910 Iq=-4911 Id=146 IdFW=0 | avV=26676/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-414 cap=600 brk=0 | Iqref=-4873 Iq=-4928 Id=-205 IdFW=0 | avV=23122/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-366 cap=600 brk=0 | Iqref=-4732 Iq=-4810 Id=27 IdFW=0 | avV=21277/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-258 cap=600 brk=0 | Iqref=-4699 Iq=-4823 Id=86 IdFW=0 | avV=14936/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-102 cap=600 brk=0 | Iqref=-4817 Iq=-4898 Id=-15 IdFW=0 | avV=7080/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-4687 Iq=-4751 Id=-20 IdFW=0 | avV=1218/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=168 cap=600 brk=0 | Iqref=-4910 Iq=-5024 Id=-32 IdFW=0 | avV=8299/27851 | I=5.1A Vb=46V enc=ok err=0
+[m] RUN spd=516 cap=600 brk=0 | Iqref=-4709 Iq=-4782 Id=-1089 IdFW=-1079 | avV=26195/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=792 cap=600 brk=6547 | Iqref=-4745 Iq=-5488 Id=-6786 IdFW=-7290 | avV=28070/27851 | I=8.8A Vb=47V enc=ok err=0
+[m] RUN spd=858 cap=600 brk=11920 | Iqref=-4704 Iq=-3846 Id=-9877 IdFW=-8633 | avV=28138/27851 | I=10.7A Vb=48V enc=ok err=0
+[m] RUN spd=696 cap=600 brk=14239 | Iqref=-4849 Iq=-4982 Id=-4239 IdFW=-4625 | avV=26478/27851 | I=6.6A Vb=48V enc=ok err=0
+[m] RUN spd=456 cap=600 brk=0 | Iqref=-4708 Iq=-4516 Id=162 IdFW=0 | avV=18969/27851 | I=4.5A Vb=48V enc=ok err=0
+[m] RUN spd=48 cap=600 brk=0 | Iqref=-4848 Iq=-4604 Id=-20 IdFW=0 | avV=2762/27851 | I=4.6A Vb=48V enc=ok err=0
+[m] RUN spd=-204 cap=600 brk=0 | Iqref=-4736 Iq=-4699 Id=-8 IdFW=0 | avV=14400/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-330 cap=600 brk=0 | Iqref=-4801 Iq=-4628 Id=27 IdFW=0 | avV=20227/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-4822 Iq=-4796 Id=-353 IdFW=-279 | avV=28423/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=21 | Iqref=-4471 Iq=-4317 Id=-196 IdFW=-381 | avV=28017/27851 | I=4.4A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=9 | Iqref=-4645 Iq=-4593 Id=304 IdFW=0 | avV=27362/27851 | I=4.6A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=3 | Iqref=-4670 Iq=-4757 Id=-687 IdFW=-513 | avV=28253/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-4885 Iq=-4888 Id=208 IdFW=0 | avV=25053/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-378 cap=600 brk=0 | Iqref=-4744 Iq=-4781 Id=49 IdFW=0 | avV=22586/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-288 cap=600 brk=0 | Iqref=-4867 Iq=-4890 Id=158 IdFW=0 | avV=17139/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-156 cap=600 brk=0 | Iqref=-4756 Iq=-4861 Id=-3 IdFW=0 | avV=9894/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-30 cap=600 brk=0 | Iqref=-4892 Iq=-4970 Id=-42 IdFW=0 | avV=3201/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-4912 Iq=-4956 Id=-29 IdFW=0 | avV=822/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=114 cap=600 brk=0 | Iqref=-4710 Iq=-4821 Id=-38 IdFW=0 | avV=4727/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=288 cap=600 brk=0 | Iqref=-4914 Iq=-5105 Id=-23 IdFW=0 | avV=14520/27851 | I=5.1A Vb=46V enc=ok err=0
+[m] RUN spd=576 cap=600 brk=0 | Iqref=-4903 Iq=-4855 Id=-2913 IdFW=-2586 | avV=27536/27851 | I=5.7A Vb=47V enc=ok err=0
+[m] RUN spd=846 cap=600 brk=7824 | Iqref=-4910 Iq=-5102 Id=-8658 IdFW=-8756 | avV=28514/27851 | I=10.1A Vb=47V enc=ok err=0
+[m] RUN spd=936 cap=600 brk=12472 | Iqref=-4891 Iq=-4259 Id=-10094 IdFW=-9600 | avV=28362/27851 | I=11.0A Vb=48V enc=ok err=0
+[m] RUN spd=702 cap=600 brk=14477 | Iqref=-4725 Iq=-4683 Id=-5164 IdFW=-4999 | avV=25884/27851 | I=7.0A Vb=48V enc=ok err=0
+[m] RUN spd=444 cap=600 brk=0 | Iqref=-4822 Iq=-4621 Id=187 IdFW=0 | avV=18484/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4710 Iq=-4561 Id=26 IdFW=0 | avV=5079/27851 | I=4.6A Vb=48V enc=ok err=0
+[m] RUN spd=-210 cap=600 brk=0 | Iqref=-4849 Iq=-4737 Id=-42 IdFW=0 | avV=14469/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-318 cap=600 brk=0 | Iqref=-4935 Iq=-4921 Id=1 IdFW=0 | avV=19538/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=-402 cap=600 brk=0 | Iqref=-4882 Iq=-4745 Id=70 IdFW=0 | avV=24430/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=28 | Iqref=-4655 Iq=-4661 Id=-418 IdFW=-354 | avV=28203/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] RUN spd=-474 cap=600 brk=0 | Iqref=-4920 Iq=-4811 Id=84 IdFW=0 | avV=26609/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=5 | Iqref=-4589 Iq=-4564 Id=-398 IdFW=-183 | avV=27172/27851 | I=4.6A Vb=45V enc=ok err=0
+[m] RUN spd=-462 cap=600 brk=0 | Iqref=-4908 Iq=-4836 Id=-30 IdFW=0 | avV=26771/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-396 cap=600 brk=0 | Iqref=-4868 Iq=-4872 Id=42 IdFW=0 | avV=22662/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-330 cap=600 brk=0 | Iqref=-4904 Iq=-4946 Id=28 IdFW=0 | avV=18902/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-258 cap=600 brk=0 | Iqref=-4772 Iq=-4893 Id=-113 IdFW=0 | avV=15753/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-198 cap=600 brk=0 | Iqref=-4784 Iq=-4832 Id=-68 IdFW=0 | avV=12289/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-144 cap=600 brk=0 | Iqref=-4913 Iq=-4907 Id=50 IdFW=0 | avV=9555/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-132 cap=600 brk=0 | Iqref=-4738 Iq=-4730 Id=45 IdFW=0 | avV=9280/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-126 cap=600 brk=0 | Iqref=-4710 Iq=-4730 Id=187 IdFW=0 | avV=9394/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-132 cap=600 brk=0 | Iqref=-4875 Iq=-4878 Id=50 IdFW=0 | avV=9437/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=-138 cap=600 brk=0 | Iqref=-4011 Iq=-4065 Id=4 IdFW=0 | avV=8698/27851 | I=4.1A Vb=46V enc=ok err=0
+[m] RUN spd=6 cap=600 brk=0 | Iqref=-1995 Iq=-1983 Id=3 IdFW=0 | avV=646/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2084 Iq=-2079 Id=-21 IdFW=0 | avV=1047/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-2090 Iq=-2086 Id=6 IdFW=0 | avV=956/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=18 cap=600 brk=0 | Iqref=-2495 Iq=-2470 Id=43 IdFW=0 | avV=648/27851 | I=2.5A Vb=46V enc=ok err=0
+[m] RUN spd=30 cap=600 brk=0 | Iqref=-3170 Iq=-3201 Id=-30 IdFW=0 | avV=241/27851 | I=3.2A Vb=46V enc=ok err=0
+[m] RUN spd=72 cap=600 brk=0 | Iqref=-4614 Iq=-4676 Id=-82 IdFW=0 | avV=1867/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] RUN spd=186 cap=600 brk=0 | Iqref=-4920 Iq=-5040 Id=-67 IdFW=0 | avV=9014/27851 | I=5.1A Vb=46V enc=ok err=0
+[m] RUN spd=408 cap=600 brk=0 | Iqref=-4746 Iq=-4848 Id=-9 IdFW=0 | avV=20033/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=648 cap=600 brk=475 | Iqref=-4910 Iq=-5072 Id=-3384 IdFW=-3365 | avV=28311/27851 | I=6.1A Vb=47V enc=ok err=0
+[m] RUN spd=828 cap=600 brk=8740 | Iqref=-4824 Iq=-4724 Id=-8650 IdFW=-7657 | avV=28003/27851 | I=9.9A Vb=48V enc=ok err=0
+[m] RUN spd=792 cap=600 brk=12867 | Iqref=-4821 Iq=-4894 Id=-6810 IdFW=-7491 | avV=27713/27851 | I=8.4A Vb=48V enc=ok err=0
+[m] RUN spd=762 cap=600 brk=14647 | Iqref=-4743 Iq=-4681 Id=-6559 IdFW=-6523 | avV=27121/27851 | I=8.1A Vb=48V enc=ok err=0
+[m] RUN spd=618 cap=600 brk=13750 | Iqref=-4858 Iq=-4974 Id=-2094 IdFW=-2225 | avV=25444/27851 | I=5.4A Vb=48V enc=ok err=0
+[m] RUN spd=420 cap=600 brk=0 | Iqref=-4777 Iq=-4587 Id=135 IdFW=0 | avV=17608/27851 | I=4.6A Vb=48V enc=ok err=0
+[m] RUN spd=30 cap=600 brk=0 | Iqref=-4837 Iq=-4622 Id=14 IdFW=0 | avV=3716/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=-222 cap=600 brk=0 | Iqref=-4859 Iq=-4688 Id=63 IdFW=0 | avV=15168/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-336 cap=600 brk=0 | Iqref=-4831 Iq=-4716 Id=-125 IdFW=0 | avV=20805/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-432 cap=600 brk=0 | Iqref=-4924 Iq=-4860 Id=-1 IdFW=0 | avV=25442/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=69 | Iqref=-4157 Iq=-3912 Id=-445 IdFW=-730 | avV=28739/27851 | I=4.0A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=29 | Iqref=-3996 Iq=-4191 Id=-499 IdFW=-309 | avV=26712/27851 | I=4.2A Vb=46V enc=ok err=0
+[m] RUN spd=-504 cap=600 brk=17 | Iqref=-3953 Iq=-3774 Id=-516 IdFW=-599 | avV=27195/27851 | I=3.8A Vb=45V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=5 | Iqref=-4107 Iq=-4292 Id=-892 IdFW=-586 | avV=28062/27851 | I=4.4A Vb=45V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-4785 Iq=-4568 Id=254 IdFW=0 | avV=27497/27851 | I=4.6A Vb=45V enc=ok err=0
+[m] RUN spd=-456 cap=600 brk=0 | Iqref=-4844 Iq=-4856 Id=105 IdFW=0 | avV=26272/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-336 cap=600 brk=0 | Iqref=-4823 Iq=-4941 Id=68 IdFW=0 | avV=17920/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-186 cap=600 brk=0 | Iqref=-4795 Iq=-4909 Id=89 IdFW=0 | avV=11412/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-4870 Iq=-4932 Id=-12 IdFW=0 | avV=6540/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-12 cap=600 brk=0 | Iqref=-4724 Iq=-4791 Id=10 IdFW=0 | avV=2664/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4735 Iq=-4752 Id=94 IdFW=0 | avV=2164/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=24 cap=600 brk=0 | Iqref=-4890 Iq=-4936 Id=-3 IdFW=0 | avV=385/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=96 cap=600 brk=0 | Iqref=-4936 Iq=-4949 Id=-97 IdFW=0 | avV=3490/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=192 cap=600 brk=0 | Iqref=-4807 Iq=-4927 Id=29 IdFW=0 | avV=8265/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=354 cap=600 brk=0 | Iqref=-4762 Iq=-4834 Id=-378 IdFW=0 | avV=16878/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=522 cap=600 brk=0 | Iqref=-4766 Iq=-4631 Id=-1274 IdFW=-1018 | avV=25040/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=726 cap=600 brk=3294 | Iqref=-4930 Iq=-4764 Id=-5641 IdFW=-4749 | avV=28670/27851 | I=7.4A Vb=47V enc=ok err=0
+[m] RUN spd=768 cap=600 brk=10516 | Iqref=-4820 Iq=-4861 Id=-6191 IdFW=-6644 | avV=28191/27851 | I=7.9A Vb=48V enc=ok err=0
+[m] RUN spd=768 cap=600 brk=13633 | Iqref=-4890 Iq=-4707 Id=-7064 IdFW=-6725 | avV=27318/27851 | I=8.5A Vb=48V enc=ok err=0
+[m] RUN spd=684 cap=600 brk=14978 | Iqref=-4919 Iq=-4720 Id=-4123 IdFW=-4061 | avV=27732/27851 | I=6.3A Vb=48V enc=ok err=0
+[m] RUN spd=516 cap=600 brk=6952 | Iqref=-4904 Iq=-4934 Id=334 IdFW=0 | avV=22639/27851 | I=5.0A Vb=48V enc=ok err=0
+[m] RUN spd=192 cap=600 brk=0 | Iqref=-4760 Iq=-4488 Id=69 IdFW=0 | avV=5587/27851 | I=4.5A Vb=48V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-4924 Iq=-4844 Id=27 IdFW=0 | avV=8192/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=-192 cap=600 brk=0 | Iqref=-4680 Iq=-4667 Id=1 IdFW=0 | avV=13013/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-264 cap=600 brk=0 | Iqref=-4689 Iq=-4609 Id=94 IdFW=0 | avV=17402/27851 | I=4.6A Vb=46V enc=ok err=0
+[m] RUN spd=-378 cap=600 brk=0 | Iqref=-4873 Iq=-4705 Id=-179 IdFW=0 | avV=23056/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=24 | Iqref=-4313 Iq=-4132 Id=-350 IdFW=-789 | avV=28598/27851 | I=4.2A Vb=46V enc=ok err=0
+[m] RUN spd=-510 cap=600 brk=26 | Iqref=-3623 Iq=-3792 Id=-1243 IdFW=-892 | avV=27114/27851 | I=4.0A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=4 | Iqref=-4210 Iq=-4040 Id=91 IdFW=-263 | avV=28245/27851 | I=4.1A Vb=45V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=2 | Iqref=-4187 Iq=-4275 Id=-725 IdFW=-426 | avV=27912/27851 | I=4.4A Vb=45V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=0 | Iqref=-4377 Iq=-4404 Id=-205 IdFW=0 | avV=26836/27851 | I=4.4A Vb=45V enc=ok err=0
+[m] RUN spd=-474 cap=600 brk=0 | Iqref=-4838 Iq=-4909 Id=-376 IdFW=-355 | avV=28375/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-414 cap=600 brk=0 | Iqref=-4817 Iq=-4900 Id=12 IdFW=0 | avV=23763/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-282 cap=600 brk=0 | Iqref=-4788 Iq=-4876 Id=-64 IdFW=0 | avV=15936/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-192 cap=600 brk=0 | Iqref=-4886 Iq=-4867 Id=-13 IdFW=0 | avV=11877/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-120 cap=600 brk=0 | Iqref=-4718 Iq=-4777 Id=-10 IdFW=0 | avV=8481/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-54 cap=600 brk=0 | Iqref=-4890 Iq=-4923 Id=9 IdFW=0 | avV=4544/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4899 Iq=-4896 Id=-10 IdFW=0 | avV=2224/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4911 Iq=-4914 Id=52 IdFW=0 | avV=1990/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=36 cap=600 brk=0 | Iqref=-4710 Iq=-4800 Id=-1 IdFW=0 | avV=588/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=156 cap=600 brk=0 | Iqref=-4875 Iq=-4974 Id=213 IdFW=0 | avV=7050/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=312 cap=600 brk=0 | Iqref=-4709 Iq=-4809 Id=52 IdFW=0 | avV=14815/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=504 cap=600 brk=0 | Iqref=-4836 Iq=-4753 Id=-1059 IdFW=-704 | avV=24996/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=666 cap=600 brk=1853 | Iqref=-4921 Iq=-4920 Id=-4176 IdFW=-4233 | avV=28417/27851 | I=6.5A Vb=47V enc=ok err=0
+[m] RUN spd=744 cap=600 brk=9778 | Iqref=-4802 Iq=-4316 Id=-6946 IdFW=-6538 | avV=28307/27851 | I=8.2A Vb=48V enc=ok err=0
+[m] RUN spd=810 cap=600 brk=13315 | Iqref=-4812 Iq=-4864 Id=-7840 IdFW=-7006 | avV=27306/27851 | I=9.3A Vb=48V enc=ok err=0
+[m] RUN spd=714 cap=600 brk=14841 | Iqref=-4926 Iq=-4624 Id=-5520 IdFW=-5472 | avV=27370/27851 | I=7.3A Vb=48V enc=ok err=0
+[m] RUN spd=606 cap=600 brk=14413 | Iqref=-4922 Iq=-4950 Id=-2317 IdFW=-2319 | avV=25465/27851 | I=5.5A Vb=48V enc=ok err=0
+[m] RUN spd=378 cap=600 brk=0 | Iqref=-4921 Iq=-4789 Id=472 IdFW=0 | avV=15682/27851 | I=4.8A Vb=48V enc=ok err=0
+[m] RUN spd=42 cap=600 brk=0 | Iqref=-4861 Iq=-4662 Id=2 IdFW=0 | avV=2114/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=-114 cap=600 brk=0 | Iqref=-4733 Iq=-4681 Id=-33 IdFW=0 | avV=9388/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-186 cap=600 brk=0 | Iqref=-4862 Iq=-4802 Id=-27 IdFW=0 | avV=13241/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-294 cap=600 brk=0 | Iqref=-4693 Iq=-4603 Id=-6 IdFW=0 | avV=19116/27851 | I=4.6A Vb=46V enc=ok err=0
+[m] RUN spd=-414 cap=600 brk=0 | Iqref=-4852 Iq=-4974 Id=-420 IdFW=0 | avV=24661/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-4722 Iq=-4734 Id=-441 IdFW=-583 | avV=28817/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=7 | Iqref=-4327 Iq=-4319 Id=-279 IdFW=-387 | avV=27295/27851 | I=4.4A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=1 | Iqref=-4667 Iq=-4580 Id=37 IdFW=-102 | avV=27934/27851 | I=4.6A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-4657 Iq=-4636 Id=-55 IdFW=-82 | avV=28026/27851 | I=4.7A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=0 | Iqref=-4605 Iq=-4836 Id=-373 IdFW=-35 | avV=26790/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-438 cap=600 brk=0 | Iqref=-4876 Iq=-4981 Id=83 IdFW=0 | avV=25696/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-372 cap=600 brk=0 | Iqref=-4674 Iq=-4763 Id=-132 IdFW=0 | avV=21935/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-300 cap=600 brk=0 | Iqref=-4890 Iq=-4964 Id=-9 IdFW=0 | avV=17075/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-198 cap=600 brk=0 | Iqref=-4913 Iq=-4931 Id=54 IdFW=0 | avV=12277/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-138 cap=600 brk=0 | Iqref=-4699 Iq=-4768 Id=29 IdFW=0 | avV=9555/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-4704 Iq=-4746 Id=-40 IdFW=0 | avV=7348/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-48 cap=600 brk=0 | Iqref=-4678 Iq=-4760 Id=10 IdFW=0 | avV=4465/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4763 Iq=-4765 Id=53 IdFW=0 | avV=2167/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=12 cap=600 brk=0 | Iqref=-4679 Iq=-4711 Id=-43 IdFW=0 | avV=1329/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] RUN spd=96 cap=600 brk=0 | Iqref=-4692 Iq=-4747 Id=-49 IdFW=0 | avV=3813/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=258 cap=600 brk=0 | Iqref=-4827 Iq=-4945 Id=-88 IdFW=0 | avV=12330/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=474 cap=600 brk=0 | Iqref=-4802 Iq=-4824 Id=-360 IdFW=0 | avV=23480/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=678 cap=600 brk=1667 | Iqref=-4693 Iq=-5103 Id=-4860 IdFW=-4963 | avV=27439/27851 | I=7.1A Vb=47V enc=ok err=0
+[m] RUN spd=822 cap=600 brk=9778 | Iqref=-4809 Iq=-5601 Id=-7467 IdFW=-8168 | avV=27848/27851 | I=9.4A Vb=48V enc=ok err=0
+[m] RUN spd=834 cap=600 brk=13314 | Iqref=-4689 Iq=-4483 Id=-8931 IdFW=-8571 | avV=27977/27851 | I=10.1A Vb=48V enc=ok err=0
+[m] RUN spd=786 cap=600 brk=14841 | Iqref=-4923 Iq=-5246 Id=-6779 IdFW=-7450 | avV=27969/27851 | I=8.6A Vb=49V enc=ok err=0
+[m] RUN spd=696 cap=600 brk=15499 | Iqref=-4686 Iq=-4669 Id=-4454 IdFW=-4497 | avV=26769/27851 | I=6.5A Vb=49V enc=ok err=0
+[m] RUN spd=480 cap=600 brk=0 | Iqref=-4888 Iq=-4730 Id=-48 IdFW=0 | avV=21533/27851 | I=4.8A Vb=48V enc=ok err=0
+[m] RUN spd=180 cap=600 brk=0 | Iqref=-4928 Iq=-4704 Id=-74 IdFW=0 | avV=4600/27851 | I=4.7A Vb=48V enc=ok err=0
+[m] RUN spd=-72 cap=600 brk=0 | Iqref=-4865 Iq=-4766 Id=30 IdFW=0 | avV=7064/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-156 cap=600 brk=0 | Iqref=-4780 Iq=-4653 Id=-86 IdFW=0 | avV=11108/27851 | I=4.7A Vb=47V enc=ok err=0
+[m] RUN spd=-228 cap=600 brk=0 | Iqref=-4809 Iq=-4837 Id=-116 IdFW=0 | avV=15304/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=-342 cap=600 brk=0 | Iqref=-4763 Iq=-4803 Id=-137 IdFW=0 | avV=21200/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=17 | Iqref=-4657 Iq=-4482 Id=-618 IdFW=-602 | avV=28174/27851 | I=4.6A Vb=46V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=15 | Iqref=-4313 Iq=-4220 Id=104 IdFW=-505 | avV=28577/27851 | I=4.3A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=9 | Iqref=-4000 Iq=-4226 Id=-624 IdFW=-390 | avV=27396/27851 | I=4.3A Vb=45V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=1 | Iqref=-4663 Iq=-4819 Id=-140 IdFW=-112 | avV=27874/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-4929 Iq=-4731 Id=538 IdFW=0 | avV=27409/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-4910 Iq=-4818 Id=122 IdFW=0 | avV=26459/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-408 cap=600 brk=0 | Iqref=-4851 Iq=-4977 Id=-58 IdFW=0 | avV=23980/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-330 cap=600 brk=0 | Iqref=-4802 Iq=-5010 Id=-210 IdFW=0 | avV=19728/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-252 cap=600 brk=0 | Iqref=-4909 Iq=-4890 Id=98 IdFW=0 | avV=15161/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-180 cap=600 brk=0 | Iqref=-4748 Iq=-4771 Id=-60 IdFW=0 | avV=11421/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-150 cap=600 brk=0 | Iqref=-4880 Iq=-4890 Id=18 IdFW=0 | avV=10068/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-114 cap=600 brk=0 | Iqref=-4808 Iq=-4833 Id=18 IdFW=0 | avV=8347/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=-78 cap=600 brk=0 | Iqref=-4923 Iq=-4947 Id=46 IdFW=0 | avV=6267/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=-42 cap=600 brk=0 | Iqref=-4924 Iq=-4929 Id=-21 IdFW=0 | avV=4372/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4874 Iq=-4878 Id=-12 IdFW=0 | avV=2314/27851 | I=4.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-4886 Iq=-4919 Id=21 IdFW=0 | avV=1969/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=66 cap=600 brk=0 | Iqref=-4694 Iq=-4768 Id=43 IdFW=0 | avV=2298/27851 | I=4.8A Vb=46V enc=ok err=0
+[m] RUN spd=216 cap=600 brk=0 | Iqref=-4900 Iq=-5032 Id=-42 IdFW=0 | avV=10006/27851 | I=5.1A Vb=46V enc=ok err=0
+[m] RUN spd=408 cap=600 brk=0 | Iqref=-4848 Iq=-4902 Id=-675 IdFW=0 | avV=19600/27851 | I=5.0A Vb=47V enc=ok err=0
+[m] RUN spd=606 cap=600 brk=6 | Iqref=-4845 Iq=-4900 Id=-3064 IdFW=-3073 | avV=26839/27851 | I=5.8A Vb=47V enc=ok err=0
+[m] RUN spd=780 cap=600 brk=6547 | Iqref=-4804 Iq=-4891 Id=-6832 IdFW=-6107 | avV=27921/27851 | I=8.5A Vb=48V enc=ok err=0
+[m] RUN spd=774 cap=600 brk=11920 | Iqref=-4769 Iq=-5020 Id=-6614 IdFW=-7115 | avV=27706/27851 | I=8.4A Vb=48V enc=ok err=0
+[m] RUN spd=768 cap=600 brk=14239 | Iqref=-4892 Iq=-5215 Id=-6185 IdFW=-6920 | avV=27996/27851 | I=8.1A Vb=48V enc=ok err=0
+[m] RUN spd=702 cap=600 brk=15240 | Iqref=-4917 Iq=-4671 Id=-5064 IdFW=-4443 | avV=27236/27851 | I=6.9A Vb=48V enc=ok err=0
+[m] RUN spd=534 cap=600 brk=10800 | Iqref=-4938 Iq=-4742 Id=-757 IdFW=-590 | avV=23363/27851 | I=4.8A Vb=48V enc=ok err=0
+[m] RUN spd=264 cap=600 brk=0 | Iqref=-4717 Iq=-4510 Id=169 IdFW=0 | avV=8951/27851 | I=4.5A Vb=48V enc=ok err=0
+[m] RUN spd=-48 cap=600 brk=0 | Iqref=-4917 Iq=-4850 Id=-22 IdFW=0 | avV=6076/27851 | I=4.9A Vb=48V enc=ok err=0
+[m] RUN spd=-162 cap=600 brk=0 | Iqref=-4889 Iq=-4778 Id=28 IdFW=0 | avV=11621/27851 | I=4.8A Vb=47V enc=ok err=0
+[m] RUN spd=-270 cap=600 brk=0 | Iqref=-4916 Iq=-4840 Id=28 IdFW=0 | avV=17339/27851 | I=4.9A Vb=47V enc=ok err=0
+[m] RUN spd=-384 cap=600 brk=0 | Iqref=-4721 Iq=-4683 Id=-156 IdFW=0 | avV=23560/27851 | I=4.7A Vb=46V enc=ok err=0
+[m] RUN spd=-486 cap=600 brk=15 | Iqref=-4594 Iq=-4566 Id=-120 IdFW=-350 | avV=28521/27851 | I=4.6A Vb=46V enc=ok err=0
+[m] RUN spd=-498 cap=600 brk=19 | Iqref=-4032 Iq=-3999 Id=-354 IdFW=-265 | avV=27790/27851 | I=4.0A Vb=46V enc=ok err=0
+[m] RUN spd=-510 cap=600 brk=14 | Iqref=-3649 Iq=-3561 Id=-467 IdFW=-258 | avV=26556/27851 | I=3.6A Vb=45V enc=ok err=0
+[m] RUN spd=-504 cap=600 brk=4 | Iqref=-3752 Iq=-3812 Id=-1525 IdFW=-1463 | avV=28293/27851 | I=4.1A Vb=45V enc=ok err=0
+[m] RUN spd=-492 cap=600 brk=1 | Iqref=-4437 Iq=-4297 Id=-202 IdFW=-384 | avV=27782/27851 | I=4.3A Vb=45V enc=ok err=0
+[m] RUN spd=-480 cap=600 brk=0 | Iqref=-4898 Iq=-4835 Id=69 IdFW=0 | avV=27420/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-432 cap=600 brk=0 | Iqref=-4714 Iq=-4772 Id=48 IdFW=0 | avV=25045/27851 | I=4.8A Vb=45V enc=ok err=0
+[m] RUN spd=-336 cap=600 brk=0 | Iqref=-4915 Iq=-5064 Id=-64 IdFW=0 | avV=19194/27851 | I=5.1A Vb=45V enc=ok err=0
+[m] RUN spd=-216 cap=600 brk=0 | Iqref=-4897 Iq=-4896 Id=-10 IdFW=0 | avV=13128/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-150 cap=600 brk=0 | Iqref=-4888 Iq=-4921 Id=-1 IdFW=0 | avV=9879/27851 | I=5.0A Vb=45V enc=ok err=0
+[m] RUN spd=-114 cap=600 brk=0 | Iqref=-4862 Iq=-4819 Id=-64 IdFW=0 | avV=8512/27851 | I=4.9A Vb=45V enc=ok err=0
+[m] RUN spd=-90 cap=600 brk=0 | Iqref=-4950 Iq=-4959 Id=57 IdFW=0 | avV=6910/27851 | I=5.0A Vb=46V enc=ok err=0
+[m] RUN spd=-30 cap=600 brk=0 | Iqref=-3407 Iq=-3489 Id=-18 IdFW=0 | avV=2650/27851 | I=3.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3370 Iq=-3443 Id=30 IdFW=0 | avV=1636/27851 | I=3.5A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3394 Iq=-3401 Id=11 IdFW=0 | avV=1651/27851 | I=3.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3429 Iq=-3406 Id=7 IdFW=0 | avV=1407/27851 | I=3.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3543 Iq=-3537 Id=-13 IdFW=0 | avV=1533/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3586 Iq=-3606 Id=34 IdFW=0 | avV=1679/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3605 Iq=-3626 Id=17 IdFW=0 | avV=1710/27851 | I=3.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3607 Iq=-3589 Id=-13 IdFW=0 | avV=1725/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3592 Iq=-3554 Id=-33 IdFW=0 | avV=1728/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3579 Iq=-3575 Id=-1 IdFW=0 | avV=1731/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3533 Iq=-3535 Id=41 IdFW=0 | avV=1810/27851 | I=3.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3421 Iq=-3405 Id=-11 IdFW=0 | avV=1817/27851 | I=3.4A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-3279 Iq=-3255 Id=-30 IdFW=0 | avV=2063/27851 | I=3.3A Vb=46V enc=ok err=0
+[m] RUN spd=-30 cap=600 brk=0 | Iqref=-2565 Iq=-2570 Id=-37 IdFW=0 | avV=3214/27851 | I=2.6A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-2065 Iq=-2091 Id=-41 IdFW=0 | avV=1460/27851 | I=2.1A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-1977 Iq=-2012 Id=-49 IdFW=0 | avV=1384/27851 | I=2.0A Vb=46V enc=ok err=0
+[m] RUN spd=-6 cap=600 brk=0 | Iqref=-1743 Iq=-1738 Id=11 IdFW=0 | avV=1324/27851 | I=1.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-1543 Iq=-1541 Id=22 IdFW=0 | avV=1136/27851 | I=1.6A Vb=46V enc=ok err=0
+[m] RUN spd=-12 cap=600 brk=0 | Iqref=-1235 Iq=-1233 Id=-18 IdFW=0 | avV=1576/27851 | I=1.2A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-808 Iq=-850 Id=-29 IdFW=0 | avV=703/27851 | I=0.9A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-799 Iq=-749 Id=23 IdFW=0 | avV=607/27851 | I=0.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-784 Iq=-754 Id=2 IdFW=0 | avV=665/27851 | I=0.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-778 Iq=-769 Id=-3 IdFW=0 | avV=615/27851 | I=0.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-776 Iq=-769 Id=2 IdFW=0 | avV=634/27851 | I=0.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-774 Iq=-769 Id=-10 IdFW=0 | avV=608/27851 | I=0.8A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-711 Iq=-724 Id=-6 IdFW=0 | avV=636/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-696 Iq=-711 Id=0 IdFW=0 | avV=559/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-694 Iq=-679 Id=12 IdFW=0 | avV=564/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-624 Iq=-694 Id=28 IdFW=0 | avV=458/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-630 Iq=-619 Id=-3 IdFW=0 | avV=436/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-641 Iq=-676 Id=28 IdFW=0 | avV=459/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-628 Iq=-609 Id=-18 IdFW=0 | avV=449/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-622 Iq=-609 Id=-18 IdFW=0 | avV=449/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-624 Iq=-619 Id=-2 IdFW=0 | avV=446/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-624 Iq=-657 Id=27 IdFW=0 | avV=474/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-622 Iq=-655 Id=27 IdFW=0 | avV=449/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-628 Iq=-619 Id=-2 IdFW=0 | avV=457/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-624 Iq=-618 Id=-16 IdFW=0 | avV=479/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-613 Iq=-609 Id=-31 IdFW=0 | avV=450/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-619 Iq=-628 Id=32 IdFW=0 | avV=483/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-618 Iq=-619 Id=17 IdFW=0 | avV=471/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-616 Iq=-591 Id=-31 IdFW=0 | avV=466/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-615 Iq=-628 Id=32 IdFW=0 | avV=491/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-615 Iq=-656 Id=17 IdFW=0 | avV=455/27851 | I=0.7A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-608 Iq=-600 Id=17 IdFW=0 | avV=439/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-611 Iq=-619 Id=17 IdFW=0 | avV=458/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-615 Iq=-592 Id=-12 IdFW=0 | avV=451/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-611 Iq=-618 Id=36 IdFW=0 | avV=496/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-611 Iq=-619 Id=3 IdFW=0 | avV=478/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-600 Iq=-609 Id=19 IdFW=0 | avV=471/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-605 Iq=-600 Id=3 IdFW=0 | avV=454/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-608 Iq=-600 Id=3 IdFW=0 | avV=489/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-606 Iq=-599 Id=35 IdFW=0 | avV=472/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-608 Iq=-592 Id=-13 IdFW=0 | avV=471/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-613 Iq=-637 Id=4 IdFW=0 | avV=478/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-606 Iq=-592 Id=-12 IdFW=0 | avV=462/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-604 Iq=-618 Id=36 IdFW=0 | avV=470/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-619 Iq=-637 Id=4 IdFW=0 | avV=483/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-606 Iq=-600 Id=4 IdFW=0 | avV=466/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-601 Iq=-600 Id=2 IdFW=0 | avV=460/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-606 Iq=-619 Id=3 IdFW=0 | avV=492/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-602 Iq=-583 Id=-29 IdFW=0 | avV=479/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-607 Iq=-610 Id=-12 IdFW=0 | avV=455/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-598 Iq=-583 Id=-8 IdFW=0 | avV=465/27851 | I=0.6A Vb=46V enc=ok err=0
+[m] RUN spd=0 cap=600 brk=0 | Iqref=-607 Iq=-600 Id=3 IdFW=0 | avV=491/27851 | I=0.6A Vb=46V enc=ok err=0

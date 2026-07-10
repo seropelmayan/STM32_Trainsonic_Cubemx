@@ -419,11 +419,24 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'M': g_pos_max_iq  = (float)s_val / 1000.0f; break;    /* position max |Iq|, mA->A */
         case 'Q': g_pos_max_rpm = (float)s_val;         break;      /* position velocity clamp, rpm */
         case 'j': g_iadc_speed_rpm = s_val; g_iadc_log_req = 1U; break; /* raw phase-current log @ rpm (0=standstill) */
-        case 'V': g_spdcap_rpm = (float)s_val; break;              /* torque-mode speed cap, rpm (0=off) */
+        case 'V':                                                  /* torque-mode speed cap request, rpm */
+        {                                                          /* governor enforces min(req, hard);  */
+          extern volatile float g_spdcap_hard_rpm;                 /* 0 / over-hard -> hard ceiling      */
+          float v = (float)s_val;
+          if ((v <= 0.0f) || (v > g_spdcap_hard_rpm)) { v = g_spdcap_hard_rpm; }
+          g_spdcap_rpm = v;
+        } break;
         case 'A': Ropetow_SetMcFwVRef(s_val); break;               /* MCSDK FW target voltage, tenths-of-% */
         case 'B': Ropetow_SetMcFwKi(s_val);   break;               /* MCSDK FW PI Ki */
         case 'G': g_enc_ff_ticks = (float)s_val * 0.1f; break;     /* commutation latency FF, tenths of HF ticks */
         case 'S': Ropetow_SetMcFwDemag(s_val); break;             /* FW demag |Id| clamp, mA */
+        case 'q':                                                 /* FW speed-FF gain, mA/rpm over knee (0=off) */
+        {
+          extern volatile float g_fwff_ma_per_rpm;
+          if (s_val < 0)   { s_val = 0; }
+          if (s_val > 200) { s_val = 200; }                       /* 200 mA/rpm is already absurd */
+          g_fwff_ma_per_rpm = (float)s_val;
+        } break;
         case 'U': Ropetow_SetPllBw(s_val); break;                /* PLL bandwidth f_n, Hz */
         case 'E': g_cogg_gain = (float)s_val / 100.0f; break;    /* anti-cogging FF amplitude scale, percent */
         case 'Z': { float a = (float)s_val / 1000.0f;            /* cal calib current, mA -> A */
@@ -465,7 +478,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'x': g_mcfw_enable ^= 1U;   break;   /* toggle MCSDK native flux weakening */
       case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
-      case 'W': case 'H': case 'J':
+      case 'W': case 'H': case 'J': case 'q':
       case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z': case 'T':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */

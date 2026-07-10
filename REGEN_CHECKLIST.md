@@ -31,6 +31,15 @@ tick the checkbox in the GUI — that's authoritative.)
 | `PID_FLUX_KI_DEFAULT` | `150` |
 (Torque/Flux 150 is a STARTING point — re-tune the current loop with FF active.)
 
+Also `Src/mc_config_common.c` (regenerated, edits are OUTSIDE user guards): both
+`hMaxReliableMecSpeedUnit` initializers (in `ENCODER_M1` and
+`VirtualSpeedSensorM1`) are hand-set to `(1150 * SPEED_UNIT) / U_RPM` — the
+over-speed fault line, deliberately ABOVE human-reachable pull speed (~1070
+observed): pulls are unbraked by design (resistance purity), FW keeps control
+up there, and a fault trip at speed cuts PWM into uncontrolled rectification.
+Motor-driven overspeed (release) is governed at 600 by `g_spdcap_*` in
+`mc_tasks_foc.c`. Re-apply after regen.
+
 ## 3. RE-MERGE `Src/mc_tasks_foc.c` → `FOC_CurrControllerM1` (CRITICAL)
 This function is regenerated. `git diff` it against the commit and merge back these
 hand-written blocks (all were OUTSIDE USER CODE guards):
@@ -42,6 +51,10 @@ hand-written blocks (all were OUTSIDE USER CODE guards):
 - **avg Iq/Id** diagnostic (8192-sample accumulator → `g_avg_iq`/`g_avg_id`).
 - **Step/ripple capture** (`g_step_state==1 && g_step_mode==0`).
 - **Dead-time compensation** (`g_dt_comp`, added after `Circle_Limitation`).
+- **`FW_DataProcess(&FW_M1, Vqd)` at the function tail** (after the FOCVars
+  stores, post-Circle_Limitation Vqd). Feeds the flux-weakening voltage filter
+  at 25 kHz; without it FW never engages (avV stays 0) since the MF-rate call
+  was removed.
 - Note: new FF code now lives in this function too — keep it; integrate dead-time
   comp after the FF/Circle_Limitation stage.
 

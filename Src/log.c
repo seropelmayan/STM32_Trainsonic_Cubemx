@@ -16,7 +16,11 @@
 #include "usbd_cdc_if.h"    /* CDC_Transmit_FS                     */
 
 #define LOG_BUF_SIZE   2048U   /* ring buffer size (power-of-two not required) */
-#define LOG_TX_CHUNK   64U     /* bytes pushed to the CDC endpoint per drain   */
+#define LOG_TX_CHUNK   255U    /* bytes pushed to the CDC endpoint per drain. 255 (not a
+                                  multiple of 64) so a full chunk never needs a USB ZLP.
+                                  At the 50 ms app loop this drains ~5 kB/s -- 2x the 20 Hz
+                                  [m]-line telemetry rate (64 B/drain could only do 1.3 kB/s
+                                  and silently dropped lines once the ring filled). */
 #define LOG_TMP_SIZE   200U    /* max length of one LOG_Printf() expansion     */
 
 extern USBD_HandleTypeDef hUsbDeviceFS;

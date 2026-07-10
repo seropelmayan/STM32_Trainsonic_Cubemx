@@ -30,6 +30,15 @@ extern volatile uint8_t g_cogg_cal_abort;   /* 'Y' finish/abort cal          */
 extern volatile uint8_t g_cogg_save_req;    /* 'X' save map to flash (reboots) */
 extern volatile uint8_t g_cogg_erase_req;   /* 'n' erase saved map           */
 extern volatile float   g_spdcap_rpm;       /* torque-mode velocity cap (rpm), same as CDC 'V' */
+extern volatile float   g_spdcap_hard_rpm;  /* firmware ceiling: ESP requests are clamped to this */
+
+/* Clamp an ESP-requested speed cap to the firmware hard ceiling. 0 ("unlimited")
+   also becomes the hard ceiling -- the STM32 has the last word on top speed. */
+static float esp_cap_clamp(float rpm)
+{
+  if ((rpm <= 0.0f) || (rpm > g_spdcap_hard_rpm)) { rpm = g_spdcap_hard_rpm; }
+  return rpm;
+}
 
 /* Flags owned here, serviced by the app in STEP 3. */
 volatile uint8_t g_esp_estop_req  = 0U;
@@ -204,7 +213,7 @@ static void esp_dispatch(uint8_t id, const uint8_t *pl, uint8_t len)
       {
         tsl_heartbeat_t hb; memcpy(&hb, pl, sizeof(hb));
         g_torque_set_ma = (int32_t)hb.torque_mA; g_torque_set_req = 1U;
-        g_spdcap_rpm    = (float)hb.speed_rpm;   /* torque-mode velocity cap (0 = unlimited) */
+        g_spdcap_rpm    = esp_cap_clamp((float)hb.speed_rpm); /* velocity cap, hard-limited by STM32 */
       }
       break;
     case TSL_MSG_SETPOINT:
@@ -212,7 +221,7 @@ static void esp_dispatch(uint8_t id, const uint8_t *pl, uint8_t len)
       {
         tsl_setpoint_t sp; memcpy(&sp, pl, sizeof(sp));
         g_torque_set_ma = (int32_t)sp.torque_mA; g_torque_set_req = 1U;
-        g_spdcap_rpm    = (float)sp.speed_rpm;   /* torque-mode velocity cap (0 = unlimited) */
+        g_spdcap_rpm    = esp_cap_clamp((float)sp.speed_rpm); /* velocity cap, hard-limited by STM32 */
       }
       break;
     case TSL_MSG_SET_MODE:

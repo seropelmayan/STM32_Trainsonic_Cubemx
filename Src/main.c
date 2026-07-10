@@ -67,8 +67,9 @@
 #define SPEED_CAP_DECIM         4       /* must match SPEED_CAP_DECIM in mc_tasks_foc.c: 1kHz/4 = 250 Hz -> 512 samp = ~2 s */
 #define BOOT_SPEED_RPM          60      /* speed-mode boot target (rpm); low for clean INL capture */
 #define BOOT_SPEED_RAMP_MS      2000    /* 0 -> target speed ramp duration (ms) */
-#define APP_LOOP_PERIOD_MS      100U    /* app-task yield / health-tick interval (INL & spi: line count on this) */
-#define MOTOR_LOG_PERIOD_MS     1000U   /* periodic [motor] status log interval (1 Hz; raise to log less)        */
+#define APP_LOOP_PERIOD_MS      50U     /* app-task yield / health-tick interval (INL hold + [m] line rate gate) */
+#define MOTOR_LOG_PERIOD_MS     50U     /* periodic [m] status line interval: every app-task loop (20 Hz --
+                                           bounded by APP_LOOP_PERIOD_MS; raise to log less) */
 
 /* Open-loop forced commutation for a CLEAN INL capture (method A). When 1, boot
    in torque mode with a fixed holding current and rotate the electrical field at
@@ -1034,22 +1035,37 @@ static void motor_status_log(void)
   int32_t i_tenths = (int32_t)(((float)MC_GetPhaseCurrentAmplitudeMotor1() *
                                 (float)CURRENT_CONV_FACTOR_INV) * 10.0f + 0.5f);
 
-  /* Iqref: q-axis current reference (s16A). Iq/Id: MEASURED dq currents.
-     Vq: commanded q-axis voltage. cnt: raw TIM3 encoder count. pwm: PWMC on. */
-  LOG_Printf("[motor] %s spd=%ld/%ld rpm I=%ld.%ldA Vbus=%uV enc=%s "
-             "Iqref=%d Iq=%d Id=%d Vq=%d cnt=%lu pwm=%u\r\n",
-             mc_state_name(state),
-             (int32_t)MC_GetMecSpeedAverageMotor1()   * U_RPM / SPEED_UNIT,
-             (int32_t)MC_GetMecSpeedReferenceMotor1() * U_RPM / SPEED_UNIT,
-             i_tenths / 10, i_tenths % 10,
-             (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
-             MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",
-             (int)FOCVars[M1].Iqdref.q,
-             (int)FOCVars[M1].Iqd.q,
-             (int)FOCVars[M1].Iqd.d,
-             (int)FOCVars[M1].Vqd.q,
-             (unsigned long)TIM3->CNT,
-             (unsigned)PWMC_GetPWMState(pwmcHandle[M1]));
+  /* Single-line telemetry: only values that CHANGE, no static config.
+       spd    mech speed (MCSDK avg -- what the governor/fault use), rpm
+       cap    effective speed cap (ESP/CDC request, hard-clamped), rpm
+       brk    governor braking actually applied, mA
+       Iqref  q-axis current reference / Iq,Id MEASURED dq currents (s16A)
+       IdFW   flux-weakening d reference (s16A, 0 = FW idle)
+       avV    filtered |Vqd| vs FW engage target, counts
+       I,Vb   phase current amplitude (A), bus voltage (V)
+       enc    TIM3 speed-sensor reliability;  err  SPI encoder read failures */
+  {
+    extern volatile float    g_spdcap_rpm;
+    extern volatile float    g_spdcap_brake_now_a;
+    extern volatile uint32_t g_spi_err_count;
+    extern int16_t Ropetow_McFwAvVolt(void);
+    extern int16_t Ropetow_McFwVTarget(void);
+    LOG_Printf("[m] %s spd=%ld cap=%d brk=%d | Iqref=%d Iq=%d Id=%d IdFW=%d | "
+               "avV=%d/%d | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
+               mc_state_name(state),
+               (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT,
+               (int)g_spdcap_rpm,
+               (int)(g_spdcap_brake_now_a * 1000.0f),
+               (int)FOCVars[M1].Iqdref.q,
+               (int)FOCVars[M1].Iqd.q,
+               (int)FOCVars[M1].Iqd.d,
+               (int)FOCVars[M1].Iqdref.d,
+               (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
+               i_tenths / 10, i_tenths % 10,
+               (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
+               MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",
+               (unsigned long)g_spi_err_count);
+  }
 
   if (changed && ((faults != 0U) || (MC_GetOccurredFaultsMotor1() != 0U)))
   {
@@ -1178,7 +1194,6 @@ static void StartAppTask(void const *argument)
 
   for (;;)
   {
-    static uint32_t idx_log = 0U;
     static uint32_t run_ticks = 0U;
     extern uint16_t          g_cal_raw[];
     extern volatile uint16_t g_cal_idx;
@@ -1650,7 +1665,7 @@ static void StartAppTask(void const *argument)
        (within +/-15 rpm) for ~3 s, so the startup/overshoot transient is over. */
     if ((MC_GetSTMStateMotor1() == RUN) && (spd_err > -15) && (spd_err < 15)) { run_ticks++; }
     else { run_ticks = 0U; }
-    if ((run_ticks >= 30U) && (g_cal_state == 0U))
+    if ((run_ticks >= (3000U / APP_LOOP_PERIOD_MS)) && (g_cal_state == 0U))
     {
       g_cal_idx = 0U; g_cal_state = 1U;
       LOG_Printf("cal: speed steady, capturing angle @ ~100 Hz...\r\n");
@@ -1658,7 +1673,7 @@ static void StartAppTask(void const *argument)
 
     /* INL dump: emit a small chunk, then DRAIN THE RING TO EMPTY before producing
        the next chunk, so the 2048-byte log buffer can never overflow (the previous
-       version pushed ~144 B/iter but LOG_Process drains only 64 B/call -> the ring
+       version pushed ~144 B/iter but LOG_Process drained less per call -> the ring
        filled after ~400 lines and LOG_Printf dropped the rest -> corrupt CSV).
        The continue suppresses status logs while dumping so the CSV stays clean. */
     if (g_cal_state == 2U)
@@ -1788,49 +1803,8 @@ static void StartAppTask(void const *argument)
     }
     else if (g_cogg_cal_state == 0U)
     {
+    /* All periodic telemetry is the single [m] line in motor_status_log(). */
     motor_status_log();
-    if (++idx_log >= 10U)                                    /* ~1 s: index health */
-    {
-      extern volatile uint32_t g_spi_err_count;     /* SPI read failures (mc_tasks_foc.c) */
-      extern volatile int16_t  g_dt_comp;            /* dead-time comp magnitude (s16 V)   */
-      extern volatile int16_t  g_avg_iq;             /* avg Iq over ~0.3s (DC)             */
-      extern volatile int16_t  g_avg_id;             /* avg Id over ~0.3s: !=0 => misaligned */
-      extern volatile uint8_t  g_cogg_enable;        /* anti-cogging FF on/off             */
-      extern volatile uint8_t  g_cogg_from_flash;    /* 1 = map loaded from saved flash cal */
-      extern volatile uint8_t  g_cogg_harm_enable;   /* harmonic denoise on/off ('h')      */
-      extern volatile int16_t  g_cogg_clamp;         /* anti-cogging FF clamp (s16)        */
-      extern volatile uint8_t  g_fw_enable;          /* flux weakening on/off              */
-      extern volatile float    g_fw_speed_thr_rpm;   /* FW speed threshold (rpm)           */
-      extern volatile float    g_fw_hyst_rpm;        /* FW engage hysteresis (rpm)         */
-      extern volatile float    g_fw_id_target_a;     /* FW Id target (A, negative)         */
-      extern volatile float    g_fw_id_now_a;        /* FW Id ACTUALLY applied (A, 0=idle) */
-      extern volatile float    g_spdcap_rpm;         /* torque-mode speed cap (rpm, 0=off) */
-      idx_log = 0U;
-      LOG_Printf("spi: err=%lu spd=%d | PI Kp=%d Ki=%d dt=%d | avgIq=%d avgId=%d | cogg=%s(%s) harm=%s clamp=%d | "
-                 "fw=%s thr=%dr hys=%dr Id*=%dmA Idnow=%dmA | cap=%dr\r\n",
-                 (unsigned long)g_spi_err_count, (int)spd_now,
-                 (int)PID_GetKP(&PIDSpeedHandle_M1), (int)PID_GetKI(&PIDSpeedHandle_M1),
-                 (int)g_dt_comp, (int)g_avg_iq, (int)g_avg_id,
-                 (g_cogg_enable ? "ON" : "off"), (g_cogg_from_flash ? "flash" : "init"),
-                 (g_cogg_harm_enable ? "ON" : "off"), (int)g_cogg_clamp,
-                 (g_fw_enable ? "ON" : "off"), (int)g_fw_speed_thr_rpm, (int)g_fw_hyst_rpm,
-                 (int)(g_fw_id_target_a * 1000.0f), (int)(g_fw_id_now_a * 1000.0f),
-                 (int)g_spdcap_rpm);
-      {
-        extern volatile uint8_t g_mcfw_enable;
-        extern int16_t Ropetow_McFwAvVolt(void);
-        extern int16_t Ropetow_McFwVTarget(void);
-        extern volatile float   g_enc_ff_ticks;
-        extern volatile uint8_t g_pll_enable;
-        extern volatile float   g_pll_fn_hz;
-        extern volatile float   g_pll_lock_err;
-        LOG_Printf("mcfw=%s avV=%d/%d Idref=%d | ff=%d | pll=%s/%dHz e=%d\r\n",
-                   (g_mcfw_enable ? "ON" : "off"),
-                   (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
-                   (int)FOCVars[M1].Iqdref.d, (int)(g_enc_ff_ticks * 10.0f),
-                   (g_pll_enable ? "ON" : "off"), (int)g_pll_fn_hz, (int)g_pll_lock_err);
-      }
-    }
     }  /* end else-if (cal idle) */
     }  /* end cal-state telemetry gate */
     LOG_Process();

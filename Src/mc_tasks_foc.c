@@ -391,7 +391,7 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 600.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+volatile float    g_spdcap_hard_rpm  = 550.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
                                                   min(requested, hard), and enforces hard even when the
                                                   request is 0/absent. NOT writable from the ESP link --
                                                   the STM32 has the last word on top speed (drum release
@@ -491,9 +491,14 @@ FW_Handle_t FW_M1 =
   .hVqdLowPassFilterBWLOG = (uint16_t)FW_VQD_BWLOG,
 };
 volatile uint8_t  g_mcfw_enable = 1U;   /* CDC 'x': 1 = use MCSDK native FW (replaces custom g_fw_); ON at boot */
-volatile float    g_fwff_ma_per_rpm = 25.0f;  /* speed-scheduled Id feed-forward gain, mA per rpm over
-                                                 the knee (CDC 'q<n>'; 0 = FF off). 25 -> 5 A at 700 rpm,
-                                                 sized from bench logs (steady FW Id at 650-700 was 4-6 A) */
+volatile float    g_fwff_ma_per_rpm = 0.0f;   /* speed-scheduled Id feed-forward gain, mA per rpm over
+                                                 the knee (CDC 'q<n>'; 0 = FF OFF -- the baked default).
+                                                 Bench verdict 2026-07-10: q0 is SMOOTHER than any gain.
+                                                 The FF maps speed-sensor noise straight into Id (+/-0.3-
+                                                 0.5 A ripple, bypassing the voltage-loop filtering),
+                                                 while the fast 25 kHz PI covers the same transient within
+                                                 ~10 ms anyway. Keep the mechanism for A/B or if the FW
+                                                 loop ever has to slow down again. */
 volatile float    g_fwff_knee_rpm   = 500.0f; /* FF starts above this |speed| (SPI speed, rpm) */
 /* USER CODE END Private Variables */
 
@@ -1169,6 +1174,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
   {
     static float s_brk_integ_a = 0.0f;    /* brake integral, A */
     static float s_brk_lpf     = 0.0f;    /* smoothed applied brake, A (see LPF note below) */
+    static float s_roll_lpf    = 1.0f;    /* smoothed roll-off factor (see note at use site) */
     if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN))
     {
       /* Effective cap = min(requested, hard ceiling). A request of 0 ("no cap")
@@ -1194,14 +1200,33 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
       int16_t q    = FOCVars[M1].Iqdref.q;
       int16_t qnew = q;
 
-      if (err > -SPDCAP_BAND_RPM)               /* inside roll-off band or above cap */
       {
+        /* Roll-off factor with a ~40 ms symmetric LPF (same-sensor, reversal-
+           safe). The factor is MULTIPLICATIVE, so speed ripple becomes torque
+           noise proportional to the resistance setting: +/-25 rpm over a 120
+           band = +/-20% of command -- invisible at 2 A, violent at 11 A (bench:
+           Iqref slamming -11.3k<->-4k during high-torque release). Filtering f
+           cuts that 2-3x; the brake + 120 rpm band cover the lost reaction
+           speed. */
         float f = -err / SPDCAP_BAND_RPM;       /* 1 -> 0 across the band, <0 over cap */
         if (f < 0.0f) { f = 0.0f; }
         if (f > 1.0f) { f = 1.0f; }
-        if (((int32_t)q * spd_rpm) > 0)         /* torque is accelerating |speed| */
+        /* TORQUE-ADAPTIVE filter: the noise this LPF kills is multiplicative
+           (ripple x command), so the needed smoothing scales with |command| --
+           and so does the lag penalty tolerance. ~40 ms at >=8 A (the bench-
+           proven high-torque fix), fading to ~7 ms at 1.5 A where the noise is
+           negligible and the lag was pure downside (low-torque rewind felt
+           worse with the fixed 40 ms). */
         {
-          qnew = (int16_t)((float)q * f);
+          float aq  = (q < 0) ? -(float)q : (float)q;            /* |cmd|, s16A */
+          float tau = 0.040f * (aq / (8.0f * (float)CURRENT_CONV_FACTOR));
+          if (tau > 0.040f) { tau = 0.040f; }
+          if (tau < 0.007f) { tau = 0.007f; }
+          s_roll_lpf += (f - s_roll_lpf) * (1.0f / (tau * (float)SPEED_LOOP_FREQUENCY_HZ));
+        }
+        if ((s_roll_lpf < 1.0f) && (((int32_t)q * spd_rpm) > 0)) /* accelerating |speed| */
+        {
+          qnew = (int16_t)((float)q * s_roll_lpf);
         }
       }
 
@@ -1262,6 +1287,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     {
       s_brk_integ_a = 0.0f;                     /* stopped / step-test */
       s_brk_lpf     = 0.0f;
+      s_roll_lpf    = 1.0f;
       g_spdcap_brake_now_a = 0.0f;
     }
   }

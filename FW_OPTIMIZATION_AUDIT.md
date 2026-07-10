@@ -46,7 +46,7 @@ The thrash was almost certainly undecoupled cross-coupling (gun #1). After #1, r
 hot with the `g` step-capture rig + `step_tune.py`. Guideline: current-loop BW 5–15%
 of 25 kHz PWM (1.25–3.75 kHz).
 
-### 3. Unguarded int16 add in dead-time compensation (real small bug)
+### 3. Unguarded int16 add in dead-time compensation — FIXED 2026-07-10 (commit 20efa8d, saturating add)
 `FOC_CurrControllerM1`: `Valphabeta.alpha/beta + dtab2.alpha/beta` is a raw int16 add
 AFTER Circle_Limitation. At ceiling-grazing moments (avV hit 32.4k in logs) a
 component near +32767 plus ~±45 comp WRAPS negative → one-PWM-cycle reversed voltage

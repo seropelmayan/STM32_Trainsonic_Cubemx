@@ -1211,19 +1211,10 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
         float f = -err / SPDCAP_BAND_RPM;       /* 1 -> 0 across the band, <0 over cap */
         if (f < 0.0f) { f = 0.0f; }
         if (f > 1.0f) { f = 1.0f; }
-        /* TORQUE-ADAPTIVE filter: the noise this LPF kills is multiplicative
-           (ripple x command), so the needed smoothing scales with |command| --
-           and so does the lag penalty tolerance. ~40 ms at >=8 A (the bench-
-           proven high-torque fix), fading to ~7 ms at 1.5 A where the noise is
-           negligible and the lag was pure downside (low-torque rewind felt
-           worse with the fixed 40 ms). */
-        {
-          float aq  = (q < 0) ? -(float)q : (float)q;            /* |cmd|, s16A */
-          float tau = 0.040f * (aq / (8.0f * (float)CURRENT_CONV_FACTOR));
-          if (tau > 0.040f) { tau = 0.040f; }
-          if (tau < 0.007f) { tau = 0.007f; }
-          s_roll_lpf += (f - s_roll_lpf) * (1.0f / (tau * (float)SPEED_LOOP_FREQUENCY_HZ));
-        }
+        /* VARIANT A for bench A/B: fixed 40 ms filter (the build Serop wants to
+           compare against). Variant B (torque-adaptive tau 7..40 ms) is commit
+           73b017b -- restore it with: git revert of the "variant A" commit. */
+        s_roll_lpf += (f - s_roll_lpf) * (1.0f / (0.040f * (float)SPEED_LOOP_FREQUENCY_HZ));
         if ((s_roll_lpf < 1.0f) && (((int32_t)q * spd_rpm) > 0)) /* accelerating |speed| */
         {
           qnew = (int16_t)((float)q * s_roll_lpf);

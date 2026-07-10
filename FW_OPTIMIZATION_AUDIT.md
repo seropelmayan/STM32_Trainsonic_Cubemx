@@ -73,16 +73,69 @@ Linear modulation only (no overmod — the #1 literature roughness source) · FW
 ratios · anti-windup/seeding = TI/ST canonical (ratchet + windup-past-floor both
 fixed and verified on bench) · demag 12 A < Ich 13.7 A · Iq-circle math overflow-free.
 
-## Pre-bulk-order hardware checklist (separate from the above)
+## Pre-bulk-order hardware checklist (researched 2026-07-10, actionable)
 
-- **Fault-at-speed / uncontrolled rectification**: PWM drop at 1070 rpm rectifies
-  ~75 V DC at the bus. Verify: FET part number (100 V-class = safe; DRV8353 itself is
-  100 V), bus-cap voltage rating, and whether the BMS can disconnect the pack during
-  regen (that's the worst-case path). Danfoss guideline: >1.2–1.4x base needs
-  engineered absorption (TVS/clamp) if parts aren't rated.
-- **Encoder magnet** in production BOM (see #7).
+### A. Fault-at-speed / uncontrolled rectification — SOLVED ON PAPER, verify 3 parts
+
+Key research result: **the event is voltage-bounded, not energy-unbounded.** At 1070 rpm
+the rectified ceiling is ~73–75 V DC (Ke 49.4 × 1.07 krpm × √2, minus diode drops); the
+body diodes stop conducting once the bus reaches EMF peak. Charging the bus caps to 75 V
+takes only ~1–2 J — the ~40 J of drum kinetic energy stays in the drum (friction
+coast-down) UNLESS something clamps the bus below 75 V and eats it. DRV8353 is a 100 V
+family part (102 V abs max on VDRAIN) — it rides the event out.
+
+Shopping/verify list (in order):
+1. **Bridge FETs must be 100 V-class** (industry default for 13S; 60 V on a 54.6 V bus
+   is 9% margin and out of line). VERIFY PART NUMBER on the board.
+2. **Bus electrolytics ≥80 V rated (prefer 100 V)** — 63 V caps (common on 48 V boards)
+   will vent at the 75 V ceiling. VERIFY.
+3. Add **TVS Littelfuse SMDJ70A** (~$0.60, DO-214AB) or 5.0SMDJ70A (~$1.50) across the
+   bus at the bridge: VBR 77.8–86 V sits ABOVE the 75 V ceiling → conducts zero energy
+   during the fault, catches inductive spikes only. (A TVS below the ceiling would try
+   to absorb coast-down energy: SMDJ-class handles 3–4 J single-pulse / 5–8 W sustained
+   → it dies. Never size a board TVS as the energy sink.)
+4. **BMS interlock rule (firmware, both sides)**: never open the pack/charge path while
+   the motor spins; ESP commands drive stop BEFORE any disconnect. This is the classic
+   VESC field-failure mode (BMS cutout during regen).
+5. If FETs turn out 60 V: TVS is mathematically impossible in the 54.6→60 V window —
+   either move to 100 V FETs (right fix) or add a brake chopper (ODrive Regen Clamp,
+   $89, 12–58 V, ships with 2 Ω/50 W resistor; 40 J is trivial for it).
+
+Timing note: bus caps give only 0.2–4 ms from 54.6 V to the ceiling at 10–20 A rectified
+— any clamp must be autonomous hardware; firmware (1 kHz MF task) sees one tick.
+
+### B. Encoder magnet (AGC 216–246 = field below the 35 mT spec floor)
+
+Likely root cause ranking from AMS AN000271 (magnet selection guide):
+1. **Ferromagnetic (steel) shaft behind the magnet** — shorts the field into the shaft;
+   AMS: "the magnet is weakened substantially. This configuration should be avoided!"
+   A steel shaft alone can produce AGC≈246. CHECK FIRST (test shaft with a magnet).
+   Fix: brass/aluminum/non-magnetic-SS holder, or a few mm non-magnetic spacer.
+2. Airgap too large — target ~0.8–1.5 mm magnet-surface→package-surface (+0.306 mm
+   package→die internally).
+3. Magnet itself weak/wrong type — must be **diametrically** magnetized cylinder.
+
+Parts:
+- **Bench fix now**: Radial Magnets **8996** (Ø6×3 mm N35 diametric, Digi-Key ~$1) —
+  0.5 mm taller than the standard 8995, ~10–15% more field at unchanged gap.
+- **Production BOM**: Ø6×2.5–3 mm **N35SH** diametric (Bomatec/Dexter/MS-Schramberg,
+  clone of AMS ref part AS5000-MD6SH-1, 150 °C) — plain N35/N42/N52 are 80–120 °C parts
+  and NdFeB loses ~0.11 %/°C reversibly; SmCo (Ø6×2.5 diametric) is the premium option
+  (4× lower tempco). Buy sensor-grade (spec'd magnetization-axis tilt), not craft magnets.
+- Acceptance: **AGC ~100–150 cold** (mid-range) so a hot motor never rails at 255.
+  Log MAG (reg 0x3FFD) alongside AGC — MAG sagging while AGC pinned = fully below range.
+- Mounting: pocket in non-magnetic holder, 2-part epoxy or Loctite 638/648 (no
+  cyanoacrylate), concentricity ≤0.1 mm TIR. Eccentricity shows up as a 1×/mech-rev
+  angle error → 20×/rev torque modulation on this motor — after the field fix, re-run
+  the free-shaft cogging cal; the map absorbs residual eccentricity.
+- Free predictive tool: AMS POS-simulator (github.com/ams-OSRAM/POS-simulator) —
+  simulate magnet+gap → predicted field/AGC before ordering.
+
+### C. Other
+
 - OV threshold 60.0 V / `NOMINAL_BUS_VOLTAGE_V` 60 — revisit only if 15S (needs 80 V
   FETs/caps + OV ~68 + charger/BMS changes; moves the wall to ~825–940 rpm).
+- Encoder adequacy study (upgrade vs fix-magnet) — report pending, will be appended.
 
 ## Current validated tuning defaults (boot values, commit 2cf8c46)
 

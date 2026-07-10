@@ -1489,11 +1489,20 @@ inline uint16_t FOC_CurrControllerM1(void)
   {
     ab_t        dtab;
     alphabeta_t dtab2;
+    int32_t     wsat;
     dtab.a = (Iab.a >= 0) ? g_dt_comp : (int16_t)(-g_dt_comp);
     dtab.b = (Iab.b >= 0) ? g_dt_comp : (int16_t)(-g_dt_comp);
     dtab2  = MCM_Clarke(dtab);
-    Valphabeta.alpha = (int16_t)(Valphabeta.alpha + dtab2.alpha);
-    Valphabeta.beta  = (int16_t)(Valphabeta.beta  + dtab2.beta);
+    /* SATURATING adds: this runs AFTER Circle_Limitation, so a component near
+       +/-32767 (voltage-ceiling grazing -- exactly the FW region) plus the comp
+       used to WRAP the int16 -> one PWM cycle of a REVERSED voltage vector,
+       felt as a click/pop during extreme events (audit gun #3). */
+    wsat = (int32_t)Valphabeta.alpha + (int32_t)dtab2.alpha;
+    if (wsat > 32767) { wsat = 32767; } else if (wsat < -32767) { wsat = -32767; }
+    Valphabeta.alpha = (int16_t)wsat;
+    wsat = (int32_t)Valphabeta.beta + (int32_t)dtab2.beta;
+    if (wsat > 32767) { wsat = 32767; } else if (wsat < -32767) { wsat = -32767; }
+    Valphabeta.beta  = (int16_t)wsat;
   }
 
   if (PWMC_GetPWMState(pwmcHandle[M1]) == true)

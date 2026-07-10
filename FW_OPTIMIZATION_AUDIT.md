@@ -131,11 +131,55 @@ Parts:
 - Free predictive tool: AMS POS-simulator (github.com/ams-OSRAM/POS-simulator) —
   simulate magnet+gap → predicted field/AGC before ordering.
 
-### C. Other
+### C. Encoder adequacy verdict (researched 2026-07-11): KEEP the AS5047P
+
+**Verdict: an encoder upgrade cannot be feel-noticeable on this machine. Fix the
+magnet; the biggest remaining feel upgrade is firmware (SPI read rate), not silicon.**
+
+The physics correction that reframes it: for a surface PMSM in torque mode with
+feedback current control, torque error vs angle error is **T = T*·cos(Δθe)** —
+SECOND-order (Pramod, arXiv:2310.00977 Eq. 18). The sin(Δθe) term is d-axis current
+(flux churn/heat), not shaft torque. Our measured 0.06° mech INL = 1.2° el =
+**0.02% torque ripple** (not the ~2% the sin framing suggested) — 50–100× below
+perception, before the anti-cogging map absorbs it. Budget for <1% ripple: 0.41° mech.
+
+Why the magnet still matters (the live defect): weak field (AGC 246, near the 255
+MAGL rail) increases **transition noise** specifically — the one error class no map
+can absorb (broadband, non-repeatable), and the dominant felt-roughness mechanism at
+the low speeds where a cable machine lives (standstill grit, hiss through velocity
+estimator × Kd and current loop). Datasheet noise: 0.068° RMS with DAEC, 0.052°
+DAEC-off (recommended <100 rpm). Strong field degrades INL; weak field degrades noise.
+
+Industry validation of our architecture: Simucube 2 Pro (best-feel direct-drive
+sim wheel) uses a 22-bit encoder AND still ships per-unit cogging/ripple cal — the
+map, not arcsecond accuracy, is what makes smoothness. Ben Katz's Mini Cheetah
+(21 pp, same class as ours): encoder eccentricity LUT "improved things enormously."
+
+Firmware gap identified (cheap, real): everyone reads the sensor much faster than we
+do — ODrive SPI @8 kHz, VESC @20 kHz, moteus @30 kHz in the PWM ISR; we read at 1 kHz
++ extrapolate. Extrapolation is deterministic and fine, but read-timing JITTER maps
+as ω·Δt (±10 µs = ±0.66° el at 550 rpm) and the extrapolated angle inherits velocity-
+estimator noise. Queue: (a) jitter-free / hardware-phase-locked SPI read, (b) raise
+read rate toward the loop rate, (c) PLL velocity estimator ~100–200 Hz (raw 1 kHz
+back-difference of 0.068° RMS noise = ~16 rpm RMS velocity noise), (d) DAEC-off
+below ~100 rpm.
+
+Production note: our 0.06° INL is THIS unit; datasheet allows ±0.8–1.2° max
+(= 4–9% pre-cal ripple on a worst-case unit at 20 pp). Per-unit anti-cogging cal
+(which we ship) covers it. If silicon margin is wanted for the bulk order instead:
+**MPS MA600** (~$8) — <0.1° after on-chip self-cal AND its TMR front-end works at
+10–100 mT, making marginal magnets a non-issue; or **AS5047U** (~$8–10, drop-in
+footprint) for 2–6× lower noise via the DFS filter. AksIM-2/optical ($250–3000)
+buys nothing feelable here. Map limits to remember: it can't absorb temp drift of
+INL (±0.2° over range) or a physically shifted magnet (we saw exactly this,
+bin 382→280) — mount the magnet properly.
+
+### D. Other
 
 - OV threshold 60.0 V / `NOMINAL_BUS_VOLTAGE_V` 60 — revisit only if 15S (needs 80 V
   FETs/caps + OV ~68 + charger/BMS changes; moves the wall to ~825–940 rpm).
-- Encoder adequacy study (upgrade vs fix-magnet) — report pending, will be appended.
+- ESP-side rewind derating: drafted, see `REWIND_DERATE_ESP_PATCH.md` (review-only;
+  apply next session in the ESP repo).
 
 ## Current validated tuning defaults (boot values, commit 2cf8c46)
 
@@ -179,10 +223,14 @@ sets the hiss floor / max usable current-loop gain. Fix on the bulk-order board 
 
 ## Also queued (non-FW)
 
-- **ESP-side rewind derating** (biggest felt improvement anywhere): when rewind speed
-  > ~250–300 rpm (nobody holding), ESP sends retract torque (~2 A) instead of the
-  resistance setting; restores full setting as speed drops. Bonus product feature:
-  separate eccentric load %. ~10 lines in the ESP heartbeat/torque path (separate repo).
+- **ESP-side rewind derating** (biggest felt improvement anywhere): DRAFTED — see
+  `REWIND_DERATE_ESP_PATCH.md`. Memoryless velocity fade full-weight→2 A floor over
+  200–320 rpm inbound in `resistance_tick()`; knobs rw0/rw1/rwf; eccentric-load %
+  feature folds into the same mechanism.
+- **Encoder read-path upgrade** (from the 2026-07-11 adequacy study, checklist §C):
+  jitter-free/faster SPI reads (industry: 8–30 kHz vs our 1 kHz), PLL velocity
+  estimator 100–200 Hz, DAEC-off <100 rpm. Do AFTER the magnet fix — quantify with
+  a before/after 'g' ripple capture at standstill and slow crawl.
 - Controlled-shutdown path (hold FW Id while decelerating before stop) — production
   polish; never stop the motor at speed (rule).
 - SPI-speed sign verification (Live Expressions, hand-turn both directions) →

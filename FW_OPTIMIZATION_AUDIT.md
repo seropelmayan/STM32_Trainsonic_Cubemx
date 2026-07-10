@@ -20,7 +20,19 @@ in the tree and on the board**). Nothing below has been changed yet.
 
 ## SMOKING GUNS (fix these, in this order)
 
-### 1. dq decoupling feed-forward is MISSING (biggest win)
+### 1. dq decoupling feed-forward — TESTED TWICE AND REFUTED (2026-07-10, closed)
+**VERDICT: no benefit on this machine — do not re-attempt unless hardware changes.**
+Round 1 (datasheet L=1.4mH constants): Iq err 233/803 vs 155/219 baseline = WORSE + hiss
+(cause: L saturates to 1.10mH at working currents → ~27% over-decoupling). Round 2
+(bench-measured L=1.10mH, λ=0.0178, + 1 ms anti-hiss smoother): 167/381 = EQUAL to
+baseline, still hissing. Conclusion: the 25 kHz current loop already rejects the
+cross-coupling almost completely (only 0.15 A residual without FF). Implementations
+preserved: fe7304d (round 1), e12be39 (round 2 w/ measured constants + derivation;
+the .wb constants overflow int32 — that was the 2026-06-19 violent vibration).
+Measured params are the durable spoils: **L = 1.10 mH, λ = 0.0178 Wb, Ich ≈ 16 A.**
+
+Original (now-refuted) theory kept below for the record:
+### 1-old. dq decoupling feed-forward is MISSING (biggest win)
 No `FF_*` component anywhere in the build. At 900 rpm a 9 A FW Id transient couples
 ω·L·ΔId ≈ 24 V into the q axis; the torque PI rejects it *reactively* → every FW burst
 perturbs felt force ("vibration at high speed" residual). ST's Feed-Forward component

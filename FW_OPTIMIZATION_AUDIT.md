@@ -93,6 +93,37 @@ brake acts on motor-driven motion ONLY (pull purity) · FW ON at boot, legacy of
 current loop P/I 1000/1000 (see gun #2) · dt comp 45 · telemetry single `[m]` line
 20 Hz.
 
+## Current-loop retune bench card (gun #2 -- the last firmware item)
+
+VESC and ODrive both auto-compute current-loop gains with the SAME source-verified
+formula: kp = L*bw [V/A], ki = R*bw [V/(A*s)], bw default 1000 rad/s, ki/kp = R/L
+(pole-zero cancellation). Using MEASURED params (L=1.10 mH, R=0.74 ohm, R/L=673 rad/s)
+converted to ST units (KPDIV 512, KIDIV 16384, 25 kHz, 992 cnt/A, ~1183 cnt/V @48V):
+
+| Candidate | CDC | Bandwidth | Note |
+|---|---|---|---|
+| Zero-fix (start) | P1000 I860 | ~1490 rad/s | current bandwidth, corrected damping (old I1000 put the PI zero at 781 vs 673 rad/s) |
+| Reference default | P670 I580 | 1000 rad/s | what VESC/ODrive would configure |
+| Crisper | P1680 I1450 | 2500 rad/s | verify overshoot with 'g' capture |
+
+Procedure: per candidate set P/I -> 'g' step capture -> step_tune.py (script verified
+compatible with current dump format) -> one feel pass. Pick by step response, bake
+winner into drive_parameters.h. Note: hotter Kp amplifies ADC noise -- if hiss
+appears, that is the noisy ADC line (see below), not the gains.
+
+Research verdicts from the VESC/ODrive source deep-dive (2026-07-10): both ship
+decoupling DISABLED (matches our refutation); VESC FW is duty-mapped + off by default
+(ours is ahead); our 25 kHz switching is already above the audible band (VESC's
+12.5 kHz actual is not); anti-cogging 512-bin interpolated is same class as ODrive's
+3600-bin nearest-neighbor. After this retune there is nothing left to copy.
+
+## Hardware noise item (added 2026-07-10)
+
+One ADC current-sense line is suspected noisy (bench observation). Quantify with the
+'j' raw per-phase log + a 'g' capture at constant current BEFORE the PCB revision:
+asymmetric one-line noise creates position-locked torque ripple, and sense noise x Kp
+sets the hiss floor / max usable current-loop gain. Fix on the bulk-order board rev.
+
 ## Also queued (non-FW)
 
 - **ESP-side rewind derating** (biggest felt improvement anywhere): when rewind speed

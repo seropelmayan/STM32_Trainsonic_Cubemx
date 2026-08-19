@@ -1,0 +1,2108 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Grokipedia" [ref=e6]
+      - link "Search ⌘K" [ref=e10] [cursor=pointer]:
+        - /url: /search
+        - generic [ref=e14]: Search
+        - generic [ref=e15]: ⌘K
+      - generic [ref=e16]:
+        - button "Toggle theme" [ref=e17] [cursor=pointer]
+        - button "Suggest Edit" [ref=e20] [cursor=pointer]
+        - link "Sign in" [ref=e21] [cursor=pointer]:
+          - /url: https://accounts.x.ai/check-login?redirect=grokipedia-com&return_to=%2Fpage%2FDiametric_and_axial_magnetization
+  - main [ref=e22]:
+    - generic [ref=e24]:
+      - generic [ref=e25]: Fact-checked by Grok 5 months ago
+      - article [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - heading "Diametric and axial magnetization" [level=1] [ref=e34]
+            - generic [ref=e36]:
+              - button "Listen to this article" [ref=e37] [cursor=pointer]
+              - button "Copy link" [ref=e42] [cursor=pointer]
+              - button "Edits history" [ref=e45] [cursor=pointer]
+          - generic [ref=e49]:
+            - text: Diametric and axial magnetization are two primary methods for orienting the magnetic fields in
+            - link "permanent magnets" [ref=e50] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: ", especially those with cylindrical, disc, or ring shapes, where axial magnetization aligns the"
+            - link "north and south poles" [ref=e51] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: on the flat end faces along the central axis, while diametric magnetization aligns them across the diameter on the curved sides.
+            - superscript [ref=e52] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e53]:
+                - /url: "#ref-1"
+            - superscript [ref=e54] [cursor=pointer]:
+              - link:
+                - /url: "#ref-2"
+                - superscript
+              - link "[2]" [ref=e55]:
+                - /url: "#ref-2"
+            - text: These techniques determine the direction and strength of the magnetic field produced by the magnet, influencing its performance in various applications.
+            - superscript [ref=e56] [cursor=pointer]:
+              - link:
+                - /url: "#ref-3"
+                - superscript
+              - link "[3]" [ref=e57]:
+                - /url: "#ref-3"
+          - generic [ref=e58]:
+            - text: The technical differences between diametric and axial magnetization lie primarily in the spatial orientation of the
+            - link "magnetic flux" [ref=e59] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: ", with axial types producing a uniform field along the length suitable for linear force applications, whereas diametric types generate a rotating or transverse field ideal for rotational sensing."
+            - superscript [ref=e60] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e61]:
+                - /url: "#ref-1"
+            - superscript [ref=e62] [cursor=pointer]:
+              - link:
+                - /url: "#ref-4"
+                - superscript
+              - link "[4]" [ref=e63]:
+                - /url: "#ref-4"
+            - text: Production of these magnetizations typically involves exposing the
+            - link "magnet material" [ref=e64] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: ", such as"
+            - link "neodymium" [ref=e65] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: or ferrite, to a strong pulsed magnetic field from a
+            - link "coil" [ref=e66] [cursor=pointer]:
+              - /url: /page/Electromagnetic_coil
+            - text: or fixture designed to align
+            - link "domains" [ref=e67] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: in the desired direction, a process rooted in 19th-century
+            - link "electromagnetism" [ref=e68] [cursor=pointer]:
+              - /url: /page/Electromagnetism
+            - text: principles discovered by scientists like
+            - link "Michael Faraday" [ref=e69] [cursor=pointer]:
+              - /url: /page/Michael_Faraday
+            - text: .
+            - superscript [ref=e70] [cursor=pointer]:
+              - link:
+                - /url: "#ref-5"
+                - superscript
+              - link "[5]" [ref=e71]:
+                - /url: "#ref-5"
+            - superscript [ref=e72] [cursor=pointer]:
+              - link:
+                - /url: "#ref-6"
+                - superscript
+              - link "[6]" [ref=e73]:
+                - /url: "#ref-6"
+          - generic [ref=e74]:
+            - text: In engineering contexts, axial magnetization is commonly used in
+            - link "motors" [ref=e75] [cursor=pointer]:
+              - /url: /page/Axial_flux_motor
+            - text: and
+            - link "speakers" [ref=e76] [cursor=pointer]:
+              - /url: /page/Loudspeaker
+            - text: for
+            - link "axial flux paths" [ref=e77] [cursor=pointer]:
+              - /url: /page/Axial_flux_motor
+            - text: ", but it is incompatible with"
+            - link "on-axis rotation" [ref=e78] [cursor=pointer]:
+              - /url: /page/Rotation_around_a_fixed_axis
+            - text: in certain
+            - link "sensors" [ref=e79] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: like the
+            - link "MT6701 magnetic encoder" [ref=e80] [cursor=pointer]:
+              - /url: /page/Rotary_encoder
+            - text: ", which requires diametric magnetization to produce a"
+            - link "rotating field" [ref=e81] [cursor=pointer]:
+              - /url: /page/Rotating_magnetic_field
+            - text: parallel to the
+            - link "plane of rotation" [ref=e82] [cursor=pointer]:
+              - /url: /page/Plane_of_rotation
+            - text: for accurate
+            - link "angular position detection" [ref=e83] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: .
+            - superscript [ref=e84] [cursor=pointer]:
+              - link:
+                - /url: "#ref-7"
+                - superscript
+              - link "[7]" [ref=e85]:
+                - /url: "#ref-7"
+            - text: Diametric magnetization finds applications in
+            - link "rotary encoders" [ref=e86] [cursor=pointer]:
+              - /url: /page/Rotary_encoder
+            - text: ","
+            - link "compasses" [ref=e87] [cursor=pointer]:
+              - /url: /page/Compass
+            - text: ", and"
+            - link "automotive sensors" [ref=e88] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: ", distinguishing it from other types like radial magnetization, which orients fields outward from the center for"
+            - link "multipole configurations" [ref=e89] [cursor=pointer]:
+              - /url: /page/Multipole_expansion
+            - text: .
+            - superscript [ref=e90] [cursor=pointer]:
+              - link:
+                - /url: "#ref-8"
+                - superscript
+              - link "[8]" [ref=e91]:
+                - /url: "#ref-8"
+            - superscript [ref=e92] [cursor=pointer]:
+              - link:
+                - /url: "#ref-2"
+                - superscript
+              - link "[2]" [ref=e93]:
+                - /url: "#ref-2"
+            - text: These methods, established through foundational work in
+            - link "electromagnetism" [ref=e94] [cursor=pointer]:
+              - /url: /page/Electromagnetism
+            - text: since the
+            - link "early 1800s" [ref=e95] [cursor=pointer]:
+              - /url: /page/19th_century_in_science
+            - text: ", continue to enable precise control in modern devices while highlighting trade-offs in field uniformity and mechanical integration."
+            - superscript [ref=e96] [cursor=pointer]:
+              - link:
+                - /url: "#ref-9"
+                - superscript
+              - link "[9]" [ref=e97]:
+                - /url: "#ref-9"
+          - heading [level=2] [ref=e98]:
+            - text: Fundamentals of Magnetization
+            - generic [ref=e99]:
+              - button "Copy link to section" [ref=e100] [cursor=pointer]
+              - button "Listen to this section" [ref=e104] [cursor=pointer]
+          - heading [level=3] [ref=e108]:
+            - text: Definition and Basic Principles
+            - generic [ref=e109]:
+              - button "Copy link to section" [ref=e110] [cursor=pointer]
+              - button "Listen to this section" [ref=e114] [cursor=pointer]
+          - generic [ref=e118]:
+            - link "Magnetization" [ref=e119] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: is the process by which
+            - link "magnetic domains" [ref=e120] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: in a
+            - link "ferromagnetic material" [ref=e121] [cursor=pointer]:
+              - /url: /page/Ferromagnetism
+            - text: are aligned under the influence of an external magnetic field, resulting in a
+            - link "persistent internal magnetic field" [ref=e122] [cursor=pointer]:
+              - /url: /page/Remanence
+            - text: that remains after the external field is removed, thereby creating a
+            - link "permanent magnet" [ref=e123] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: .
+            - superscript [ref=e124] [cursor=pointer]:
+              - link:
+                - /url: "#ref-10"
+                - superscript
+              - link "[10]" [ref=e125]:
+                - /url: "#ref-10"
+            - superscript [ref=e126] [cursor=pointer]:
+              - link:
+                - /url: "#ref-11"
+                - superscript
+              - link "[11]" [ref=e127]:
+                - /url: "#ref-11"
+            - text: This alignment enhances the material's ability to produce a strong, stable magnetic field suitable for various applications.
+            - superscript [ref=e128] [cursor=pointer]:
+              - link:
+                - /url: "#ref-12"
+                - superscript
+              - link "[12]" [ref=e129]:
+                - /url: "#ref-12"
+          - generic [ref=e130]:
+            - text: The basic principles of
+            - link "magnetization" [ref=e131] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: involve the
+            - link "magnetic moment" [ref=e132] [cursor=pointer]:
+              - /url: /page/Magnetic_moment
+            - text: of atoms, which arises from the
+            - link "spin" [ref=e133] [cursor=pointer]:
+              - /url: /page/Spin_quantum_number
+            - text: and orbital motion of
+            - link "electrons" [ref=e134] [cursor=pointer]:
+              - /url: /page/Electron
+            - text: ", leading to"
+            - link "domain theory" [ref=e135] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: where microscopic regions called
+            - link "domains" [ref=e136] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: form with aligned moments to minimize energy in the absence of an external field.
+            - superscript [ref=e137] [cursor=pointer]:
+              - link:
+                - /url: "#ref-13"
+                - superscript
+              - link "[13]" [ref=e138]:
+                - /url: "#ref-13"
+            - superscript [ref=e139] [cursor=pointer]:
+              - link:
+                - /url: "#ref-14"
+                - superscript
+              - link "[14]" [ref=e140]:
+                - /url: "#ref-14"
+            - text: In
+            - link "ferromagnetic materials" [ref=e141] [cursor=pointer]:
+              - /url: /page/Ferromagnetism
+            - text: such as
+            - link "iron" [ref=e142] [cursor=pointer]:
+              - /url: /page/Magnetism
+            - text: ","
+            - link "nickel" [ref=e143] [cursor=pointer]:
+              - /url: /page/Nickel
+            - text: ","
+            - link "neodymium (NdFeB)" [ref=e144] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: ", and ferrite, these domains can be reoriented en masse by an applied field, enabling high magnetization levels due to strong"
+            - link "exchange interactions" [ref=e145] [cursor=pointer]:
+              - /url: /page/Exchange_interaction
+            - text: between atoms.
+            - superscript [ref=e146] [cursor=pointer]:
+              - link:
+                - /url: "#ref-11"
+                - superscript
+              - link "[11]" [ref=e147]:
+                - /url: "#ref-11"
+            - superscript [ref=e148] [cursor=pointer]:
+              - link:
+                - /url: "#ref-15"
+                - superscript
+              - link "[15]" [ref=e149]:
+                - /url: "#ref-15"
+          - generic [ref=e150]:
+            - text: The
+            - link "magnetization vector" [ref=e151] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: ", denoted as"
+            - strong [ref=e152]:
+              - link "M" [ref=e153] [cursor=pointer]:
+                - /url: /page/Magnetization
+            - text: ", represents the"
+            - link "magnetic moment" [ref=e154] [cursor=pointer]:
+              - /url: /page/Magnetic_moment
+            - text: per unit volume within the material and is related to the
+            - link "applied magnetic field" [ref=e155] [cursor=pointer]:
+              - /url: /page/Magnetism
+            - strong [ref=e156]: H
+            - text: through the
+            - link "constitutive relation" [ref=e157] [cursor=pointer]:
+              - /url: /page/Constitutive_equation
+            - text: for magnetic flux density
+            - strong [ref=e158]: B
+            - text: ", given by:"
+          - generic [ref=e162]:
+            - math [ref=e164]:
+              - generic [ref=e166]:
+                - generic [ref=e167]: B
+                - generic [ref=e168]: =
+                - generic [ref=e169]:
+                  - generic [ref=e170]: μ
+                  - generic [ref=e171]: "0"
+                - generic [ref=e172]: (
+                - generic [ref=e173]: H
+                - generic [ref=e174]: +
+                - generic [ref=e175]: M
+                - generic [ref=e176]: )
+            - generic [ref=e177]:
+              - generic [ref=e178]: B =
+              - generic [ref=e179]:
+                - generic [ref=e180]:
+                  - text: μ
+                  - generic [ref=e181]: "0"
+                - text: (H +
+              - generic [ref=e189]: M)
+          - generic [ref=e190]:
+            - text: where
+            - generic [ref=e191]:
+              - math [ref=e193]:
+                - generic [ref=e196]:
+                  - generic [ref=e197]: μ
+                  - generic [ref=e198]: "0"
+              - generic [ref=e201]:
+                - text: μ
+                - generic [ref=e202]: "0"
+            - text: is the permeability of free space.
+            - superscript [ref=e210] [cursor=pointer]:
+              - link:
+                - /url: "#ref-16"
+                - superscript
+              - link "[16]" [ref=e211]:
+                - /url: "#ref-16"
+            - text: This equation describes how the total magnetic field inside the material combines the contribution from the external field and the material's intrinsic magnetization.
+            - superscript [ref=e212] [cursor=pointer]:
+              - link:
+                - /url: "#ref-17"
+                - superscript
+              - link "[17]" [ref=e213]:
+                - /url: "#ref-17"
+          - generic [ref=e214]:
+            - text: The
+            - link "principles of magnetization" [ref=e215] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: were established in the 19th century, with
+            - link "Michael Faraday" [ref=e216] [cursor=pointer]:
+              - /url: /page/Michael_Faraday
+            - text: "'s experiments in the"
+            - link "1830s" [ref=e217] [cursor=pointer]:
+              - /url: /page/1830s
+            - text: demonstrating
+            - link "electromagnetic induction" [ref=e218] [cursor=pointer]:
+              - /url: /page/Electromagnetic_induction
+            - text: and laying the groundwork for understanding how changing magnetic fields interact with materials, influencing later developments in
+            - link "domain theory" [ref=e219] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: and
+            - link "permanent magnets" [ref=e220] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: .
+            - superscript [ref=e221] [cursor=pointer]:
+              - link:
+                - /url: "#ref-18"
+                - superscript
+              - link "[18]" [ref=e222]:
+                - /url: "#ref-18"
+            - superscript [ref=e223] [cursor=pointer]:
+              - link:
+                - /url: "#ref-19"
+                - superscript
+              - link "[19]" [ref=e224]:
+                - /url: "#ref-19"
+            - text: Directional magnetizations, such as axial and diametric, exemplify how these principles are applied to orient the
+            - link "net magnetization vector" [ref=e225] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: in specific geometries.
+            - superscript [ref=e226] [cursor=pointer]:
+              - link:
+                - /url: "#ref-10"
+                - superscript
+              - link "[10]" [ref=e227]:
+                - /url: "#ref-10"
+          - heading [level=3] [ref=e228]:
+            - text: Magnetic Field Orientation in Permanent Magnets
+            - generic [ref=e229]:
+              - button "Copy link to section" [ref=e230] [cursor=pointer]
+              - button "Listen to this section" [ref=e234] [cursor=pointer]
+          - generic [ref=e238]:
+            - link "Permanent magnets" [ref=e239] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: exhibit various
+            - link "magnetization" [ref=e240] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: orientations, which determine the direction of their internal
+            - link "magnetic field lines" [ref=e241] [cursor=pointer]:
+              - /url: /page/Field_line
+            - text: and the location of
+            - link "north and south poles" [ref=e242] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: . Common orientations include axial, where poles are aligned along the magnet's central axis; diametric, where poles are positioned across the diameter; and radial, where the magnetization radiates outward from the center. These orientations are particularly relevant for cylindrical or ring-shaped magnets, where the geometry influences the field distribution—for instance, in cylinders, axial orientation aligns the field parallel to the length, while diametric and radial orientations exploit the circular cross-section for perpendicular or outward fields.
+            - superscript [ref=e243] [cursor=pointer]:
+              - link:
+                - /url: "#ref-20"
+                - superscript
+              - link "[20]" [ref=e244]:
+                - /url: "#ref-20"
+            - superscript [ref=e245] [cursor=pointer]:
+              - link:
+                - /url: "#ref-21"
+                - superscript
+              - link "[21]" [ref=e246]:
+                - /url: "#ref-21"
+            - superscript [ref=e247] [cursor=pointer]:
+              - link:
+                - /url: "#ref-22"
+                - superscript
+              - link "[22]" [ref=e248]:
+                - /url: "#ref-22"
+          - generic [ref=e249]:
+            - text: The choice of magnetization orientation is influenced by several factors, including the material's intrinsic properties such as
+            - link "crystal structure" [ref=e250] [cursor=pointer]:
+              - /url: /page/Crystal_structure
+            - text: and
+            - link "magnetic anisotropy" [ref=e251] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: ", as well as the application of an external magnetic field during the"
+            - link "manufacturing process" [ref=e252] [cursor=pointer]:
+              - /url: /page/Rare-earth_magnet
+            - text: . For example, materials like
+            - link "neodymium-iron-boron (NdFeB) alloys" [ref=e253] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: are often selected for their high
+            - link "coercivity" [ref=e254] [cursor=pointer]:
+              - /url: /page/Coercivity
+            - text: ", which supports stable orientations, while the external field must be aligned precisely with the desired direction to align"
+            - link "magnetic domains" [ref=e255] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: effectively. Additionally, the magnet's shape and intended use play a role, as certain orientations require specialized tooling to apply the field uniformly across complex geometries like rings.
+            - superscript [ref=e256] [cursor=pointer]:
+              - link:
+                - /url: "#ref-23"
+                - superscript
+              - link "[23]" [ref=e257]:
+                - /url: "#ref-23"
+            - superscript [ref=e258] [cursor=pointer]:
+              - link:
+                - /url: "#ref-24"
+                - superscript
+              - link "[24]" [ref=e259]:
+                - /url: "#ref-24"
+            - superscript [ref=e260] [cursor=pointer]:
+              - link:
+                - /url: "#ref-25"
+                - superscript
+              - link "[25]" [ref=e261]:
+                - /url: "#ref-25"
+          - generic [ref=e262]:
+            - text: Pole formation in
+            - link "permanent magnets" [ref=e263] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: occurs through the alignment of
+            - link "magnetic domains" [ref=e264] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: ", resulting in distinct"
+            - link "north and south poles" [ref=e265] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: that dictate the overall field pattern.
+            - link "Flux lines" [ref=e266] [cursor=pointer]:
+              - /url: /page/Field_line
+            - text: emerge from the north pole, curve through the surrounding space, and enter the south pole, creating a
+            - link "closed loop" [ref=e267] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: that can be visualized as dense, parallel lines within the magnet for uniform orientations. In general, these lines are more concentrated and directed in
+            - link "anisotropic magnets" [ref=e268] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: ", where domains are preferentially aligned during production, leading to stronger and more predictable fields compared to isotropic magnets, which have randomly oriented domains and thus more diffuse flux patterns. For illustration, an anisotropic magnet's flux lines might appear as straight arrows along the axis in a diagram, whereas isotropic ones show scattered, multidirectional lines, highlighting the former's superior field uniformity."
+            - superscript [ref=e269] [cursor=pointer]:
+              - link:
+                - /url: "#ref-26"
+                - superscript
+              - link "[26]" [ref=e270]:
+                - /url: "#ref-26"
+            - superscript [ref=e271] [cursor=pointer]:
+              - link:
+                - /url: "#ref-27"
+                - superscript
+              - link "[27]" [ref=e272]:
+                - /url: "#ref-27"
+          - generic [ref=e273]:
+            - text: Key parameters affecting the stability of magnetization orientation include
+            - link "remanence (Br)" [ref=e274] [cursor=pointer]:
+              - /url: /page/Remanence
+            - text: ", which represents the residual magnetic flux density after the external field is removed, and"
+            - link "coercivity (Hc)" [ref=e275] [cursor=pointer]:
+              - /url: /page/Coercivity
+            - text: ", the resistance to demagnetization by an opposing field. High"
+            - link "Br" [ref=e276] [cursor=pointer]:
+              - /url: /page/Remanence
+            - text: values indicate strong
+            - link "retained magnetization" [ref=e277] [cursor=pointer]:
+              - /url: /page/Remanence
+            - text: ", essential for maintaining orientation in"
+            - link "anisotropic materials" [ref=e278] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: where
+            - link "domain alignment" [ref=e279] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: enhances stability, while high
+            - link "Hc" [ref=e280] [cursor=pointer]:
+              - /url: /page/Coercivity
+            - text: ensures the
+            - link "magnet" [ref=e281] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: resists external influences that could realign
+            - link "domains" [ref=e282] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: and disrupt the intended field direction. These properties are critical for long-term performance, as low
+            - link "coercivity" [ref=e283] [cursor=pointer]:
+              - /url: /page/Coercivity
+            - text: can lead to partial demagnetization and orientation instability under
+            - link "thermal" [ref=e284] [cursor=pointer]:
+              - /url: /page/Thermal_stress
+            - text: or
+            - link "mechanical stress" [ref=e285] [cursor=pointer]:
+              - /url: /page/Stress–strain_analysis
+            - text: .
+            - superscript [ref=e286] [cursor=pointer]:
+              - link:
+                - /url: "#ref-28"
+                - superscript
+              - link "[28]" [ref=e287]:
+                - /url: "#ref-28"
+            - superscript [ref=e288] [cursor=pointer]:
+              - link:
+                - /url: "#ref-29"
+                - superscript
+              - link "[29]" [ref=e289]:
+                - /url: "#ref-29"
+            - superscript [ref=e290] [cursor=pointer]:
+              - link:
+                - /url: "#ref-30"
+                - superscript
+              - link "[30]" [ref=e291]:
+                - /url: "#ref-30"
+          - heading [level=2] [ref=e292]:
+            - text: Axial Magnetization
+            - generic [ref=e293]:
+              - button "Copy link to section" [ref=e294] [cursor=pointer]
+              - button "Listen to this section" [ref=e298] [cursor=pointer]
+          - heading [level=3] [ref=e302]:
+            - text: Characteristics and Field Patterns
+            - generic [ref=e303]:
+              - button "Copy link to section" [ref=e304] [cursor=pointer]
+              - button "Listen to this section" [ref=e308] [cursor=pointer]
+          - generic [ref=e312]:
+            - text: Diametric magnetization refers to a configuration in
+            - link "permanent magnets" [ref=e313] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: ", particularly those with cylindrical or ring geometries, where the"
+            - link "north and south magnetic poles" [ref=e314] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: are located on opposite sides of the magnet's diameter along the curved outer surface.
+            - superscript [ref=e315] [cursor=pointer]:
+              - link:
+                - /url: "#ref-31"
+                - superscript
+              - link "[31]" [ref=e316]:
+                - /url: "#ref-31"
+            - text: This orientation creates a magnetic field that extends radially across the diameter rather than along the axis, distinguishing it from axial magnetization where poles are on the flat faces.
+            - superscript [ref=e317] [cursor=pointer]:
+              - link:
+                - /url: "#ref-32"
+                - superscript
+              - link "[32]" [ref=e318]:
+                - /url: "#ref-32"
+          - generic [ref=e319]: The magnetic field pattern in diametrically magnetized cylindrical or ring magnets is non-uniform, featuring a circumferential variation with the strongest fields emanating from the poles on the outer curved surface. For points outside the magnet, an approximate expression for the diametric field component in the azimuthal direction is given by
+          - generic [ref=e323]:
+            - math [ref=e325]:
+              - generic [ref=e327]:
+                - generic [ref=e328]:
+                  - generic [ref=e329]: B
+                  - generic [ref=e330]: θ
+                - generic [ref=e331]: ≈
+                - generic [ref=e332]:
+                  - generic [ref=e333]:
+                    - generic [ref=e334]:
+                      - generic [ref=e335]: μ
+                      - generic [ref=e336]: "0"
+                    - generic [ref=e337]: M
+                    - generic [ref=e338]:
+                      - generic [ref=e339]: R
+                      - generic [ref=e340]: "2"
+                  - generic [ref=e341]:
+                    - generic [ref=e342]: "2"
+                    - generic [ref=e343]:
+                      - generic [ref=e344]: r
+                      - generic [ref=e345]: "2"
+                - generic [ref=e346]: sin
+                - generic: ⁡
+                - generic [ref=e347]: θ
+            - generic [ref=e348]:
+              - generic [ref=e349]:
+                - generic [ref=e350]:
+                  - text: B
+                  - generic [ref=e351]: θ
+                - text: ≈
+              - generic [ref=e359]:
+                - generic [ref=e364]:
+                  - generic [ref=e365]:
+                    - text: "2"
+                    - generic [ref=e366]:
+                      - text: r
+                      - generic [ref=e367]: "2"
+                  - generic [ref=e373]:
+                    - generic [ref=e374]:
+                      - text: μ
+                      - generic [ref=e375]: "0"
+                    - text: M
+                    - generic [ref=e383]:
+                      - text: R
+                      - generic [ref=e384]: "2"
+                - text: sin θ
+          - generic [ref=e392]:
+            - text: where
+            - generic [ref=e393]:
+              - math [ref=e395]:
+                - generic [ref=e398]:
+                  - generic [ref=e399]: μ
+                  - generic [ref=e400]: "0"
+              - generic [ref=e403]:
+                - text: μ
+                - generic [ref=e404]: "0"
+            - text: is the
+            - link "permeability of free space" [ref=e412] [cursor=pointer]:
+              - /url: /page/Vacuum_permeability
+            - text: ","
+            - generic [ref=e413]:
+              - math [ref=e415]:
+                - generic [ref=e416]: M
+              - generic [ref=e419]: M
+            - text: is the
+            - link "magnetization" [ref=e421] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: ","
+            - generic [ref=e422]:
+              - math [ref=e424]:
+                - generic [ref=e425]: R
+              - generic [ref=e428]: R
+            - text: is the
+            - link "magnet" [ref=e430] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: "'s"
+            - link "radius" [ref=e431] [cursor=pointer]:
+              - /url: /page/Radius
+            - text: ","
+            - generic [ref=e432]:
+              - math [ref=e434]:
+                - generic [ref=e435]: r
+              - generic [ref=e438]: r
+            - text: is the
+            - link "distance from the center" [ref=e440] [cursor=pointer]:
+              - /url: /page/Polar_coordinate_system
+            - text: ", and"
+            - generic [ref=e441]:
+              - math [ref=e443]:
+                - generic [ref=e444]: θ
+              - generic [ref=e447]: θ
+            - text: is the
+            - link "angular position" [ref=e449] [cursor=pointer]:
+              - /url: /page/Polar_coordinate_system
+            - text: . This equation highlights the
+            - link "sinusoidal variation" [ref=e450] [cursor=pointer]:
+              - /url: /page/Sine_wave
+            - text: of the
+            - link "field strength" [ref=e451] [cursor=pointer]:
+              - /url: /page/Field_strength
+            - text: around the
+            - link "circumference" [ref=e452] [cursor=pointer]:
+              - /url: /page/Circumference
+            - text: ", which arises from the transverse magnetization direction."
+            - superscript [ref=e453] [cursor=pointer]:
+              - link:
+                - /url: "#ref-33"
+                - superscript
+              - link "[33]" [ref=e454]:
+                - /url: "#ref-33"
+          - generic [ref=e455]: One key characteristic is the suitability of diametric magnetization for rotational applications, as the varying magnetic field around the circumference allows for precise detection of angular position changes in sensors and encoders.
+          - generic [ref=e456]:
+            - text: The
+            - link "flux lines" [ref=e457] [cursor=pointer]:
+              - /url: /page/Field_line
+            - text: in diametric magnetization form
+            - link "closed loops" [ref=e458] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: that originate from the north pole on one side of the curved surface and enter the south pole on the opposite side, demonstrating opposition across the diameter and creating a
+            - link "dipole-like pattern" [ref=e459] [cursor=pointer]:
+              - /url: /page/Magnetic_dipole
+            - text: external to the magnet.
+            - superscript [ref=e460] [cursor=pointer]:
+              - link:
+                - /url: "#ref-31"
+                - superscript
+              - link "[31]" [ref=e461]:
+                - /url: "#ref-31"
+          - heading [level=3] [ref=e462]:
+            - text: Production Techniques
+            - generic [ref=e463]:
+              - button "Copy link to section" [ref=e464] [cursor=pointer]
+              - button "Listen to this section" [ref=e468] [cursor=pointer]
+          - generic [ref=e472]:
+            - text: The production of diametrically magnetized ring magnets begins with the selection and preparation of materials, typically
+            - link "neodymium-iron-boron (NdFeB)" [ref=e473] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: for high-performance applications due to its strong magnetic properties.
+            - superscript [ref=e474] [cursor=pointer]:
+              - link:
+                - /url: "#ref-34"
+                - superscript
+              - link "[34]" [ref=e475]:
+                - /url: "#ref-34"
+            - text: The raw materials are melted, cast into ingots, and then milled into fine powder to enable alignment during subsequent steps.
+            - superscript [ref=e476] [cursor=pointer]:
+              - link:
+                - /url: "#ref-35"
+                - superscript
+              - link "[35]" [ref=e477]:
+                - /url: "#ref-35"
+            - text: For diametric magnetization, the powder is compacted in a magnetic field oriented transversely perpendicular to the magnet's axis, aligning the
+            - link "magnetic domains" [ref=e478] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: across the diameter using specialized fixtures that apply a uniform transverse field during the pressing process.
+            - superscript [ref=e479] [cursor=pointer]:
+              - link:
+                - /url: "#ref-36"
+                - superscript
+              - link "[36]" [ref=e480]:
+                - /url: "#ref-36"
+          - generic [ref=e481]:
+            - text: After
+            - link "compaction" [ref=e482] [cursor=pointer]:
+              - /url: /page/Powder_metallurgy
+            - text: and
+            - link "sintering" [ref=e483] [cursor=pointer]:
+              - /url: /page/Sintering
+            - text: to form the solid magnet,
+            - link "final magnetization" [ref=e484] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: is achieved using equipment such as pulse magnetizers or
+            - link "solenoids" [ref=e485] [cursor=pointer]:
+              - /url: /page/Solenoid
+            - text: equipped with
+            - link "opposing poles" [ref=e486] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: designed for diametric orientation.
+            - superscript [ref=e487] [cursor=pointer]:
+              - link:
+                - /url: "#ref-37"
+                - superscript
+              - link "[37]" [ref=e488]:
+                - /url: "#ref-37"
+            - text: The sintered ring is placed in a magnetizing fixture where a short, intense pulse of magnetic field is applied perpendicular to the axis, with the magnet centered to achieve
+            - link "saturation" [ref=e489] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: across the diameter; adaptations like adjustable coils help avoid interference in ring geometries.
+            - superscript [ref=e490] [cursor=pointer]:
+              - link:
+                - /url: "#ref-37"
+                - superscript
+              - link "[37]" [ref=e491]:
+                - /url: "#ref-37"
+            - text: Specialized diametric magnetizers with transverse pole configurations are used to generate the required
+            - link "field strength" [ref=e492] [cursor=pointer]:
+              - /url: /page/Field_strength
+            - text: ", often exceeding several"
+            - link "teslas" [ref=e493] [cursor=pointer]:
+              - /url: /page/Electromagnet
+            - text: ", to fully align"
+            - link "domains" [ref=e494] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: without demagnetization risks.
+            - superscript [ref=e495] [cursor=pointer]:
+              - link:
+                - /url: "#ref-38"
+                - superscript
+              - link "[38]" [ref=e496]:
+                - /url: "#ref-38"
+          - generic [ref=e497]:
+            - text: Testing protocols for diametric magnetization involve circumferential flux measurements using a
+            - link "gaussmeter" [ref=e498] [cursor=pointer]:
+              - /url: /page/Magnetometer
+            - text: with a transverse probe to assess field uniformity around the ring's diameter, verifying even distribution and pole strength without axial components.
+            - superscript [ref=e499] [cursor=pointer]:
+              - link:
+                - /url: "#ref-39"
+                - superscript
+              - link "[39]" [ref=e500]:
+                - /url: "#ref-39"
+            - link "Fluxmeters" [ref=e501] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: integrated with rotating setups measure
+            - link "total flux linkage" [ref=e502] [cursor=pointer]:
+              - /url: /page/Flux_linkage
+            - text: circumferentially, confirming the absence of interference and overall magnetization quality unique to diametric configurations.
+            - superscript [ref=e503] [cursor=pointer]:
+              - link:
+                - /url: "#ref-40"
+                - superscript
+              - link "[40]" [ref=e504]:
+                - /url: "#ref-40"
+          - heading [level=2] [ref=e505]:
+            - text: Diametric Magnetization
+            - generic [ref=e506]:
+              - button "Copy link to section" [ref=e507] [cursor=pointer]
+              - button "Listen to this section" [ref=e511] [cursor=pointer]
+          - heading [level=3] [ref=e515]:
+            - text: Characteristics and Field Patterns
+            - generic [ref=e516]:
+              - button "Copy link to section" [ref=e517] [cursor=pointer]
+              - button "Listen to this section" [ref=e521] [cursor=pointer]
+          - generic [ref=e525]:
+            - text: Diametric magnetization refers to a configuration in
+            - link "permanent magnets" [ref=e526] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: ", particularly those with cylindrical or ring geometries, where the"
+            - link "north and south magnetic poles" [ref=e527] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: are located on opposite sides of the magnet's diameter along the curved outer surface.
+            - superscript [ref=e528] [cursor=pointer]:
+              - link:
+                - /url: "#ref-31"
+                - superscript
+              - link "[31]" [ref=e529]:
+                - /url: "#ref-31"
+            - text: This orientation creates a magnetic field that extends radially across the diameter rather than along the axis, distinguishing it from axial magnetization where poles are on the flat faces.
+            - superscript [ref=e530] [cursor=pointer]:
+              - link:
+                - /url: "#ref-32"
+                - superscript
+              - link "[32]" [ref=e531]:
+                - /url: "#ref-32"
+          - generic [ref=e532]: The magnetic field pattern in diametrically magnetized cylindrical or ring magnets is non-uniform, featuring a circumferential variation with the strongest fields emanating from the poles on the outer curved surface. For points outside the magnet, an approximate expression for the diametric field component in the azimuthal direction is given by
+          - generic [ref=e536]:
+            - math [ref=e538]:
+              - generic [ref=e540]:
+                - generic [ref=e541]:
+                  - generic [ref=e542]: B
+                  - generic [ref=e543]: θ
+                - generic [ref=e544]: ≈
+                - generic [ref=e545]:
+                  - generic [ref=e546]:
+                    - generic [ref=e547]:
+                      - generic [ref=e548]: μ
+                      - generic [ref=e549]: "0"
+                    - generic [ref=e550]: M
+                    - generic [ref=e551]:
+                      - generic [ref=e552]: R
+                      - generic [ref=e553]: "2"
+                  - generic [ref=e554]:
+                    - generic [ref=e555]: "2"
+                    - generic [ref=e556]:
+                      - generic [ref=e557]: r
+                      - generic [ref=e558]: "2"
+                - generic [ref=e559]: sin
+                - generic: ⁡
+                - generic [ref=e560]: θ
+            - generic [ref=e561]:
+              - generic [ref=e562]:
+                - generic [ref=e563]:
+                  - text: B
+                  - generic [ref=e564]: θ
+                - text: ≈
+              - generic [ref=e572]:
+                - generic [ref=e577]:
+                  - generic [ref=e578]:
+                    - text: "2"
+                    - generic [ref=e579]:
+                      - text: r
+                      - generic [ref=e580]: "2"
+                  - generic [ref=e586]:
+                    - generic [ref=e587]:
+                      - text: μ
+                      - generic [ref=e588]: "0"
+                    - text: M
+                    - generic [ref=e596]:
+                      - text: R
+                      - generic [ref=e597]: "2"
+                - text: sin θ
+          - generic [ref=e605]:
+            - text: where
+            - superscript [ref=e606] [cursor=pointer]:
+              - link:
+                - /url: "#ref-41"
+                - superscript
+              - link "[41]" [ref=e607]:
+                - /url: "#ref-41"
+            - text: is the
+            - link "permeability of free space" [ref=e608] [cursor=pointer]:
+              - /url: /page/Vacuum_permeability
+            - text: ","
+            - superscript [ref=e609] [cursor=pointer]:
+              - link:
+                - /url: "#ref-42"
+                - superscript
+              - link "[42]" [ref=e610]:
+                - /url: "#ref-42"
+            - text: is the
+            - link "magnetization" [ref=e611] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: ","
+            - generic [ref=e612]:
+              - math [ref=e614]:
+                - generic [ref=e615]: R
+              - generic [ref=e618]: R
+            - text: is the
+            - link "magnet" [ref=e620] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: "'s radius,"
+            - generic [ref=e621]:
+              - math [ref=e623]:
+                - generic [ref=e624]: r
+              - generic [ref=e627]: r
+            - text: is the distance from the center, and
+            - generic [ref=e629]:
+              - math [ref=e631]:
+                - generic [ref=e632]: θ
+              - generic [ref=e635]: θ
+            - text: is the
+            - link "angular position" [ref=e637] [cursor=pointer]:
+              - /url: /page/Angular_displacement
+            - text: . This equation highlights the
+            - link "sinusoidal variation" [ref=e638] [cursor=pointer]:
+              - /url: /page/Sine_wave
+            - text: of the
+            - link "field strength" [ref=e639] [cursor=pointer]:
+              - /url: /page/Field_strength
+            - text: around the
+            - link "circumference" [ref=e640] [cursor=pointer]:
+              - /url: /page/Circumference
+            - text: ", which arises from the transverse magnetization direction."
+            - superscript [ref=e641] [cursor=pointer]:
+              - link:
+                - /url: "#ref-33"
+                - superscript
+              - link "[33]" [ref=e642]:
+                - /url: "#ref-33"
+          - generic [ref=e643]: One key characteristic is the suitability of diametric magnetization for rotational applications, as the varying magnetic field around the circumference allows for precise detection of angular position changes in sensors and encoders.
+          - generic [ref=e644]:
+            - text: The
+            - link "flux lines" [ref=e645] [cursor=pointer]:
+              - /url: /page/Field_line
+            - text: in diametric magnetization form closed loops that originate from the north pole on one side of the curved surface and enter the south pole on the opposite side, demonstrating opposition across the diameter and creating a
+            - link "dipole-like pattern" [ref=e646] [cursor=pointer]:
+              - /url: /page/Magnetic_dipole
+            - text: external to the magnet.
+            - superscript [ref=e647] [cursor=pointer]:
+              - link:
+                - /url: "#ref-31"
+                - superscript
+              - link "[31]" [ref=e648]:
+                - /url: "#ref-31"
+          - heading [level=3] [ref=e649]:
+            - text: Production Techniques
+            - generic [ref=e650]:
+              - button "Copy link to section" [ref=e651] [cursor=pointer]
+              - button "Listen to this section" [ref=e655] [cursor=pointer]
+          - generic [ref=e659]:
+            - text: The production of diametrically magnetized ring magnets begins with the selection and preparation of materials, typically
+            - link "neodymium-iron-boron (NdFeB)" [ref=e660] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: for high-performance applications due to its strong magnetic properties.
+            - superscript [ref=e661] [cursor=pointer]:
+              - link:
+                - /url: "#ref-34"
+                - superscript
+              - link "[34]" [ref=e662]:
+                - /url: "#ref-34"
+            - text: The raw materials are melted, cast into
+            - link "ingots" [ref=e663] [cursor=pointer]:
+              - /url: /page/Ingot
+            - text: ", and then milled into fine powder to enable alignment during subsequent steps."
+            - superscript [ref=e664] [cursor=pointer]:
+              - link:
+                - /url: "#ref-35"
+                - superscript
+              - link "[35]" [ref=e665]:
+                - /url: "#ref-35"
+            - text: For diametric magnetization, the powder is compacted in a magnetic field oriented transversely perpendicular to the magnet's axis, aligning the
+            - link "magnetic domains" [ref=e666] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: across the diameter using specialized fixtures that apply a uniform transverse field during the pressing process.
+            - superscript [ref=e667] [cursor=pointer]:
+              - link:
+                - /url: "#ref-36"
+                - superscript
+              - link "[36]" [ref=e668]:
+                - /url: "#ref-36"
+            - text: This step often involves
+            - link "rotating fields" [ref=e669] [cursor=pointer]:
+              - /url: /page/Rotating_magnetic_field
+            - text: or fixtures to ensure even orientation around the circumference, preventing axial interference in ring shapes.
+            - superscript [ref=e670] [cursor=pointer]:
+              - link:
+                - /url: "#ref-43"
+                - superscript
+              - link "[43]" [ref=e671]:
+                - /url: "#ref-43"
+          - generic [ref=e672]:
+            - text: After compaction and sintering to form the solid magnet, final magnetization is achieved using equipment such as pulse magnetizers or solenoids equipped with opposing poles designed for diametric orientation.
+            - superscript [ref=e673] [cursor=pointer]:
+              - link:
+                - /url: "#ref-37"
+                - superscript
+              - link "[37]" [ref=e674]:
+                - /url: "#ref-37"
+            - text: The sintered ring is placed in a magnetizing fixture where a short, intense pulse of magnetic field is applied perpendicular to the axis, with the magnet centered to achieve saturation across the diameter; adaptations like adjustable coils help avoid interference in ring geometries.
+            - superscript [ref=e675] [cursor=pointer]:
+              - link:
+                - /url: "#ref-37"
+                - superscript
+              - link "[37]" [ref=e676]:
+                - /url: "#ref-37"
+            - text: Specialized diametric magnetizers with transverse pole configurations are used to generate the required field strength, often exceeding several teslas, to fully align domains without demagnetization risks.
+            - superscript [ref=e677] [cursor=pointer]:
+              - link:
+                - /url: "#ref-38"
+                - superscript
+              - link "[38]" [ref=e678]:
+                - /url: "#ref-38"
+          - generic [ref=e679]:
+            - text: Challenges in production include achieving
+            - link "uniform magnetization" [ref=e680] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: around the circumference, as variations in
+            - link "field strength" [ref=e681] [cursor=pointer]:
+              - /url: /page/Field_strength
+            - text: can lead to uneven
+            - link "domain alignment" [ref=e682] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: and
+            - link "torque effects" [ref=e683] [cursor=pointer]:
+              - /url: /page/Magnetic_moment
+            - text: that rotate the magnet during pulsing, potentially causing inconsistencies.
+            - superscript [ref=e684] [cursor=pointer]:
+              - link:
+                - /url: "#ref-44"
+                - superscript
+              - link "[44]" [ref=e685]:
+                - /url: "#ref-44"
+            - text: These torque effects arise from interactions between the applied field and
+            - link "existing domains" [ref=e686] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: ", requiring precise fixture designs to stabilize the part and ensure circumferential symmetry."
+            - superscript [ref=e687] [cursor=pointer]:
+              - link:
+                - /url: "#ref-45"
+                - superscript
+              - link "[45]" [ref=e688]:
+                - /url: "#ref-45"
+          - generic [ref=e689]:
+            - text: Testing protocols for diametric magnetization involve circumferential flux measurements using a
+            - link "gaussmeter" [ref=e690] [cursor=pointer]:
+              - /url: /page/Magnetometer
+            - text: with a transverse probe to assess field uniformity around the ring's diameter, verifying even distribution and pole strength without axial components.
+            - superscript [ref=e691] [cursor=pointer]:
+              - link:
+                - /url: "#ref-39"
+                - superscript
+              - link "[39]" [ref=e692]:
+                - /url: "#ref-39"
+            - link "Fluxmeters" [ref=e693] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: integrated with rotating setups measure
+            - link "total flux linkage" [ref=e694] [cursor=pointer]:
+              - /url: /page/Flux_linkage
+            - text: circumferentially, confirming the absence of interference and overall magnetization quality unique to diametric configurations.
+            - superscript [ref=e695] [cursor=pointer]:
+              - link:
+                - /url: "#ref-40"
+                - superscript
+              - link "[40]" [ref=e696]:
+                - /url: "#ref-40"
+          - heading [level=2] [ref=e697]:
+            - text: Comparisons and Applications
+            - generic [ref=e698]:
+              - button "Copy link to section" [ref=e699] [cursor=pointer]
+              - button "Listen to this section" [ref=e703] [cursor=pointer]
+          - heading [level=3] [ref=e707]:
+            - text: Key Differences Between Axial and Diametric Magnetization
+            - generic [ref=e708]:
+              - button "Copy link to section" [ref=e709] [cursor=pointer]
+              - button "Listen to this section" [ref=e713] [cursor=pointer]
+          - generic [ref=e717]:
+            - text: Axial and diametric magnetization represent two fundamental orientations for the magnetic fields in cylindrical or ring-shaped permanent magnets, differing primarily in the alignment of north and south poles relative to the magnet's geometry.
+            - superscript [ref=e718] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e719]:
+                - /url: "#ref-1"
+            - superscript [ref=e720] [cursor=pointer]:
+              - link:
+                - /url: "#ref-2"
+                - superscript
+              - link "[2]" [ref=e721]:
+                - /url: "#ref-2"
+            - text: In axial magnetization, the poles are located on the flat end faces, creating a field that flows along the central axis, while diametric magnetization positions the poles on opposite curved sides across the diameter, resulting in a field perpendicular to the axis.
+            - superscript [ref=e722] [cursor=pointer]:
+              - link:
+                - /url: "#ref-3"
+                - superscript
+              - link "[3]" [ref=e723]:
+                - /url: "#ref-3"
+            - superscript [ref=e724] [cursor=pointer]:
+              - link:
+                - /url: "#ref-4"
+                - superscript
+              - link "[4]" [ref=e725]:
+                - /url: "#ref-4"
+            - text: These orientations lead to distinct field patterns, mechanical behaviors, and suitability for various designs, influencing factors such as flux density distribution and interaction with external components.
+            - superscript [ref=e726] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e727]:
+                - /url: "#ref-1"
+            - superscript [ref=e728] [cursor=pointer]:
+              - link:
+                - /url: "#ref-46"
+                - superscript
+              - link "[46]" [ref=e729]:
+                - /url: "#ref-46"
+          - generic [ref=e730]: "The following table summarizes the key structural and performance differences between axial and diametric magnetization:"
+          - table [ref=e732]:
+            - rowgroup [ref=e733]:
+              - row [ref=e734]:
+                - columnheader "Aspect" [ref=e735]
+                - columnheader "Axial Magnetization" [ref=e736]
+                - columnheader "Diametric Magnetization" [ref=e737]
+            - rowgroup [ref=e738]:
+              - row [ref=e739]:
+                - cell [ref=e740]:
+                  - strong [ref=e742]: Pole Locations
+                - cell [ref=e743]:
+                  - generic [ref=e744]:
+                    - link "North and south poles" [ref=e745] [cursor=pointer]:
+                      - /url: /page/Magnet
+                    - text: on the flat end faces (top and bottom).
+                    - superscript [ref=e746] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-2"
+                        - superscript
+                      - link "[2]" [ref=e747]:
+                        - /url: "#ref-2"
+                    - superscript [ref=e748] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-47"
+                        - superscript
+                      - link "[47]" [ref=e749]:
+                        - /url: "#ref-47"
+                - cell [ref=e750]:
+                  - generic [ref=e751]:
+                    - text: North and south poles on opposite curved sides across the diameter.
+                    - superscript [ref=e752] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-1"
+                        - superscript
+                      - link "[1]" [ref=e753]:
+                        - /url: "#ref-1"
+                    - superscript [ref=e754] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-3"
+                        - superscript
+                      - link "[3]" [ref=e755]:
+                        - /url: "#ref-3"
+              - row [ref=e756]:
+                - cell [ref=e757]:
+                  - strong [ref=e759]: Field Symmetry
+                - cell [ref=e760]:
+                  - generic [ref=e761]:
+                    - text: Uniform and symmetric field along the central axis, with consistent
+                    - link "flux lines" [ref=e762] [cursor=pointer]:
+                      - /url: /page/Field_line
+                    - text: from one end to the other.
+                    - superscript [ref=e763] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-4"
+                        - superscript
+                      - link "[4]" [ref=e764]:
+                        - /url: "#ref-4"
+                    - superscript [ref=e765] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-46"
+                        - superscript
+                      - link "[46]" [ref=e766]:
+                        - /url: "#ref-46"
+                - cell [ref=e767]:
+                  - generic [ref=e768]:
+                    - text: Asymmetric field across the diameter, with flux lines concentrated on the sides and varying radially.
+                    - superscript [ref=e769] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-1"
+                        - superscript
+                      - link "[1]" [ref=e770]:
+                        - /url: "#ref-1"
+                    - superscript [ref=e771] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-48"
+                        - superscript
+                      - link "[48]" [ref=e772]:
+                        - /url: "#ref-48"
+              - row [ref=e773]:
+                - cell [ref=e774]:
+                  - strong [ref=e776]: Pull Force Directions
+                - cell [ref=e777]:
+                  - generic [ref=e778]:
+                    - text: Strongest
+                    - link "attraction or repulsion" [ref=e779] [cursor=pointer]:
+                      - /url: /page/Force_between_magnets
+                    - text: along the axial direction (end-to-end), with weaker lateral forces.
+                    - superscript [ref=e780] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-4"
+                        - superscript
+                      - link "[4]" [ref=e781]:
+                        - /url: "#ref-4"
+                    - superscript [ref=e782] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-3"
+                        - superscript
+                      - link "[3]" [ref=e783]:
+                        - /url: "#ref-3"
+                - cell [ref=e784]:
+                  - generic [ref=e785]:
+                    - text: Strongest forces perpendicular to the axis (side-to-side), enabling rotational alignment but reduced
+                    - link "axial pull" [ref=e786] [cursor=pointer]:
+                      - /url: /page/Force_between_magnets
+                    - text: .
+                    - superscript [ref=e787] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-4"
+                        - superscript
+                      - link "[4]" [ref=e788]:
+                        - /url: "#ref-4"
+                    - superscript [ref=e789] [cursor=pointer]:
+                      - link:
+                        - /url: "#ref-46"
+                        - superscript
+                      - link "[46]" [ref=e790]:
+                        - /url: "#ref-46"
+          - generic [ref=e791]:
+            - text: Quantitative differences in performance further highlight these distinctions; for instance, axially magnetized magnets typically exhibit higher
+            - link "on-axis flux density" [ref=e792] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: compared to diametric orientations in similar geometries, due to the concentrated field along the
+            - link "primary axis" [ref=e793] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: .
+            - superscript [ref=e794] [cursor=pointer]:
+              - link:
+                - /url: "#ref-3"
+                - superscript
+              - link "[3]" [ref=e795]:
+                - /url: "#ref-3"
+            - superscript [ref=e796] [cursor=pointer]:
+              - link:
+                - /url: "#ref-2"
+                - superscript
+              - link "[2]" [ref=e797]:
+                - /url: "#ref-2"
+            - text: In contrast, diametrically magnetized magnets provide lower
+            - link "rotational torque" [ref=e798] [cursor=pointer]:
+              - /url: /page/Torque
+            - text: in
+            - link "axial setups" [ref=e799] [cursor=pointer]:
+              - /url: /page/Axial_flux_motor
+            - text: but superior torque in circumferential applications.
+            - superscript [ref=e800] [cursor=pointer]:
+              - link:
+                - /url: "#ref-4"
+                - superscript
+              - link "[4]" [ref=e801]:
+                - /url: "#ref-4"
+            - superscript [ref=e802] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e803]:
+                - /url: "#ref-1"
+          - generic [ref=e804]:
+            - text: The
+            - link "maximum energy product (BHmax)" [ref=e805] [cursor=pointer]:
+              - /url: /page/Maximum_energy_product
+            - text: is an intrinsic property of the magnet material, such as up to 52 MGOe for
+            - link "N52 neodymium magnets" [ref=e806] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: ", and is not directly altered by the"
+            - link "magnetization orientation" [ref=e807] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: .
+            - superscript [ref=e808] [cursor=pointer]:
+              - link:
+                - /url: "#ref-2"
+                - superscript
+              - link "[2]" [ref=e809]:
+                - /url: "#ref-2"
+            - superscript [ref=e810] [cursor=pointer]:
+              - link:
+                - /url: "#ref-3"
+                - superscript
+              - link "[3]" [ref=e811]:
+                - /url: "#ref-3"
+            - superscript [ref=e812] [cursor=pointer]:
+              - link:
+                - /url: "#ref-49"
+                - superscript
+              - link "[49]" [ref=e813]:
+                - /url: "#ref-49"
+          - generic [ref=e814]:
+            - text: Geometrically, axial magnetization is particularly suited for disc-shaped magnets where end-face interactions are needed, providing stable axial fields without requiring complex production setups.
+            - superscript [ref=e815] [cursor=pointer]:
+              - link:
+                - /url: "#ref-48"
+                - superscript
+              - link "[48]" [ref=e816]:
+                - /url: "#ref-48"
+            - superscript [ref=e817] [cursor=pointer]:
+              - link:
+                - /url: "#ref-47"
+                - superscript
+              - link "[47]" [ref=e818]:
+                - /url: "#ref-47"
+            - text: Diametric magnetization, however, excels in ring-shaped magnets that demand peripheral fields, allowing for side-oriented pole alignments that enhance radial flux in cylindrical designs.
+            - superscript [ref=e819] [cursor=pointer]:
+              - link:
+                - /url: "#ref-1"
+                - superscript
+              - link "[1]" [ref=e820]:
+                - /url: "#ref-1"
+            - superscript [ref=e821] [cursor=pointer]:
+              - link:
+                - /url: "#ref-46"
+                - superscript
+              - link "[46]" [ref=e822]:
+                - /url: "#ref-46"
+          - heading [level=3] [ref=e823]:
+            - text: Practical Applications and Suitability
+            - generic [ref=e824]:
+              - button "Copy link to section" [ref=e825] [cursor=pointer]
+              - button "Listen to this section" [ref=e829] [cursor=pointer]
+          - generic [ref=e833]:
+            - text: Axial magnetization is widely utilized in applications requiring stable magnetic fields along the
+            - link "axis of rotation" [ref=e834] [cursor=pointer]:
+              - /url: /page/Rotation_around_a_fixed_axis
+            - text: or
+            - link "linear motion" [ref=e835] [cursor=pointer]:
+              - /url: /page/Linear_motion
+            - text: ", such as in electric motors,"
+            - link "linear sensors" [ref=e836] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: ", and"
+            - link "magnetic bearings" [ref=e837] [cursor=pointer]:
+              - /url: /page/Magnetic_bearing
+            - text: . This orientation is particularly suitable for devices where uniform field strength along the central axis is essential for maintaining stable loads and minimizing radial variations.
+          - generic [ref=e838]:
+            - text: In contrast, diametric magnetization finds prominent use in rotational systems that demand a varying magnetic field across the diameter, including
+            - link "rotational encoders" [ref=e839] [cursor=pointer]:
+              - /url: /page/Rotary_encoder
+            - text: and
+            - link "rotary position sensors" [ref=e840] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: . Diametrically magnetized ring magnets are especially effective in these contexts because they produce a sinusoidal field variation over 360 degrees, which is ideal for detecting
+            - link "angular positions" [ref=e841] [cursor=pointer]:
+              - /url: /page/Angular_displacement
+            - text: in spinning devices. For example, in rotary encoders, diametric magnetization allows for high-resolution angle measurement by leveraging the full circumferential field gradient.
+          - generic [ref=e842]:
+            - text: Suitability criteria for selecting between axial and diametric magnetization often hinge on the operational dynamics of the device; axial types excel in scenarios with stable axial loads and linear or end-to-end
+            - link "field interactions" [ref=e843] [cursor=pointer]:
+              - /url: /page/Magnetic_dipole–dipole_interaction
+            - text: ", whereas diametric types are preferred for applications involving continuous"
+            - link "360-degree field variation" [ref=e844] [cursor=pointer]:
+              - /url: /page/Rotating_magnetic_field
+            - text: in
+            - link "high-speed rotational environments" [ref=e845] [cursor=pointer]:
+              - /url: /page/Rotordynamics
+            - text: . This distinction ensures optimal performance, as axial magnetization may not provide the necessary radial field uniformity for spinning components, while diametric offers enhanced
+            - link "torque efficiency" [ref=e846] [cursor=pointer]:
+              - /url: /page/Magnetic_gear
+            - text: .
+          - heading [level=3] [ref=e847]:
+            - text: Limitations in Specific Uses
+            - generic [ref=e848]:
+              - button "Copy link to section" [ref=e849] [cursor=pointer]
+              - button "Listen to this section" [ref=e853] [cursor=pointer]
+          - generic [ref=e857]:
+            - link "Axial magnetization" [ref=e858] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: in
+            - link "permanent magnets" [ref=e859] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: presents significant limitations when used in
+            - link "on-axis rotation applications" [ref=e860] [cursor=pointer]:
+              - /url: /page/Rotary_encoder
+            - text: ", such as those involving"
+            - link "magnetic encoders" [ref=e861] [cursor=pointer]:
+              - /url: /page/Rotary_encoder
+            - text: like the MT6701, where the field's alignment along the central axis leads to improper interaction with the sensor, resulting in signal errors and unreliable position detection.
+            - superscript [ref=e862] [cursor=pointer]:
+              - link:
+                - /url: "#ref-8"
+                - superscript
+              - link "[8]" [ref=e863]:
+                - /url: "#ref-8"
+            - text: In these scenarios, the axial field's concentration on the flat faces fails to provide the uniform circumferential variation required for accurate
+            - link "angular sensing" [ref=e864] [cursor=pointer]:
+              - /url: /page/Position_sensor
+            - text: ", often necessitating"
+            - link "diametric alternatives" [ref=e865] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: for proper functionality.
+            - superscript [ref=e866] [cursor=pointer]:
+              - link:
+                - /url: "#ref-8"
+                - superscript
+              - link "[8]" [ref=e867]:
+                - /url: "#ref-8"
+          - generic [ref=e868]:
+            - text: Diametric magnetization, while advantageous in certain rotational contexts, carries demagnetization risks in high-temperature environments.
+            - superscript [ref=e869] [cursor=pointer]:
+              - link:
+                - /url: "#ref-50"
+                - superscript
+              - link "[50]" [ref=e870]:
+                - /url: "#ref-50"
+            - text: Diametrically magnetized ring magnets may exhibit a substantially lower
+            - link "maximum operating temperature" [ref=e871] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: compared to axially magnetized ones, requiring rigorous testing to prevent irreversible degradation under elevated heat.
+            - superscript [ref=e872] [cursor=pointer]:
+              - link:
+                - /url: "#ref-50"
+                - superscript
+              - link "[50]" [ref=e873]:
+                - /url: "#ref-50"
+            - text: For axial magnetization in
+            - link "radial stress applications" [ref=e874] [cursor=pointer]:
+              - /url: /page/Radial_stress
+            - text: ", such as those involving"
+            - link "side-pull forces" [ref=e875] [cursor=pointer]:
+              - /url: /page/Force_between_magnets
+            - text: or uniform peripheral fields, the configuration proves less effective, as the field's axial orientation limits its ability to withstand or distribute
+            - link "radial mechanical stresses" [ref=e876] [cursor=pointer]:
+              - /url: /page/Radial_stress
+            - text: without compromising performance.
+            - superscript [ref=e877] [cursor=pointer]:
+              - link:
+                - /url: "#ref-51"
+                - superscript
+              - link "[51]" [ref=e878]:
+                - /url: "#ref-51"
+          - generic [ref=e879]:
+            - text: To mitigate these limitations, engineers can employ
+            - link "shielding techniques" [ref=e880] [cursor=pointer]:
+              - /url: /page/Electromagnetic_shielding
+            - text: using
+            - link "high-permeability materials" [ref=e881] [cursor=pointer]:
+              - /url: /page/Mu-metal
+            - text: to redirect stray fields and protect against
+            - link "demagnetizing influences" [ref=e882] [cursor=pointer]:
+              - /url: /page/Demagnetizing_field
+            - text: in sensitive applications.
+            - superscript [ref=e883] [cursor=pointer]:
+              - link:
+                - /url: "#ref-52"
+                - superscript
+              - link "[52]" [ref=e884]:
+                - /url: "#ref-52"
+            - link "Hybrid designs" [ref=e885] [cursor=pointer]:
+              - /url: /page/Electropermanent_magnet
+            - text: ", integrating"
+            - link "permanent magnets" [ref=e886] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: with
+            - link "electromagnets" [ref=e887] [cursor=pointer]:
+              - /url: /page/Electromagnet
+            - text: or alternative materials, offer tunable field control to address
+            - link "temperature-induced demagnetization" [ref=e888] [cursor=pointer]:
+              - /url: /page/Curie_temperature
+            - text: and stress vulnerabilities, enhancing overall stability in demanding environments.
+            - superscript [ref=e889] [cursor=pointer]:
+              - link:
+                - /url: "#ref-53"
+                - superscript
+              - link "[53]" [ref=e890]:
+                - /url: "#ref-53"
+            - text: Additionally, selecting high-temperature-resistant alloys for diametric configurations and incorporating thermal stabilization processes can further reduce risks of uneven cooling effects.
+            - superscript [ref=e891] [cursor=pointer]:
+              - link:
+                - /url: "#ref-54"
+                - superscript
+              - link "[54]" [ref=e892]:
+                - /url: "#ref-54"
+          - heading [level=2] [ref=e893]:
+            - text: Historical and Technical Context
+            - generic [ref=e894]:
+              - button "Copy link to section" [ref=e895] [cursor=pointer]
+              - button "Listen to this section" [ref=e899] [cursor=pointer]
+          - heading [level=3] [ref=e903]:
+            - text: Development History
+            - generic [ref=e904]:
+              - button "Copy link to section" [ref=e905] [cursor=pointer]
+              - button "Listen to this section" [ref=e909] [cursor=pointer]
+          - generic [ref=e913]:
+            - text: The foundational principles of axial magnetization in
+            - link "permanent magnets" [ref=e914] [cursor=pointer]:
+              - /url: /page/Magnet#permanent-magnets
+            - text: originated in the
+            - link "18th century" [ref=e915] [cursor=pointer]:
+              - /url: /page/18th_century
+            - text: ", with early experiments on"
+            - link "bar magnets" [ref=e916] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: conducted by scientists such as
+            - link "Charles-Augustin de Coulomb" [ref=e917] [cursor=pointer]:
+              - /url: /page/Charles-Augustin_de_Coulomb
+            - text: ", who quantified"
+            - link "magnetic forces" [ref=e918] [cursor=pointer]:
+              - /url: /page/Force_between_magnets
+            - text: along the magnet's central axis in 1785, establishing key concepts in
+            - link "electromagnetism" [ref=e919] [cursor=pointer]:
+              - /url: /page/Electromagnetism
+            - text: that influenced subsequent magnet orientations. Concepts related to diametric magnetization began to emerge in the mid-20th century alongside advancements in
+            - link "anisotropic materials" [ref=e920] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: and ring-shaped magnets, allowing for field alignments across diameters, though initially limited by material constraints.
+            - superscript [ref=e921] [cursor=pointer]:
+              - link:
+                - /url: "#ref-55"
+                - superscript
+              - link "[55]" [ref=e922]:
+                - /url: "#ref-55"
+          - generic [ref=e923]:
+            - text: A major milestone occurred in the
+            - link "1930s" [ref=e924] [cursor=pointer]:
+              - /url: /page/1930s
+            - text: with the invention of
+            - link "Alnico magnets" [ref=e925] [cursor=pointer]:
+              - /url: /page/Alnico
+            - text: by Japanese researcher Tokushichi Mishima, which introduced
+            - link "anisotropic materials" [ref=e926] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: capable of precise magnetic orientations, significantly enhancing axial magnetization for applications requiring strong, directional fields in bar and cylindrical forms.
+            - superscript [ref=e927] [cursor=pointer]:
+              - link:
+                - /url: "#ref-56"
+                - superscript
+              - link "[56]" [ref=e928]:
+                - /url: "#ref-56"
+            - superscript [ref=e929] [cursor=pointer]:
+              - link:
+                - /url: "#ref-57"
+                - superscript
+              - link "[57]" [ref=e930]:
+                - /url: "#ref-57"
+            - text: These advancements in
+            - link "anisotropy" [ref=e931] [cursor=pointer]:
+              - /url: /page/Magnetic_anisotropy
+            - text: enabled better control over
+            - link "magnetic domains" [ref=e932] [cursor=pointer]:
+              - /url: /page/Magnetic_domain
+            - text: ", marking a shift from"
+            - link "isotropic natural magnets" [ref=e933] [cursor=pointer]:
+              - /url: /page/Lodestone
+            - text: to engineered ones with tailored properties.
+            - superscript [ref=e934] [cursor=pointer]:
+              - link:
+                - /url: "#ref-58"
+                - superscript
+              - link "[58]" [ref=e935]:
+                - /url: "#ref-58"
+          - generic [ref=e936]:
+            - text: Following
+            - link "World War II" [ref=e937] [cursor=pointer]:
+              - /url: /page/Outline_of_World_War_II
+            - text: ", the development of"
+            - link "rare-earth magnets" [ref=e938] [cursor=pointer]:
+              - /url: /page/Rare-earth_magnet
+            - text: in the
+            - link "1970s" [ref=e939] [cursor=pointer]:
+              - /url: /page/1970s_in_science_and_technology
+            - text: and
+            - link "1980s" [ref=e940] [cursor=pointer]:
+              - /url: /page/1980s
+            - text: further propelled both axial and diametric techniques, with
+            - link "neodymium-iron-boron (NdFeB) alloys" [ref=e941] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: invented by teams at General Motors and Sumitomo Special Metals providing unprecedented strength for diverse orientations.
+            - superscript [ref=e942] [cursor=pointer]:
+              - link:
+                - /url: "#ref-59"
+                - superscript
+              - link "[59]" [ref=e943]:
+                - /url: "#ref-59"
+            - superscript [ref=e944] [cursor=pointer]:
+              - link:
+                - /url: "#ref-60"
+                - superscript
+              - link "[60]" [ref=e945]:
+                - /url: "#ref-60"
+            - text: Specifically, NdFeB enabled efficient diametric magnetization in ring magnets for
+            - link "electronics" [ref=e946] [cursor=pointer]:
+              - /url: /page/Outline_of_electronics
+            - text: ", building on earlier"
+            - link "Alnico" [ref=e947] [cursor=pointer]:
+              - /url: /page/Alnico
+            - text: contributions to axial designs.
+            - superscript [ref=e948] [cursor=pointer]:
+              - link:
+                - /url: "#ref-61"
+                - superscript
+              - link "[61]" [ref=e949]:
+                - /url: "#ref-61"
+          - generic [ref=e950]:
+            - text: The evolution of these
+            - link "magnetization techniques" [ref=e951] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: was largely driven by demands in computing and
+            - link "automotive sectors" [ref=e952] [cursor=pointer]:
+              - /url: /page/Automotive_industry
+            - text: ", where axial magnets supported"
+            - link "early electronic devices" [ref=e953] [cursor=pointer]:
+              - /url: /page/History_of_electronic_engineering
+            - text: and diametric ones facilitated compact sensors and motors, leading to widespread industrial adoption by the late 20th century.
+            - superscript [ref=e954] [cursor=pointer]:
+              - link:
+                - /url: "#ref-62"
+                - superscript
+              - link "[62]" [ref=e955]:
+                - /url: "#ref-62"
+            - superscript [ref=e956] [cursor=pointer]:
+              - link:
+                - /url: "#ref-63"
+                - superscript
+              - link "[63]" [ref=e957]:
+                - /url: "#ref-63"
+          - heading [level=3] [ref=e958]:
+            - text: Advanced Considerations in Magnet Design
+            - generic [ref=e959]:
+              - button "Copy link to section" [ref=e960] [cursor=pointer]
+              - button "Listen to this section" [ref=e964] [cursor=pointer]
+          - generic [ref=e968]:
+            - text: In advanced magnet design, multipole configurations play a crucial role for diametric magnetization, particularly in ring-shaped magnets where multiple alternating poles are distributed evenly around the circumference to enhance field uniformity and torque in applications like motors and sensors.
+            - superscript [ref=e969] [cursor=pointer]:
+              - link:
+                - /url: "#ref-64"
+                - superscript
+              - link "[64]" [ref=e970]:
+                - /url: "#ref-64"
+            - text: For instance, multi-pole ring magnets, often made from neodymium, feature 4, 6, 8, or more poles arranged diametrically, enabling higher efficiency in synchronous motors compared to single-pole designs.
+            - superscript [ref=e971] [cursor=pointer]:
+              - link:
+                - /url: "#ref-65"
+                - superscript
+              - link "[65]" [ref=e972]:
+                - /url: "#ref-65"
+            - text: These configurations are produced using specialized sintering and magnetization techniques to achieve precise pole alignment across the inner or outer diameter.
+            - superscript [ref=e973] [cursor=pointer]:
+              - link:
+                - /url: "#ref-44"
+                - superscript
+              - link "[44]" [ref=e974]:
+                - /url: "#ref-44"
+          - generic [ref=e975]:
+            - text: Temperature compensation is essential to maintain stability in
+            - link "permanent magnets" [ref=e976] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: ", as elevated temperatures can cause demagnetization and reduce performance in high-heat environments like electric motors."
+            - superscript [ref=e977] [cursor=pointer]:
+              - link:
+                - /url: "#ref-66"
+                - superscript
+              - link "[66]" [ref=e978]:
+                - /url: "#ref-66"
+            - text: Techniques such as alloying
+            - link "NdFeB magnets" [ref=e979] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: with elements that adjust the
+            - link "temperature coefficient" [ref=e980] [cursor=pointer]:
+              - /url: /page/Temperature_coefficient
+            - text: or embedding
+            - link "phase-changing materials" [ref=e981] [cursor=pointer]:
+              - /url: /page/Phase-change_material
+            - text: help counteract thermal effects, preserving
+            - link "magnetization" [ref=e982] [cursor=pointer]:
+              - /url: /page/Magnetization
+            - text: up to higher operating temperatures.
+            - superscript [ref=e983] [cursor=pointer]:
+              - link:
+                - /url: "#ref-67"
+                - superscript
+              - link "[67]" [ref=e984]:
+                - /url: "#ref-67"
+            - text: This compensation is vital for assemblies exposed to variable thermal loads, ensuring consistent field strength without exceeding
+            - link "Curie temperatures" [ref=e985] [cursor=pointer]:
+              - /url: /page/Curie_temperature
+            - text: .
+            - superscript [ref=e986] [cursor=pointer]:
+              - link:
+                - /url: "#ref-68"
+                - superscript
+              - link "[68]" [ref=e987]:
+                - /url: "#ref-68"
+          - generic [ref=e988]:
+            - link "Finite element analysis (FEA)" [ref=e989] [cursor=pointer]:
+              - /url: /page/Finite_element_method
+            - text: serves as a primary simulation tool for predicting magnetic fields in complex assemblies involving diametric or axial magnetization, allowing designers to model field distributions,
+            - link "flux densities" [ref=e990] [cursor=pointer]:
+              - /url: /page/Magnetic_flux
+            - text: ", and interactions in multi-component systems before"
+            - link "prototyping" [ref=e991] [cursor=pointer]:
+              - /url: /page/Prototype
+            - text: .
+            - superscript [ref=e992] [cursor=pointer]:
+              - link:
+                - /url: "#ref-69"
+                - superscript
+              - link "[69]" [ref=e993]:
+                - /url: "#ref-69"
+            - text: Software like Ansys Maxwell and
+            - link "COMSOL Multiphysics" [ref=e994] [cursor=pointer]:
+              - /url: /page/COMSOL_Multiphysics
+            - text: employs FEA to simulate low-frequency electromagnetic behaviors, optimizing designs for efficiency and minimizing material waste in intricate geometries such as motor rotors.
+            - superscript [ref=e995] [cursor=pointer]:
+              - link:
+                - /url: "#ref-70"
+                - superscript
+              - link "[70]" [ref=e996]:
+                - /url: "#ref-70"
+            - text: Post-2020 advancements in these tools, including integration with
+            - link "CAD" [ref=e997] [cursor=pointer]:
+              - /url: /page/Computer-aided_design
+            - text: for seamless
+            - link "3D modeling" [ref=e998] [cursor=pointer]:
+              - /url: /page/3D_modeling
+            - text: ", have improved accuracy in predicting nonlinear material properties under operational stresses."
+            - superscript [ref=e999] [cursor=pointer]:
+              - link:
+                - /url: "#ref-71"
+                - superscript
+              - link "[71]" [ref=e1000]:
+                - /url: "#ref-71"
+          - generic [ref=e1001]:
+            - text: Emerging trends in magnet design include approaches for electric vehicle (EV) applications, where
+            - link "permanent magnets" [ref=e1002] [cursor=pointer]:
+              - /url: /page/Magnet
+            - text: contribute to high-torque synchronous motors while balancing
+            - link "power density" [ref=e1003] [cursor=pointer]:
+              - /url: /page/Power_density
+            - text: and cost.
+            - superscript [ref=e1004] [cursor=pointer]:
+              - link:
+                - /url: "#ref-72"
+                - superscript
+              - link "[72]" [ref=e1005]:
+                - /url: "#ref-72"
+            - link "Sustainability concerns" [ref=e1006] [cursor=pointer]:
+              - /url: /page/Materials_science
+            - text: with
+            - link "rare-earth sourcing" [ref=e1007] [cursor=pointer]:
+              - /url: /page/Rare-earth_element
+            - text: ", such as"
+            - link "environmental impacts from mining" [ref=e1008] [cursor=pointer]:
+              - /url: /page/environmental_impact_of_mining
+            - text: and
+            - link "supply chain vulnerabilities" [ref=e1009] [cursor=pointer]:
+              - /url: /page/Supply_chain_risk_management
+            - text: ", have driven post-2020 innovations toward"
+            - link "eco-friendly alternatives" [ref=e1010] [cursor=pointer]:
+              - /url: /page/Rare-earth_magnet#alternatives
+            - text: like
+            - link "iron-nitride-based magnets" [ref=e1011] [cursor=pointer]:
+              - /url: /page/Iron_nitrides
+            - text: ", which eliminate"
+            - link "rare-earth dependency" [ref=e1012] [cursor=pointer]:
+              - /url: /page/Rare-earth_element
+            - text: while approaching
+            - link "neodymium" [ref=e1013] [cursor=pointer]:
+              - /url: /page/Neodymium
+            - text: performance levels.
+            - superscript [ref=e1014] [cursor=pointer]:
+              - link:
+                - /url: "#ref-73"
+                - superscript
+              - link "[73]" [ref=e1015]:
+                - /url: "#ref-73"
+            - text: For example, Niron Magnetics' rare-earth-free permanent magnets, developed by the company founded in 2014, offer a viable substitute for
+            - link "EV motors" [ref=e1016] [cursor=pointer]:
+              - /url: /page/Traction_motor
+            - text: by using abundant iron and nitrogen, reducing CO2 emissions associated with traditional sourcing by up to 75% in production.
+            - superscript [ref=e1017] [cursor=pointer]:
+              - link:
+                - /url: "#ref-74"
+                - superscript
+              - link "[74]" [ref=e1018]:
+                - /url: "#ref-74"
+            - text: These developments, including closed-loop recycling of
+            - link "neodymium-iron-boron magnets" [ref=e1019] [cursor=pointer]:
+              - /url: /page/Neodymium_magnet
+            - text: ", address global demand projections that could strain"
+            - link "rare-earth supplies" [ref=e1020] [cursor=pointer]:
+              - /url: /page/Rare-earth_element
+            - text: by 2030.
+            - superscript [ref=e1021] [cursor=pointer]:
+              - link:
+                - /url: "#ref-75"
+                - superscript
+              - link "[75]" [ref=e1022]:
+                - /url: "#ref-75"
+          - generic [ref=e1023]:
+            - heading "References" [level=2] [ref=e1025]
+            - list [ref=e1026]:
+              - listitem [ref=e1027]:
+                - link "Difference between axial, radial, and diametrical magnetization - IMA" [ref=e1029] [cursor=pointer]:
+                  - /url: https://imamagnets.com/en/blog/difference-between-axial-radial-and-diametrical-magnetization/
+              - listitem [ref=e1030]:
+                - link "What is the Magnetization Direction for Permanent Magnets?" [ref=e1032] [cursor=pointer]:
+                  - /url: https://www.stanfordmagnets.com/what-is-the-magnetization-direction-for-permanent-magnets.html
+              - listitem [ref=e1033]:
+                - link "Axial vs Diametrical Magnetization - All About Magnet Pole Direction" [ref=e1035] [cursor=pointer]:
+                  - /url: https://sourcemagnets.com/magnetization-direction/
+              - listitem [ref=e1036]:
+                - link "https://www.kjmagnetics.com/blog/magnetization-direction" [ref=e1038] [cursor=pointer]:
+                  - /url: https://www.kjmagnetics.com/blog/magnetization-direction
+              - listitem [ref=e1039]:
+                - link "[PDF] Magnetizing and Equipment - Alliance LLC" [ref=e1041] [cursor=pointer]:
+                  - /url: https://allianceorg.com/pdfs/Magnetizing%20Methods.pdf
+              - listitem [ref=e1042]:
+                - link "History of Magnetism and Permanent Magnets" [ref=e1044] [cursor=pointer]:
+                  - /url: https://www.stanfordmagnets.com/history-of-magnetism-and-permanent-magnets.html
+              - listitem [ref=e1045]:
+                - 'link "MT6701 Magnetic Encoder Sensor: A Practical Guide to ... - AliExpress" [ref=e1047] [cursor=pointer]':
+                  - /url: https://www.aliexpress.com/p/wiki/article.html?keywords=mt6701-sensor_1005005950741081
+              - listitem [ref=e1048]:
+                - link "How to Use MT6701 Magnetic Encoder - Cirkit Designer Docs" [ref=e1050] [cursor=pointer]:
+                  - /url: https://docs.cirkitdesigner.com/component/7ba6c042-23af-454c-8dd2-925270a22525/mt6701-magnetic-encoder
+              - listitem [ref=e1051]:
+                - link "[PDF] History of magnetism | HAL" [ref=e1053] [cursor=pointer]:
+                  - /url: https://hal.science/hal-04138750v1/file/History%20of%20Magnetism%20final.pdf
+              - listitem [ref=e1054]:
+                - link "9.3 Permanent Magnetization - MIT" [ref=e1056] [cursor=pointer]:
+                  - /url: https://web.mit.edu/6.013_book/www/chapter9/9.3.html
+              - listitem [ref=e1057]:
+                - link "Magnetic Domains - Magnet Academy - National MagLab" [ref=e1059] [cursor=pointer]:
+                  - /url: https://maglabweb.magnet.fsu.edu/magnet-academy/watch-play/interactive-tutorials/magnetic-domains/
+              - listitem [ref=e1060]:
+                - link "Understanding Magnetization" [ref=e1062] [cursor=pointer]:
+                  - /url: https://web1.eng.famu.fsu.edu/~luongo/design/projects/2000/team10/background.htm
+              - listitem [ref=e1063]:
+                - link "4. Domain Theory | College of Science and Engineering" [ref=e1065] [cursor=pointer]:
+                  - /url: https://cse.umn.edu/irm/4-domain-theory
+              - listitem [ref=e1066]:
+                - link "Magnetic Domains and Hysteresis - Northeastern University" [ref=e1068] [cursor=pointer]:
+                  - /url: https://ece.northeastern.edu/fac-ece/nian/mom/domains.html
+              - listitem [ref=e1069]:
+                - link "[PDF] Measuring the magnetization of a permanent magnet" [ref=e1071] [cursor=pointer]:
+                  - /url: https://www.reed.edu/physics/332/pdf/Magnetization%20of%20Permanent%20Magnet.pdf
+              - listitem [ref=e1072]:
+                - link "Magnetic Field Strength H - HyperPhysics Concepts" [ref=e1074] [cursor=pointer]:
+                  - /url: http://hyperphysics.phy-astr.gsu.edu/hbase/magnetic/magfield.html
+              - listitem [ref=e1075]:
+                - link "[PDF] Magnetic Properties of Metals and Alloys. - andrew.cmu.ed" [ref=e1077] [cursor=pointer]:
+                  - /url: https://www.andrew.cmu.edu/user/dl0p/laughlin/pdf/461.pdf
+              - listitem [ref=e1078]:
+                - 'link "Electromagnetism History: 1830 - 1839 - Magnet Academy" [ref=e1080] [cursor=pointer]':
+                  - /url: https://maglabweb.magnet.fsu.edu/magnet-academy/history-of-electricity-magnetism/timeline/1830-1839/
+              - listitem [ref=e1081]:
+                - link "On the induction of electric currents - Smithsonian Libraries" [ref=e1083] [cursor=pointer]:
+                  - /url: https://library.si.edu/digital-library/book/oninductionofele00fara
+              - listitem [ref=e1084]:
+                - link "Magnetization Directions of Cylinder Magnets Pole" [ref=e1086] [cursor=pointer]:
+                  - /url: https://mpcomagnetics.com/blog/magnetization-directions-of-cylinder-magnets-pole/
+              - listitem [ref=e1087]:
+                - link "Magnetization Direction of Neodymium Magnets – ALBMagnets®" [ref=e1089] [cursor=pointer]:
+                  - /url: https://www.albmagnets.com/blog/magnetization-direction-of-neodymium-magnets.html
+              - listitem [ref=e1090]:
+                - link "https://radialmagnet.com/understanding-the-difference-between-radial-and-diametrically-magnetized-magnets/" [ref=e1092] [cursor=pointer]:
+                  - /url: https://radialmagnet.com/understanding-the-difference-between-radial-and-diametrically-magnetized-magnets/
+              - listitem [ref=e1093]:
+                - link "Magnetization direction and orientation direction" [ref=e1095] [cursor=pointer]:
+                  - /url: https://www.hsmagnets.com/blog/magnetization-direction-and-orientation-direction/
+              - listitem [ref=e1096]:
+                - link "Magnetic Properties and Applications - Stanford Advanced Materials" [ref=e1098] [cursor=pointer]:
+                  - /url: https://www.samaterials.com/content/magnetic-properties-and-applications.html
+              - listitem [ref=e1099]:
+                - link "Permanent Magnets Design Guide" [ref=e1101] [cursor=pointer]:
+                  - /url: https://www.intemag.com/magnet-design-guide
+              - listitem [ref=e1102]:
+                - 'link "Magnetic Materials: Isotropic VS. Anisotropic" [ref=e1104] [cursor=pointer]':
+                  - /url: https://www.stanfordmagnets.com/magnetic-materials-isotropic-vs-anisotropic.html
+              - listitem [ref=e1105]:
+                - 'link "Understanding Isotropic vs Anisotropic Magnets: Beginner''s Guide" [ref=e1107] [cursor=pointer]':
+                  - /url: https://hsmagnet.com/2024/07/08/isotropic-and-anisotropic-magnets/
+              - listitem [ref=e1108]:
+                - link "Coercivity and Remanence in Permanent Magnets" [ref=e1110] [cursor=pointer]:
+                  - /url: https://www.stanfordmagnets.com/coercivity-and-remanence-in-permanent-magnets.html
+              - listitem [ref=e1111]:
+                - link "Coercivity and Remanence in Permanent Magnets" [ref=e1113] [cursor=pointer]:
+                  - /url: http://hyperphysics.phy-astr.gsu.edu/hbase/Solids/magperm.html
+              - listitem [ref=e1114]:
+                - link "[PDF] Design Issues for Using Magnetic Materials in Radiation ..." [ref=e1116] [cursor=pointer]:
+                  - /url: https://ntrs.nasa.gov/api/citations/20130010718/downloads/20130010718.pdf
+              - listitem [ref=e1117]:
+                - link "Diametrically Magnetized Magnets" [ref=e1119] [cursor=pointer]:
+                  - /url: https://sdmmagnets.com/diametrically-magnetized-magnets/
+              - listitem [ref=e1120]:
+                - link "https://www.first4magnets.com/diametrically-magnetized-magnets" [ref=e1122] [cursor=pointer]:
+                  - /url: https://www.first4magnets.com/diametrically-magnetized-magnets
+              - listitem [ref=e1123]:
+                - link "Exact and Computationally Robust Solutions for Cylindrical Magnets ..." [ref=e1125] [cursor=pointer]:
+                  - /url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10477869/
+              - listitem [ref=e1126]:
+                - link "Exploring the Manufacturing Process of Diametrically Magnetized ..." [ref=e1128] [cursor=pointer]:
+                  - /url: https://www.nbhrmagnet.com/news_detail/1952983132439773184.html
+              - listitem [ref=e1129]:
+                - link "https://www.kjmagnetics.com/blog/how-neodymium-magnets-are-made" [ref=e1131] [cursor=pointer]:
+                  - /url: https://www.kjmagnetics.com/blog/how-neodymium-magnets-are-made
+              - listitem [ref=e1132]:
+                - link "Magnet Manufacturing Process | How Are Magnets Made" [ref=e1134] [cursor=pointer]:
+                  - /url: https://www.arnoldmagnetics.com/resources/magnet-manufacturing-process/
+              - listitem [ref=e1135]:
+                - link "Compacting - SDM Magnetics Co., Ltd." [ref=e1137] [cursor=pointer]:
+                  - /url: https://www.magnet-sdm.com/compacting/
+              - listitem [ref=e1138]:
+                - link "How to magnetize a ring magnet? - Blog" [ref=e1140] [cursor=pointer]:
+                  - /url: https://www.yixingmagnetic.com/blog/how-to-magnetize-a-ring-magnet-451848.html
+              - listitem [ref=e1141]:
+                - link "US6080352A - Method of magnetizing a ring-shaped magnet" [ref=e1143] [cursor=pointer]:
+                  - /url: https://patents.google.com/patent/US6080352A/en
+              - listitem [ref=e1144]:
+                - link "Diametrically Multipole Magnetized Magnet - SDM Magnetics Co., Ltd." [ref=e1146] [cursor=pointer]:
+                  - /url: https://www.magnet-sdm.com/diametrically-multipole-magnetized-magnet/
+              - listitem [ref=e1147]:
+                - link "Diametrically Magnetized Disc vs Multipole Ring Magnets ... - Nbaem" [ref=e1149] [cursor=pointer]:
+                  - /url: https://nbaem.com/diametrically-magnetized-magnets-multipole-magnets/
+              - listitem [ref=e1150]:
+                - link "Permanent Magnet Testing Methods | Alliance LLC" [ref=e1152] [cursor=pointer]:
+                  - /url: https://allianceorg.com/about-us/quality-assurance/magnet-testing-methods/
+              - listitem [ref=e1153]:
+                - link "Inspection of Magnetic Field Distributions - Magcam" [ref=e1155] [cursor=pointer]:
+                  - /url: https://www.magcam.com/blog/how-inspect-magnetic-field-distributions-permanent-magnets-different-sizes-shapes-and-types
+              - listitem [ref=e1156]:
+                - link "Axially magnetized vs diametrically magnetized" [ref=e1158] [cursor=pointer]:
+                  - /url: https://www.couragemagnet.com/magnet-blog/2255.html
+              - listitem [ref=e1159]:
+                - link "What does axial magnetism mean? – Magnetz og Magnordic" [ref=e1161] [cursor=pointer]:
+                  - /url: https://www.magnetpartner.com/blogs/facts-magnetism/axial-magnetism-meaning
+              - listitem [ref=e1162]:
+                - link "https://dhit.pl/en/blog/magnetization-directions-guide/" [ref=e1164] [cursor=pointer]:
+                  - /url: https://dhit.pl/en/blog/magnetization-directions-guide/
+              - listitem [ref=e1165]:
+                - 'link "TMAG5173EVM: Off-axis magnetic absolute encoder - Sensors forum" [ref=e1167] [cursor=pointer]':
+                  - /url: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1464958/tmag5173evm-off-axis-magnetic-absolute-encoder
+              - listitem [ref=e1168]:
+                - link "Experimenting with magnetic absolute encoders" [ref=e1170] [cursor=pointer]:
+                  - /url: http://blog.dzl.dk/2024/01/12/experimenting-with-magnetic-absolute-encoders/
+              - listitem [ref=e1171]:
+                - link "What temperatures can magnets withstand? - Supermagnete.de" [ref=e1173] [cursor=pointer]:
+                  - /url: https://www.supermagnete.de/eng/faq/What-temperatures-can-magnets-withstand
+              - listitem [ref=e1174]:
+                - link "What Does Axially Magnetized Mean For NdFeB Ring Magnets" [ref=e1176] [cursor=pointer]:
+                  - /url: https://nbaem.com/id/what-does-axially-magnetized-mean/
+              - listitem [ref=e1177]:
+                - link "Analysis of Passive Shielding Performance Stability in Hybrid ... - MDPI" [ref=e1179] [cursor=pointer]:
+                  - /url: https://www.mdpi.com/2076-3417/15/24/13173
+              - listitem [ref=e1180]:
+                - 'link "[PDF] Integrating permanent magnets and electromagnets: a hybrid dipole ..." [ref=e1182] [cursor=pointer]':
+                  - /url: https://meow.elettra.eu/81/pdf/WEBD3.pdf
+              - listitem [ref=e1183]:
+                - link "How to Prevent NdFeB Magnets from Demagnetizing?" [ref=e1185] [cursor=pointer]:
+                  - /url: https://www.ktmagnet.com/how-to-prevent-ndfeb-magnets-from-demagnetizing.html
+              - listitem [ref=e1186]:
+                - link "History of magnets - Supermagnete.de" [ref=e1188] [cursor=pointer]:
+                  - /url: https://www.supermagnete.de/eng/history-of-magnets
+              - listitem [ref=e1189]:
+                - link "https://appliedmagnets.com/history-of-magnets/" [ref=e1191] [cursor=pointer]:
+                  - /url: https://appliedmagnets.com/history-of-magnets/
+              - listitem [ref=e1192]:
+                - link "https://buymagnets.com/three-things-you-didnt-know-about-alnico-magnets/" [ref=e1194] [cursor=pointer]:
+                  - /url: https://buymagnets.com/three-things-you-didnt-know-about-alnico-magnets/
+              - listitem [ref=e1195]:
+                - link "AlNiCo Magnets and Music Revolution - Bunting Magnetics Europe" [ref=e1197] [cursor=pointer]:
+                  - /url: https://www.magnetapplications.com/blog/alnico-magnets-and-music-revolution
+              - listitem [ref=e1198]:
+                - 'link "[PDF] magnets: history, the current state and the future" [ref=e1200] [cursor=pointer]':
+                  - /url: https://www.confer.cz/metal/2015/read/2307-magnets-history-the-current-state-and-the-future.pdf
+              - listitem [ref=e1201]:
+                - link "NdFeB magnets - Invention, industrialization and basic research" [ref=e1203] [cursor=pointer]:
+                  - /url: https://www.kva.se/en/event/invention-industrialization-and-basic-research-of-the-nd-fe-b-magnets-2/
+              - listitem [ref=e1204]:
+                - link "https://appliedmagnets.com/blog/what-is-a-neodymium-magnet-composition-common-uses-explained/" [ref=e1206] [cursor=pointer]:
+                  - /url: https://appliedmagnets.com/blog/what-is-a-neodymium-magnet-composition-common-uses-explained/
+              - listitem [ref=e1207]:
+                - link "[PDF] EFFECTIVE USE OF NEODYMIUM IRON BORON MAGNETS, CASE ..." [ref=e1209] [cursor=pointer]:
+                  - /url: http://www.spontaneousmaterials.com/Papers/CoilWinding1999.pdf
+              - listitem [ref=e1210]:
+                - 'link "Advanced Magnetic Alloys: Importance in Tech - Okon Recycling" [ref=e1212] [cursor=pointer]':
+                  - /url: https://www.okonrecycling.com/magnet-recycling-and-applications/magnet-technology/advanced-magnetic-alloys-technological-applications/
+              - listitem [ref=e1213]:
+                - link "Overview on Permanent Magnet Motor Trends and Developments" [ref=e1215] [cursor=pointer]:
+                  - /url: https://www.mdpi.com/1996-1073/17/2/538
+              - listitem [ref=e1216]:
+                - link "Multipole Ring Magnets - SDM Magnetics" [ref=e1218] [cursor=pointer]:
+                  - /url: https://sdmmagnets.com/multipole-ring-magnets/
+              - listitem [ref=e1219]:
+                - link "Multi Poles Ring - AOMAG magnetics" [ref=e1221] [cursor=pointer]:
+                  - /url: https://www.aomagnet.com/multi-poles-ring-c-19_20.html
+              - listitem [ref=e1222]:
+                - link "[PDF] Temperature Compensation of NdFeB Permanent Magnets" [ref=e1224] [cursor=pointer]:
+                  - /url: https://proceedings.jacow.org/pac97/papers/pdf/2P001.PDF
+              - listitem [ref=e1225]:
+                - link "Permanent magnets with embedded phase changing material for ..." [ref=e1227] [cursor=pointer]:
+                  - /url: https://pubs.aip.org/aip/jap/article/136/17/174901/3319078/Permanent-magnets-with-embedded-phase-changing
+              - listitem [ref=e1228]:
+                - link "Temperature compensation of NdFeB permanent magnets" [ref=e1230] [cursor=pointer]:
+                  - /url: https://www.semanticscholar.org/paper/Temperature-compensation-of-NdFeB-permanent-magnets-Kim-Doose/b7b8b1a0ec37d2a79a2bbfda60973c70b321d43c
+              - listitem [ref=e1231]:
+                - link "Magnetic Circuit Analysis in Product Innovation < ADAMS" [ref=e1233] [cursor=pointer]:
+                  - /url: https://www.adamsmagnetic.com/blogs/magnetic-circuit-analysis-and-finite-element-analysis-fea/
+              - listitem [ref=e1234]:
+                - link "Electronic Design & Electromagnetics Simulation Software - Ansys" [ref=e1236] [cursor=pointer]:
+                  - /url: https://www.ansys.com/products/electronics
+              - listitem [ref=e1237]:
+                - 'link "EMWorks: Electromagnetic Simulation Software with Built-in CAD" [ref=e1239] [cursor=pointer]':
+                  - /url: https://www.emworks.com/en/
+              - listitem [ref=e1240]:
+                - link "Why Magnets Are Used in New Energy Vehicles" [ref=e1242] [cursor=pointer]:
+                  - /url: https://www.stanfordmagnets.com/why-magnets-are-used-in-new-energy-vehicles.html
+              - listitem [ref=e1243]:
+                - link "Sourcing, Refining and Recycling of Rare-Earth Magnets - MDPI" [ref=e1245] [cursor=pointer]:
+                  - /url: https://www.mdpi.com/2071-1050/15/20/14901
+              - listitem [ref=e1246]:
+                - link "University of Minnesota startup reinvents permanent magnets for a ..." [ref=e1248] [cursor=pointer]:
+                  - /url: https://twin-cities.umn.edu/news-events/university-minnesota-startup-reinvents-permanent-magnets-sustainable-future
+              - listitem [ref=e1249]:
+                - 'link "[PDF] Recovering Rare Earth Elements from E-Waste: Potential Impacts on ..." [ref=e1251] [cursor=pointer]':
+                  - /url: https://www.usitc.gov/publications/332/journals/jice_recovering_rare_earth_elements_from_e_waste.pdf
+  - button "Table of contents" [ref=e1252] [cursor=pointer]
+  - generic [ref=e1256]:
+    - generic [ref=e1257]:
+      - heading "Table of Contents" [level=2] [ref=e1258]
+      - button "Close table of contents" [ref=e1259] [cursor=pointer]
+    - navigation [ref=e1262]:
+      - list [ref=e1263]:
+        - listitem [ref=e1264]:
+          - link "Fundamentals of Magnetization" [ref=e1266] [cursor=pointer]:
+            - /url: "#fundamentals-of-magnetization"
+        - listitem [ref=e1267]:
+          - link "Definition and Basic Principles" [ref=e1269] [cursor=pointer]:
+            - /url: "#definition-and-basic-principles"
+        - listitem [ref=e1270]:
+          - link "Magnetic Field Orientation in Permanent Magnets" [ref=e1272] [cursor=pointer]:
+            - /url: "#magnetic-field-orientation-in-permanent-magnets"
+        - listitem [ref=e1273]:
+          - link "Axial Magnetization" [ref=e1275] [cursor=pointer]:
+            - /url: "#axial-magnetization"
+        - listitem [ref=e1276]:
+          - link "Characteristics and Field Patterns" [ref=e1278] [cursor=pointer]:
+            - /url: "#characteristics-and-field-patterns"
+        - listitem [ref=e1279]:
+          - link "Production Techniques" [ref=e1281] [cursor=pointer]:
+            - /url: "#production-techniques"
+        - listitem [ref=e1282]:
+          - link "Diametric Magnetization" [ref=e1284] [cursor=pointer]:
+            - /url: "#diametric-magnetization"
+        - listitem [ref=e1285]:
+          - link "Characteristics and Field Patterns" [ref=e1287] [cursor=pointer]:
+            - /url: "#characteristics-and-field-patterns-1"
+        - listitem [ref=e1288]:
+          - link "Production Techniques" [ref=e1290] [cursor=pointer]:
+            - /url: "#production-techniques-1"
+        - listitem [ref=e1291]:
+          - link "Comparisons and Applications" [ref=e1293] [cursor=pointer]:
+            - /url: "#comparisons-and-applications"
+        - listitem [ref=e1294]:
+          - link "Key Differences Between Axial and Diametric Magnetization" [ref=e1296] [cursor=pointer]:
+            - /url: "#key-differences-between-axial-and-diametric-magnetization"
+        - listitem [ref=e1297]:
+          - link "Practical Applications and Suitability" [ref=e1299] [cursor=pointer]:
+            - /url: "#practical-applications-and-suitability"
+        - listitem [ref=e1300]:
+          - link "Limitations in Specific Uses" [ref=e1302] [cursor=pointer]:
+            - /url: "#limitations-in-specific-uses"
+        - listitem [ref=e1303]:
+          - link "Historical and Technical Context" [ref=e1305] [cursor=pointer]:
+            - /url: "#historical-and-technical-context"
+        - listitem [ref=e1306]:
+          - link "Development History" [ref=e1308] [cursor=pointer]:
+            - /url: "#development-history"
+        - listitem [ref=e1309]:
+          - link "Advanced Considerations in Magnet Design" [ref=e1311] [cursor=pointer]:
+            - /url: "#advanced-considerations-in-magnet-design"
+        - listitem [ref=e1312]:
+          - link "References" [ref=e1314] [cursor=pointer]:
+            - /url: "#references"

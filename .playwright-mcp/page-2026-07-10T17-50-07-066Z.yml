@@ -1,0 +1,442 @@
+- generic [active] [ref=f51e1]:
+  - banner [ref=f51e2]:
+    - link "Skip to Main Content" [ref=f51e4] [cursor=pointer]:
+      - /url: javascript:SkipLink();
+    - generic [ref=f51e7]:
+      - generic [ref=f51e9]:
+        - text: 
+        - generic [ref=f51e10]:
+          - link "Part of the TTI Family of Specialists" [ref=f51e11] [cursor=pointer]:
+            - /url: /about-tti/
+          - text: "|"
+          - link "Contact Mouser (Europe) +49 (0)89 520 462 110" [ref=f51e12] [cursor=pointer]:
+            - /url: https://eu.mouser.com/contact/
+            - generic [ref=f51e13]: 
+            - text: Contact Mouser (Europe) +49 (0)89 520 462 110
+          - text: "|"
+          - link "Feedback - opens in a new window" [ref=f51e14] [cursor=pointer]:
+            - /url: https://eu.mouser.com/feedback/
+            - generic [ref=f51e15]: 
+            - text: Feedback
+      - generic [ref=f51e19]:
+        - link "Change Location - currently set to Europe" [ref=f51e20] [cursor=pointer]:
+          - /url: /cs/localsites?qs=0gZ0gv0KDwsPeU1aLKWeCtwA6kRRgv5JgWGzDg1o%252BVMqiPjjud8Yus8aTDzer8ryxC5flYxAZRHtMp54bn4L8AWhQSsGopN9Q%252BKihmZtQv3NAipDVOG3prAT%252BVN5E2vf7936OlKM4Qk%3D
+          - text: Change Location
+        - button "Change Language - currently set to English" [ref=f51e23] [cursor=pointer]: English 
+        - button "€ EUR " [ref=f51e26] [cursor=pointer]
+    - generic [ref=f51e30]:
+      - link [ref=f51e32] [cursor=pointer]:
+        - /url: https://eu.mouser.com/
+        - img "Mouser Electronics Europe - Electronic Components Distributor" [ref=f51e33]
+      - generic [ref=f51e35]:
+        - generic [ref=f51e37]:
+          - button "Filter your search - all categories" [ref=f51e40] [cursor=pointer]: All 
+          - textbox "Search by part numbers or keywords" [ref=f51e41]:
+            - /placeholder: Part No. / Keyword
+          - text: 
+          - button "Search" [ref=f51e43] [cursor=pointer]:
+            - generic [ref=f51e44]: 
+        - generic [ref=f51e46]:
+          - generic [ref=f51e47]:
+            - checkbox "In Stock" [ref=f51e48]
+            - generic [ref=f51e49]: In Stock
+          - generic [ref=f51e50]:
+            - checkbox "RoHS" [ref=f51e51]
+            - generic [ref=f51e52]: RoHS
+    - generic [ref=f51e55]:
+      - navigation "Main Menu" [ref=f51e56]:
+        - button "Toggle navigation menu." [ref=f51e57] [cursor=pointer]:
+          - generic [ref=f51e58]: 
+        - generic:
+          - list:                    
+      - list [ref=f51e60]:
+        - listitem [ref=f51e61]:
+          - button "" [ref=f51e62] [cursor=pointer]
+        - text: 
+        - listitem [ref=f51e63]:
+          - link "" [ref=f51e64] [cursor=pointer]:
+            - /url: https://eu.mouser.com/Cart
+        - text:  
+    - text:                       
+  - main [ref=f51e65]:
+    - generic [ref=f51e67]:
+      - generic [ref=f51e71]:
+        - navigation "Breadcrumb" [ref=f51e74]:
+          - list [ref=f51e75]:
+            - listitem [ref=f51e76]:
+              - link "All Products" [ref=f51e77] [cursor=pointer]:
+                - /url: /electronic-components/
+              - text: 
+            - listitem [ref=f51e78]:
+              - link "Embedded Solutions" [ref=f51e79] [cursor=pointer]:
+                - /url: /c/embedded-solutions/
+              - text: 
+            - listitem [ref=f51e80]:
+              - link "Engineering Tools" [ref=f51e81] [cursor=pointer]:
+                - /url: /c/embedded-solutions/engineering-tools/
+              - text: 
+            - listitem [ref=f51e82]:
+              - link "Sensor Development Tools" [ref=f51e83] [cursor=pointer]:
+                - /url: /c/embedded-solutions/engineering-tools/sensor-development-tools/
+              - text: 
+            - listitem [ref=f51e84]:
+              - link "Magnetic Sensor Development Tools" [ref=f51e85] [cursor=pointer]:
+                - /url: /c/embedded-solutions/engineering-tools/sensor-development-tools/magnetic-sensor-development-tools/
+              - text: 
+            - listitem [ref=f51e86]: Infineon Technologies AS5X47U-TS_EK_AB
+        - link "See an Error? - Opens in a new window" [ref=f51e89] [cursor=pointer]:
+          - /url: https://feedback.mouser.com/jfe/form/SV_5doRizEv1tqpkh0?Q_EED=eyJNeU1vdXNlciI6MCwiQ2FydEdVSUQiOiJmMmVmM2UwMC01MGU2LTQ0YmQtODNlOC05YWM0YTliM2IyNjMiLCJEb21haW4iOiJldSIsIkNvdW50cnkiOiJGcmFuY2UiLCJQRFBVcmwiOiJodHRwczovL2V1Lm1vdXNlci5jb20vUHJvZHVjdERldGFpbC9JbmZpbmVvbi1UZWNobm9sb2dpZXMvQVM1WDQ3VS1UU19FS19BQj9xcz11MTZ5YkxEeXRSYnl5VlljejNmNWd3JTNEJTNEIiwiQ3VzdG9tZXJJZCI6bnVsbCwiQ3VycmVuY3kiOiJFdXJvIiwiTW91c2VyUGFydE51bWJlciI6Ijk4NS1BUzVYNDdVLVRTX0VLX0FCIiwiTWFudWZhY3R1cmVyUGFydE51bWJlciI6IkFTNVg0N1UtVFNfRUtfQUIiLCJNYW51ZmFjdHVyZXIiOiJJbmZpbmVvbiIsIkJyYW5kIjoiSW5maW5lb24gVGVjaG5vbG9naWVzIiwiRGVzY3JpcHRpb24iOiJNYWduZXRpYyBTZW5zb3IgRGV2ZWxvcG1lbnQgVG9vbHMgQVM1MDQ3VS9BUzUxNDdVIEFkYXB0ZXJib2FyZCIsIkNhdGVnb3J5IjoiTWFnbmV0aWMgU2Vuc29yIERldmVsb3BtZW50IFRvb2xzIiwiQ2F0UGF0aCI6ImVtYmVkZGVkIHNvbHV0aW9ucy9lbmdpbmVlcmluZyB0b29scy9zZW5zb3IgZGV2ZWxvcG1lbnQgdG9vbHMvbWFnbmV0aWMgc2Vuc29yIGRldmVsb3BtZW50IHRvb2xzIn0%3d&Q_Language=GB
+          - generic [ref=f51e90]:
+            - generic [ref=f51e91]: 
+            - text: See an Error?
+      - generic [ref=f51e93]:
+        - generic [ref=f51e94]:
+          - generic [ref=f51e96]:
+            - heading "AS5X47U-TS_EK_AB" [level=1] [ref=f51e98]
+            - generic [ref=f51e99]:
+              - generic [ref=f51e100]:
+                - generic [ref=f51e101]:
+                  - img "Infineon Technologies" [ref=f51e103]
+                  - generic [ref=f51e105]:
+                    - button [ref=f51e108] [cursor=pointer]:
+                      - img "Infineon Technologies AS5X47U-TS_EK_AB Enlarged Image" [ref=f51e109]
+                      - generic [ref=f51e110]: 
+                    - generic [ref=f51e111]: Images are for reference onlySee Product Specifications
+                    - text: 
+                  - generic:
+                    - button "Share" [ref=f51e113] [cursor=pointer]:
+                      - emphasis [ref=f51e114]: 
+                      - text: Share
+                    - text:  
+                - generic [ref=f51e115]:
+                  - generic [ref=f51e116]:
+                    - generic [ref=f51e117]: "Mouser No:"
+                    - generic [ref=f51e119]: 985-AS5X47U-TS_EK_AB
+                  - generic [ref=f51e120]:
+                    - generic [ref=f51e121]: "Mfr. No:"
+                    - generic [ref=f51e123]: AS5X47U-TS_EK_AB
+                  - 'heading "Mfr.: Infineon Technologies" [level=2] [ref=f51e125]':
+                    - generic [ref=f51e126]: "Mfr.:"
+                    - link "Infineon Technologies" [ref=f51e129] [cursor=pointer]:
+                      - /url: https://eu.mouser.com/manufacturer/infineon/
+                  - generic [ref=f51e131]:
+                    - generic [ref=f51e132]: "Customer No:"
+                    - textbox "Customer No:" [ref=f51e136]:
+                      - /placeholder: Customer No
+                  - 'heading "Description: Magnetic Sensor Development Tools AS5047U/AS5147U Adapterboard" [level=2] [ref=f51e137]':
+                    - generic [ref=f51e138]: "Description:"
+                    - generic [ref=f51e140]: Magnetic Sensor Development Tools AS5047U/AS5147U Adapterboard
+                  - generic [ref=f51e142]:
+                    - generic [ref=f51e143]: "Datasheet:"
+                    - link "AS5X47U-TS_EK_AB Datasheet - Opens in a new window" [ref=f51e147] [cursor=pointer]:
+                      - /url: https://ams.com/documents/20143/36005/AS5x47U_UG000401_1-00.pdf/1afffc6c-fe59-2197-6350-5404aa5bace9
+                      - generic [ref=f51e148]: 
+                      - text: AS5X47U-TS_EK_AB Datasheet
+                  - generic [ref=f51e149]:
+                    - generic [ref=f51e150]: More Information
+                    - link "Learn more about Infineon Technologies AS5X47U-TS_EK_AB" [ref=f51e153] [cursor=pointer]:
+                      - /url: /new/ams-osram/ams-as5x47uts-adapter-board/
+              - generic [ref=f51e154]:
+                - generic [ref=f51e156]:
+                  - generic [ref=f51e159]:
+                    - checkbox "Compare Product" [ref=f51e160]
+                    - generic [ref=f51e161]: Compare Product
+                  - generic [ref=f51e162]:
+                    - button "Add To Project" [ref=f51e163] [cursor=pointer]
+                    - generic [ref=f51e164]: "|"
+                    - button "Add Notes" [ref=f51e165] [cursor=pointer]
+                - text:  
+          - generic [ref=f51e167]:
+            - 'heading "In Stock: 29" [level=2] [ref=f51e169]'
+            - generic [ref=f51e170]:
+              - generic [ref=f51e172]:
+                - generic [ref=f51e173]:
+                  - term [ref=f51e174]:
+                    - generic [ref=f51e175]: "Stock:"
+                  - definition [ref=f51e176]:
+                    - generic [ref=f51e177]: 29 Can Dispatch Immediately
+                - generic [ref=f51e178]:
+                  - term [ref=f51e179]:
+                    - generic [ref=f51e180]: "Factory Lead Time:"
+                  - definition [ref=f51e181]:
+                    - generic "Factory Lead Time:" [ref=f51e182]:
+                      - text: 5 Weeks
+                      - generic [ref=f51e183]:
+                        - generic [ref=f51e184]: Estimated factory production time for quantities greater than shown.
+                        - generic [ref=f51e185] [cursor=pointer]: 
+              - generic [ref=f51e189]:
+                - generic [ref=f51e190]: "Enter Quantity:"
+                - generic [ref=f51e193]: "Minimum: 1 Multiples: 1"
+                - generic [ref=f51e197]:
+                  - textbox "Enter Quantity:" [ref=f51e198]
+                  - button "Buy" [ref=f51e200] [cursor=pointer]
+              - heading "Pricing (EUR)" [level=2] [ref=f51e203]
+              - table [ref=f51e205]:
+                - rowgroup [ref=f51e206]:
+                  - row [ref=f51e207]:
+                    - columnheader "Qty." [ref=f51e208]
+                    - columnheader "Unit Price" [ref=f51e209]
+                    - columnheader "Extended Price" [ref=f51e210]:
+                      - generic [ref=f51e211]: Ext. Price
+                - rowgroup [ref=f51e212]:
+                  - row [ref=f51e213]:
+                    - rowheader [ref=f51e214]:
+                      - 'button "Set quantity to: 1" [ref=f51e215] [cursor=pointer]':
+                        - strong [ref=f51e216]: "1"
+                    - cell "14,33 €" [ref=f51e217]
+                    - cell "14,33 €" [ref=f51e218]
+            - text:  
+        - generic [ref=f51e220]:
+          - generic [ref=f51e222]:
+            - heading [level=2] [ref=f51e224]:
+              - button "Specifications " [expanded] [ref=f51e225] [cursor=pointer]
+            - generic [ref=f51e228]:
+              - generic:  
+              - table [ref=f51e230]:
+                - rowgroup [ref=f51e231]:
+                  - row [ref=f51e232]:
+                    - columnheader "Product Attribute" [ref=f51e233]
+                    - columnheader "Attribute Value" [ref=f51e234]
+                    - columnheader "Select Attribute" [ref=f51e235]
+                  - row [ref=f51e236]:
+                    - cell "Manufacturer:" [ref=f51e237]
+                    - cell "Infineon" [ref=f51e239]
+                    - cell [ref=f51e240]:
+                      - 'checkbox "Manufacturer: Infineon" [ref=f51e241]'
+                  - row [ref=f51e242]:
+                    - cell "Product Category:" [ref=f51e243]
+                    - cell "Magnetic Sensor Development Tools" [ref=f51e244]
+                    - cell [ref=f51e245]
+                  - row [ref=f51e246]:
+                    - cell "RoHS:" [ref=f51e247]
+                    - cell [ref=f51e248]:
+                      - generic [ref=f51e249]: 
+                      - button "More details about the Restriction of Hazardous Substances." [ref=f51e250] [cursor=pointer]: Details
+                    - cell [ref=f51e251]
+                  - row [ref=f51e252]:
+                    - cell "Product:" [ref=f51e253]
+                    - cell "Adapter Boards" [ref=f51e255]
+                    - cell [ref=f51e256]:
+                      - 'checkbox "Product: Adapter Boards" [ref=f51e257]'
+                  - row [ref=f51e258]:
+                    - cell "Type:" [ref=f51e259]
+                    - cell "Position Sensor" [ref=f51e261]
+                    - cell [ref=f51e262]:
+                      - 'checkbox "Type: Position Sensor" [ref=f51e263]'
+                  - row [ref=f51e264]:
+                    - cell "Tool Is For Evaluation Of:" [ref=f51e265]
+                    - cell "AS5047U, AS5147U" [ref=f51e267]
+                    - cell [ref=f51e268]:
+                      - 'checkbox "Tool Is For Evaluation Of: AS5047U, AS5147U" [ref=f51e269]'
+                  - row [ref=f51e270]:
+                    - cell "Brand:" [ref=f51e271]
+                    - cell "Infineon Technologies" [ref=f51e272]
+                    - cell [ref=f51e273]
+                  - row [ref=f51e274]:
+                    - cell "Product Type:" [ref=f51e275]
+                    - cell "Magnetic Sensor Development Tools" [ref=f51e276]
+                    - cell [ref=f51e277]
+                  - row [ref=f51e278]:
+                    - cell "Series:" [ref=f51e279]
+                    - cell [ref=f51e280]:
+                      - link "AS5x47U" [ref=f51e281] [cursor=pointer]:
+                        - /url: https://eu.mouser.com/c/embedded-solutions/engineering-tools/sensor-development-tools/magnetic-sensor-development-tools/?m=Infineon&series=AS5x47U
+                    - cell [ref=f51e282]
+                  - row [ref=f51e283]:
+                    - cell [ref=f51e284]:
+                      - button "Factory Pack Quantity" [ref=f51e285] [cursor=pointer]: "Factory Pack Quantity:"
+                    - cell "1" [ref=f51e286]
+                    - cell [ref=f51e287]
+                  - row [ref=f51e288]:
+                    - cell "Subcategory:" [ref=f51e289]
+                    - cell "Development Tools" [ref=f51e290]
+                    - cell [ref=f51e291]
+                  - row [ref=f51e292]:
+                    - 'cell "Part # Aliases:" [ref=f51e293]'
+                    - cell "990601019 Q65114A1479" [ref=f51e294]
+                    - cell [ref=f51e295]
+                  - row [ref=f51e296]:
+                    - cell "Unit Weight:" [ref=f51e297]
+                    - cell "12,327 g" [ref=f51e298]
+                    - cell [ref=f51e299]
+              - generic [ref=f51e300]:
+                - text:  
+                - generic [ref=f51e301]:
+                  - text: 
+                  - strong [ref=f51e302]: Select at least one checkbox above to show similar products in this category.
+                - generic [ref=f51e303]:
+                  - button "Show Similar" [disabled] [ref=f51e304]
+                  - strong [ref=f51e306]: "Attributes selected: 0"
+          - generic [ref=f51e308]:
+            - heading [level=2] [ref=f51e310]:
+              - button "Documents (1) " [expanded] [ref=f51e311] [cursor=pointer]
+            - generic [ref=f51e313]:
+              - generic [ref=f51e315]:
+                - generic [ref=f51e316]: "Filter Document:"
+                - combobox "Filter Document:" [ref=f51e320]:
+                  - option "Choose a document type" [selected]
+                  - option "Datasheet (1)"
+              - generic [ref=f51e322]:
+                - heading "Datasheet" [level=3] [ref=f51e325]
+                - list [ref=f51e328]:
+                  - listitem [ref=f51e329]:
+                    - link "AS5X47U-TS_EK_AB Datasheet - Opens in a new window" [ref=f51e330] [cursor=pointer]:
+                      - /url: https://ams.com/documents/20143/36005/AS5x47U_UG000401_1-00.pdf/1afffc6c-fe59-2197-6350-5404aa5bace9
+                      - generic [ref=f51e331]: 
+                      - text: AS5X47U-TS_EK_AB Datasheet
+          - generic [ref=f51e333]:
+            - heading [level=2] [ref=f51e335]:
+              - button "Product & Trade Compliance " [ref=f51e336] [cursor=pointer]
+            - text:   
+          - heading [level=2] [ref=f51e340]:
+            - button "More Information " [ref=f51e341] [cursor=pointer]
+          - heading [level=2] [ref=f51e345]:
+            - button "Customers Also Purchased " [expanded] [ref=f51e346] [cursor=pointer]
+      - generic: 
+      - text: 
+  - contentinfo [ref=f51e347]:
+    - generic [ref=f51e350]:
+      - generic [ref=f51e351]: Get the Latest News
+      - generic [ref=f51e353]:
+        - textbox "Enter your Email" [ref=f51e354]
+        - button "Subscribe" [ref=f51e356] [cursor=pointer]
+    - generic [ref=f51e358]:
+      - generic:  
+      - generic [ref=f51e359]:
+        - generic [ref=f51e360]:
+          - navigation "Customer Service Office" [ref=f51e362]:
+            - list [ref=f51e364]:
+              - listitem [ref=f51e365]:
+                - link "+49 (0)89 520 462 110" [ref=f51e366] [cursor=pointer]:
+                  - /url: tel:49089520462110
+                  - generic [ref=f51e367]: 
+                  - text: +49 (0)89 520 462 110
+              - listitem [ref=f51e368]:
+                - link "europe@mouser.com" [ref=f51e369] [cursor=pointer]:
+                  - /url: mailto:europe%40mouser.com
+                  - generic [ref=f51e370]: 
+                  - text: europe@mouser.com
+              - listitem [ref=f51e371]:
+                - link "Georg-Brauchle-Ring 53 80992 Munich Germany" [ref=f51e372] [cursor=pointer]:
+                  - /url: /contact/
+                  - generic [ref=f51e373]: 
+                  - text: Georg-Brauchle-Ring 5380992 MunichGermany
+              - listitem [ref=f51e374]:
+                - generic [ref=f51e375]:
+                  - link [ref=f51e376] [cursor=pointer]:
+                    - /url: /about-tti/
+                    - img "About TTI" [ref=f51e377]
+                  - generic [ref=f51e378]: Part of the TTIFamily of Specialists
+          - navigation "Company" [ref=f51e380]:
+            - list [ref=f51e382]:
+              - listitem [ref=f51e383]:
+                - link "About Us" [ref=f51e384] [cursor=pointer]:
+                  - /url: /aboutus/
+              - listitem [ref=f51e385]:
+                - link "Newsroom" [ref=f51e386] [cursor=pointer]:
+                  - /url: /newsroom/
+              - listitem [ref=f51e387]:
+                - link "Educational Sales" [ref=f51e388] [cursor=pointer]:
+                  - /url: /educationalsales/
+              - listitem [ref=f51e389]:
+                - link "Careers @ Mouser" [ref=f51e390] [cursor=pointer]:
+                  - /url: https://careers.mouser.com/
+              - listitem [ref=f51e391]:
+                - link "Quality" [ref=f51e392] [cursor=pointer]:
+                  - /url: /quality/
+              - listitem [ref=f51e393]:
+                - link "Environmental" [ref=f51e394] [cursor=pointer]:
+                  - /url: /environmental/
+              - listitem [ref=f51e395]:
+                - link "Corporate Social Responsibility" [ref=f51e396] [cursor=pointer]:
+                  - /url: /corporate-responsibility/
+          - navigation "Resources" [ref=f51e398]:
+            - list [ref=f51e400]:
+              - listitem [ref=f51e401]:
+                - link "Blog" [ref=f51e402] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=f51e403]:
+                - link "Newest Products" [ref=f51e404] [cursor=pointer]:
+                  - /url: /newest/
+              - listitem [ref=f51e405]:
+                - link "New Manufacturers" [ref=f51e406] [cursor=pointer]:
+                  - /url: /new-manufacturer/
+              - listitem [ref=f51e407]:
+                - link "Applications" [ref=f51e408] [cursor=pointer]:
+                  - /url: /applications/
+              - listitem [ref=f51e409]:
+                - link "Services & Tools" [ref=f51e410] [cursor=pointer]:
+                  - /url: /servicesandtools/
+          - navigation "Support" [ref=f51e412]:
+            - list [ref=f51e414]:
+              - listitem [ref=f51e415]:
+                - link "Contact Us" [ref=f51e416] [cursor=pointer]:
+                  - /url: /contact/
+              - listitem [ref=f51e417]:
+                - link "Help" [ref=f51e418] [cursor=pointer]:
+                  - /url: https://eu.mouser.com/help/
+              - listitem [ref=f51e419]:
+                - link "Feedback - opens in a new window" [ref=f51e420] [cursor=pointer]:
+                  - /url: https://eu.mouser.com/feedback/
+                  - generic [ref=f51e421]: 
+                  - text: Feedback
+              - listitem [ref=f51e422]:
+                - link "Browser Support" [ref=f51e423] [cursor=pointer]:
+                  - /url: /browsersupport/
+              - listitem [ref=f51e424]:
+                - link "Cookie Policy" [ref=f51e425] [cursor=pointer]:
+                  - /url: /cookie-policy/
+        - navigation "Connect with Us" [ref=f51e427]:
+          - list
+          - list [ref=f51e429]:
+            - listitem [ref=f51e430]:
+              - link "facebook" [ref=f51e431] [cursor=pointer]:
+                - /url: https://www.facebook.com/mouserelectronics
+                - generic [ref=f51e432]: 
+            - listitem [ref=f51e433]:
+              - link "Instagram" [ref=f51e434] [cursor=pointer]:
+                - /url: https://www.instagram.com/mouserelec/
+                - generic [ref=f51e435]: 
+            - listitem [ref=f51e436]:
+              - link "Twitter" [ref=f51e437] [cursor=pointer]:
+                - /url: https://www.x.com/mousereleceu
+                - generic [ref=f51e438]: 
+            - listitem [ref=f51e439]:
+              - link "RSS" [ref=f51e440] [cursor=pointer]:
+                - /url: /rssfeeds
+                - generic [ref=f51e441]: 
+            - listitem [ref=f51e442]:
+              - link "YouTube" [ref=f51e443] [cursor=pointer]:
+                - /url: https://www.youtube.com/mouserelec
+                - generic [ref=f51e444]: 
+            - listitem [ref=f51e445]:
+              - link "LinkedIn" [ref=f51e446] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/mouser-electronics/
+                - generic [ref=f51e447]: 
+            - listitem [ref=f51e448]:
+              - link "Subscription Centre" [ref=f51e449] [cursor=pointer]:
+                - /url: https://sub.info.mouser.com/subscriber-gb
+                - generic [ref=f51e450]: 
+            - listitem [ref=f51e451]:
+              - link "Mouser Blog" [ref=f51e452] [cursor=pointer]:
+                - /url: /blog
+                - generic [ref=f51e453]: 
+      - separator [ref=f51e454]
+      - generic [ref=f51e458]:
+        - list [ref=f51e459]:
+          - text: 
+          - listitem [ref=f51e460]:
+            - link "Privacy Centre" [ref=f51e461] [cursor=pointer]:
+              - /url: /privacypolicy/
+          - listitem [ref=f51e462]:
+            - link "Terms and Conditions" [ref=f51e463] [cursor=pointer]:
+              - /url: /saleterms
+          - listitem [ref=f51e464]:
+            - link "Accessibility" [ref=f51e465] [cursor=pointer]:
+              - /url: /accessibility/
+          - listitem [ref=f51e466]:
+            - link "Sitemap" [ref=f51e467] [cursor=pointer]:
+              - /url: /html-sitemap/
+        - paragraph [ref=f51e468]: Copyright ©2026 Mouser Electronics, Inc.
+        - paragraph [ref=f51e469]: Mouser® and Mouser Electronics® are trademarks of Mouser Electronics, Inc. in the U.S. and/or other countries. All other trademarks are the property of their respective owners. Corporate headquarters and logistics centre in Mansfield, Texas USA.
+  - log [ref=f51e473]

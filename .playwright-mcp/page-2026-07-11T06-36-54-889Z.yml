@@ -1,0 +1,780 @@
+- generic [active] [ref=f7e1]:
+  - generic [ref=f7e2]:
+    - navigation [ref=f7e3]:
+      - generic [ref=f7e4]:
+        - generic [ref=f7e5]:
+          - link [ref=f7e6] [cursor=pointer]:
+            - /url: ../index.html
+            - img "Logo" [ref=f7e7]
+          - search [ref=f7e8]:
+            - textbox "Search docs" [ref=f7e10]
+        - navigation "Navigation menu" [ref=f7e11]:
+          - heading "GUIDES" [ref=f7e12]
+          - list [ref=f7e13]:
+            - listitem [ref=f7e14]:
+              - link [ref=f7e15] [cursor=pointer]:
+                - /url: ../guides/getting-started.html
+                - button "" [ref=f7e16]
+                - text: Getting Started
+              - text: 
+            - listitem [ref=f7e17]:
+              - link [ref=f7e18] [cursor=pointer]:
+                - /url: ../guides/odrivetool-setup.html
+                - button "" [ref=f7e19]
+                - text: odrivetool Setup
+              - text:   
+            - listitem [ref=f7e20]:
+              - link [ref=f7e21] [cursor=pointer]:
+                - /url: ../guides/firmware-update.html
+                - button "" [ref=f7e22]
+                - text: Firmware Update
+              - text:  
+            - listitem [ref=f7e23]:
+              - link [ref=f7e24] [cursor=pointer]:
+                - /url: ../guides/legacy-dfu.html
+                - button "" [ref=f7e25]
+                - text: Legacy Firmware Update
+            - listitem [ref=f7e26]:
+              - link [ref=f7e27] [cursor=pointer]:
+                - /url: ../guides/tuning.html
+                - button "" [ref=f7e28]
+                - text: Tuning the Controller
+            - listitem [ref=f7e29]:
+              - link [ref=f7e30] [cursor=pointer]:
+                - /url: ../guides/can-guide.html
+                - button "" [ref=f7e31]
+                - text: CAN Bus Guide
+              - text:   
+            - listitem [ref=f7e32]:
+              - link [ref=f7e33] [cursor=pointer]:
+                - /url: ../guides/python-package.html
+                - button "" [ref=f7e34]
+                - text: Python Package
+              - text:          
+            - listitem [ref=f7e35]:
+              - link [ref=f7e36] [cursor=pointer]:
+                - /url: ../guides/arduino-uart-guide.html
+                - button "" [ref=f7e37]
+                - text: Arduino UART Guide
+              - text: 
+            - listitem [ref=f7e38]:
+              - link [ref=f7e39] [cursor=pointer]:
+                - /url: ../guides/arduino-can-guide.html
+                - button "" [ref=f7e40]
+                - text: Arduino CAN Guide
+              - text: 
+            - listitem [ref=f7e41]:
+              - link [ref=f7e42] [cursor=pointer]:
+                - /url: ../guides/ros-package.html
+                - button "" [ref=f7e43]
+                - text: ROS2 CAN Package
+            - listitem [ref=f7e44]:
+              - link [ref=f7e45] [cursor=pointer]:
+                - /url: ../guides/applications.html
+                - button "" [ref=f7e46]
+                - text: Common Applications
+            - listitem [ref=f7e47]:
+              - link [ref=f7e48] [cursor=pointer]:
+                - /url: ../guides/anticogging.html
+                - button "" [ref=f7e49]
+                - text: Anticogging
+            - listitem [ref=f7e50]:
+              - link [ref=f7e51] [cursor=pointer]:
+                - /url: ../guides/s1-kit.html
+                - button "" [ref=f7e52]
+                - text: S1 M8325S Kit Build Guide
+              - text: 
+            - listitem [ref=f7e53]:
+              - link [ref=f7e54] [cursor=pointer]:
+                - /url: ../guides/botwheel-explorer.html
+                - button "" [ref=f7e55]
+                - text: BotWheel Explorer
+          - heading "HARDWARE" [ref=f7e56]
+          - list [ref=f7e57]:
+            - listitem [ref=f7e58]:
+              - link [ref=f7e59] [cursor=pointer]:
+                - /url: ../hardware.html
+                - button "" [ref=f7e60]
+                - text: Supported Motors/Encoders
+              - text: 
+            - listitem [ref=f7e61]:
+              - link [ref=f7e62] [cursor=pointer]:
+                - /url: ../hardware/pro-datasheet.html
+                - button "" [ref=f7e63]
+                - text: ODrive Pro Datasheet
+              - text:  
+            - listitem [ref=f7e64]:
+              - link [ref=f7e65] [cursor=pointer]:
+                - /url: ../hardware/s1-datasheet.html
+                - button "" [ref=f7e66]
+                - text: ODrive S1 Datasheet
+              - text:  
+            - listitem [ref=f7e67]:
+              - link [ref=f7e68] [cursor=pointer]:
+                - /url: ../hardware/micro-datasheet.html
+                - button "" [ref=f7e69]
+                - text: ODrive Micro Datasheet
+              - text:  
+            - listitem [ref=f7e70]:
+              - link [ref=f7e71] [cursor=pointer]:
+                - /url: ../hardware/oa1-datasheet.html
+                - button "" [ref=f7e72]
+                - text: ODrive OA1 Datasheet
+              - text: 
+            - listitem [ref=f7e73]:
+              - link [ref=f7e74] [cursor=pointer]:
+                - /url: ../hardware/regen-clamp-datasheet.html
+                - button "" [ref=f7e75]
+                - text: ODrive Regen Clamp Datasheet
+              - text:   
+            - listitem [ref=f7e76]:
+              - link [ref=f7e77] [cursor=pointer]:
+                - /url: ../hardware/usb-can-datasheet.html
+                - button "" [ref=f7e78]
+                - text: ODrive USB-CAN Adapter Datasheet
+              - text: 
+            - listitem [ref=f7e79]:
+              - link [ref=f7e80] [cursor=pointer]:
+                - /url: ../hardware/odrive-comparison.html
+                - button "" [ref=f7e81]
+                - text: ODrive Comparison Table
+            - listitem [ref=f7e82]:
+              - link [ref=f7e83] [cursor=pointer]:
+                - /url: ../hardware/odrive-motors.html
+                - button "" [ref=f7e84]
+                - text: ODrive Motors
+              - text: 
+          - heading "MANUAL" [ref=f7e85]
+          - list [ref=f7e86]:
+            - listitem [ref=f7e87]:
+              - link [ref=f7e88] [cursor=pointer]:
+                - /url: ../manual/overview.html
+                - button "" [ref=f7e89]
+                - text: ODrive Overview
+              - text:    
+            - listitem [ref=f7e90]:
+              - link [ref=f7e91] [cursor=pointer]:
+                - /url: ../manual/hardware-config.html
+                - button "" [ref=f7e92]
+                - text: Hardware Configuration
+              - text:     
+            - listitem [ref=f7e93]:
+              - link [ref=f7e94] [cursor=pointer]:
+                - /url: ../manual/control.html
+                - button "" [ref=f7e95]
+                - text: Controller
+              - text:    
+            - listitem [ref=f7e96]:
+              - link [ref=f7e97] [cursor=pointer]:
+                - /url: ../manual/application-interfaces.html
+                - button "" [ref=f7e98]
+                - text: Application Interfaces
+              - text:                  
+          - list [ref=f7e99]:
+            - listitem [ref=f7e100]:
+              - link [ref=f7e101] [cursor=pointer]:
+                - /url: ../fibre_types/com_odriverobotics_ODrive.html
+                - button "" [ref=f7e102]
+                - text: ODrive API Reference
+              - text:                                                                                     
+          - heading "USER INTERFACES" [ref=f7e103]
+          - list [ref=f7e104]:
+            - listitem [ref=f7e105]:
+              - link [ref=f7e106] [cursor=pointer]:
+                - /url: ../interfaces/odrivetool.html
+                - button "" [ref=f7e107]
+                - code [ref=f7e108]: odrivetool
+              - text:   
+            - listitem [ref=f7e109]:
+              - link [ref=f7e110] [cursor=pointer]:
+                - /url: ../interfaces/gui.html
+                - button "" [ref=f7e111]
+                - text: Web GUI
+              - text: 
+          - heading "TROUBLESHOOTING" [ref=f7e112]
+          - list [ref=f7e113]:
+            - listitem [ref=f7e114]:
+              - link [ref=f7e115] [cursor=pointer]:
+                - /url: ../troubleshooting/troubleshooting.html
+                - button "" [ref=f7e116]
+                - text: Error Codes
+            - listitem [ref=f7e117]:
+              - link [ref=f7e118] [cursor=pointer]:
+                - /url: ../troubleshooting/troubleshooting.html#usb-connectivity-issues
+                - button "" [ref=f7e119]
+                - text: USB Connectivity Issues
+            - listitem [ref=f7e120]:
+              - link "Encoder Noise" [ref=f7e121] [cursor=pointer]:
+                - /url: ../troubleshooting/troubleshooting.html#encoder-noise
+            - listitem [ref=f7e122]:
+              - link "Miscellaneous" [ref=f7e123] [cursor=pointer]:
+                - /url: ../troubleshooting/troubleshooting.html#miscellaneous
+            - listitem [ref=f7e124]:
+              - link "Disable Browser Notifications" [ref=f7e125] [cursor=pointer]:
+                - /url: ../troubleshooting/troubleshooting.html#disable-browser-notifications
+          - heading "ARTICLES" [ref=f7e126]
+          - list [ref=f7e127]:
+            - listitem [ref=f7e128]:
+              - link [ref=f7e129] [cursor=pointer]:
+                - /url: component-selection.html
+                - button "" [ref=f7e130]
+                - text: Component Selection
+              - text:  
+            - listitem [ref=f7e131]:
+              - link [ref=f7e132] [cursor=pointer]:
+                - /url: ground-loops.html
+                - button "" [ref=f7e133]
+                - text: Ground Loops
+              - text: 
+            - listitem [ref=f7e134]:
+              - link [expanded] [ref=f7e135] [cursor=pointer]:
+                - /url: "#"
+                - button "" [ref=f7e136]
+                - text: Magnetic Encoders
+              - list [ref=f7e137]:
+                - listitem [ref=f7e138]:
+                  - link "Overview" [ref=f7e139] [cursor=pointer]:
+                    - /url: "#overview"
+                - listitem [ref=f7e140]:
+                  - link "Quick Reference:" [ref=f7e141] [cursor=pointer]:
+                    - /url: "#quick-reference"
+                - listitem [ref=f7e142]:
+                  - link [ref=f7e143] [cursor=pointer]:
+                    - /url: "#primer"
+                    - button "" [ref=f7e144]
+                    - text: Primer
+                - listitem [ref=f7e145]:
+                  - link [ref=f7e146] [cursor=pointer]:
+                    - /url: "#design-consideration"
+                    - button "" [ref=f7e147]
+                    - text: Design Consideration
+                - listitem [ref=f7e148]:
+                  - link [ref=f7e149] [cursor=pointer]:
+                    - /url: "#installation"
+                    - button "" [ref=f7e150]
+                    - text: Installation
+                - listitem [ref=f7e151]:
+                  - link [ref=f7e152] [cursor=pointer]:
+                    - /url: "#validation"
+                    - button "" [ref=f7e153]
+                    - text: Validation
+                - listitem [ref=f7e154]:
+                  - link "Mounting Examples and Pitfalls" [ref=f7e155] [cursor=pointer]:
+                    - /url: "#mounting-examples-and-pitfalls"
+                - listitem [ref=f7e156]:
+                  - link "Resources" [ref=f7e157] [cursor=pointer]:
+                    - /url: "#resources"
+            - listitem [ref=f7e158]:
+              - link [ref=f7e159] [cursor=pointer]:
+                - /url: motor-parameters.html
+                - button "" [ref=f7e160]
+                - text: Motor Calibration Parameters
+              - text:  
+          - heading "CHANGELOG" [ref=f7e161]
+          - list [ref=f7e162]:
+            - listitem [ref=f7e163]:
+              - link [ref=f7e164] [cursor=pointer]:
+                - /url: ../changelog.html
+                - button "" [ref=f7e165]
+                - text: CHANGELOG
+              - text:                
+    - generic [ref=f7e166]:
+      - link "This documentation is for current-generation ODrives. For ODrive v3.6 see here." [ref=f7e502] [cursor=pointer]:
+        - /url: https://docs.odriverobotics.com/v/0.5.6/
+      - link "Click here to try our web GUI!" [ref=f7e504] [cursor=pointer]:
+        - /url: https://gui.odriverobotics.com/
+      - text: 
+      - generic [ref=f7e168]:
+        - navigation "Page navigation" [ref=f7e169]:
+          - list [ref=f7e170]:
+            - listitem [ref=f7e171]:
+              - link "Home" [ref=f7e172] [cursor=pointer]:
+                - /url: ../index.html
+                - text: 
+            - listitem [ref=f7e173]: /Designing for Magnetic Encoders
+            - listitem
+          - separator [ref=f7e174]
+        - main [ref=f7e175]:
+          - generic [ref=f7e177]:
+            - heading [level=1] [ref=f7e178]:
+              - text: Designing for Magnetic Encoders
+              - link "" [ref=f7e179] [cursor=pointer]:
+                - /url: "#designing-for-magnetic-encoders"
+            - navigation [ref=f7e180]:
+              - list [ref=f7e181]:
+                - listitem [ref=f7e182]:
+                  - paragraph [ref=f7e183]:
+                    - link "Overview" [ref=f7e184] [cursor=pointer]:
+                      - /url: "#overview"
+                - listitem [ref=f7e185]:
+                  - paragraph [ref=f7e186]:
+                    - link "Quick Reference:" [ref=f7e187] [cursor=pointer]:
+                      - /url: "#quick-reference"
+                - listitem [ref=f7e188]:
+                  - paragraph [ref=f7e189]:
+                    - link "Primer" [ref=f7e190] [cursor=pointer]:
+                      - /url: "#primer"
+                  - list [ref=f7e191]:
+                    - listitem [ref=f7e192]:
+                      - paragraph [ref=f7e193]:
+                        - link "What are we working with?" [ref=f7e194] [cursor=pointer]:
+                          - /url: "#what-are-we-working-with"
+                    - listitem [ref=f7e195]:
+                      - paragraph [ref=f7e196]:
+                        - link "Basic Theory" [ref=f7e197] [cursor=pointer]:
+                          - /url: "#basic-theory"
+                - listitem [ref=f7e198]:
+                  - paragraph [ref=f7e199]:
+                    - link "Design Consideration" [ref=f7e200] [cursor=pointer]:
+                      - /url: "#design-consideration"
+                  - list [ref=f7e201]:
+                    - listitem [ref=f7e202]:
+                      - paragraph [ref=f7e203]:
+                        - link "Magnet Choice" [ref=f7e204] [cursor=pointer]:
+                          - /url: "#magnet-choice"
+                    - listitem [ref=f7e205]:
+                      - paragraph [ref=f7e206]:
+                        - link "Magnet Mounting" [ref=f7e207] [cursor=pointer]:
+                          - /url: "#magnet-mounting"
+                    - listitem [ref=f7e208]:
+                      - paragraph [ref=f7e209]:
+                        - link "Materials" [ref=f7e210] [cursor=pointer]:
+                          - /url: "#materials"
+                    - listitem [ref=f7e211]:
+                      - paragraph [ref=f7e212]:
+                        - link "Alignment" [ref=f7e213] [cursor=pointer]:
+                          - /url: "#alignment"
+                - listitem [ref=f7e214]:
+                  - paragraph [ref=f7e215]:
+                    - link "Installation" [ref=f7e216] [cursor=pointer]:
+                      - /url: "#installation"
+                  - list [ref=f7e217]:
+                    - listitem [ref=f7e218]:
+                      - paragraph [ref=f7e219]:
+                        - link "Harmonic Compensation" [ref=f7e220] [cursor=pointer]:
+                          - /url: "#harmonic-compensation"
+                - listitem [ref=f7e221]:
+                  - paragraph [ref=f7e222]:
+                    - link "Validation" [ref=f7e223] [cursor=pointer]:
+                      - /url: "#validation"
+                  - list [ref=f7e224]:
+                    - listitem [ref=f7e225]:
+                      - paragraph [ref=f7e226]:
+                        - link "S1/Pro/Micro" [ref=f7e227] [cursor=pointer]:
+                          - /url: "#s1-pro-micro"
+                    - listitem [ref=f7e228]:
+                      - paragraph [ref=f7e229]:
+                        - link "OA1" [ref=f7e230] [cursor=pointer]:
+                          - /url: "#oa1"
+                - listitem [ref=f7e231]:
+                  - paragraph [ref=f7e232]:
+                    - link "Mounting Examples and Pitfalls" [ref=f7e233] [cursor=pointer]:
+                      - /url: "#mounting-examples-and-pitfalls"
+                - listitem [ref=f7e234]:
+                  - paragraph [ref=f7e235]:
+                    - link "Resources" [ref=f7e236] [cursor=pointer]:
+                      - /url: "#resources"
+            - generic [ref=f7e237]:
+              - heading [level=2] [ref=f7e238]:
+                - link "Overview" [ref=f7e239] [cursor=pointer]:
+                  - /url: "#id7"
+                - link "" [ref=f7e240] [cursor=pointer]:
+                  - /url: "#overview"
+              - paragraph [ref=f7e241]: Magnetic encoders are one type of sensor that can be used to design and operate responsive and effective mechanisms.
+              - paragraph [ref=f7e242]:
+                - text: Nearly any brushless system seeking to achieve precise position, velocity, or torque control needs an encoder of some sort. The ODrive supports a
+                - link "wide variety" [ref=f7e243] [cursor=pointer]:
+                  - /url: ../hardware.html#supported-encoders
+                - text: of encoders, and magnetic encoders are frequently a go-to choice for their low cost, ease of use, and absolute positioning. However, magnetic encoders come with a set of design considerations and constraints that must be respected to produce an accurate, reliable system.
+              - paragraph [ref=f7e244]: Let’s review some best practices and common pitfalls when using a magnetic encoder with your ODrive, and how to design the best system possible.
+            - generic [ref=f7e245]:
+              - heading [level=2] [ref=f7e246]:
+                - link "Quick Reference:" [ref=f7e247] [cursor=pointer]:
+                  - /url: "#id8"
+                - link "" [ref=f7e248] [cursor=pointer]:
+                  - /url: "#quick-reference"
+              - list [ref=f7e249]:
+                - listitem [ref=f7e250]:
+                  - paragraph [ref=f7e251]:
+                    - strong [ref=f7e252]: "Magnet type:"
+                    - text: Diametrically polarized neodymium, grade N42 or higher (N45SH recommended).
+                - listitem [ref=f7e253]:
+                  - paragraph [ref=f7e254]:
+                    - strong [ref=f7e255]: "Spacing:"
+                    - text: Typical 0.5–3mm spacing between magnet and encoder IC.
+                - listitem [ref=f7e256]:
+                  - paragraph [ref=f7e257]:
+                    - strong [ref=f7e258]: "Alignment tolerance:"
+                    - text: Maximum recommended misalignment of ±0.5mm. Magnet and encoder IC surfaces must remain parallel.
+                - listitem [ref=f7e259]:
+                  - paragraph [ref=f7e260]:
+                    - strong [ref=f7e261]: "Mounting methods:"
+                    - text: Securely press-fit, clamp, or glue magnets to the motor shaft. Ensure ±0.5mm alignment between magnet and shaft.
+                - listitem [ref=f7e262]:
+                  - paragraph [ref=f7e263]:
+                    - strong [ref=f7e264]: "Materials:"
+                    - text: Avoid ferromagnetic materials within 2mm of the encoder. Ferromagnetic magnet holders must be used with a stronger/thicker magnet.
+                - listitem [ref=f7e265]:
+                  - paragraph [ref=f7e266]:
+                    - strong [ref=f7e267]: "Validation:"
+                    - link [ref=f7e268] [cursor=pointer]:
+                      - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.OnboardEncoder.get_field_strength
+                      - code [ref=f7e269]: <odrv>.onboard_encoder0.get_field_strength()
+                    - text: should return ≥ 0.045 when using an ODrive’s onboard magnetic encoder. The OA1 encoder uses a green LED to indicate sufficient field strength.
+                - listitem [ref=f7e270]:
+                  - paragraph [ref=f7e271]:
+                    - strong [ref=f7e272]: "Harmonic compensation:"
+                    - text: Consider using harmonic compensation if experiencing current or velocity ripple proportional to motor speed.
+            - generic [ref=f7e273]:
+              - heading [level=2] [ref=f7e274]:
+                - link "Primer" [ref=f7e275] [cursor=pointer]:
+                  - /url: "#id9"
+                - link "" [ref=f7e276] [cursor=pointer]:
+                  - /url: "#primer"
+              - generic [ref=f7e277]:
+                - heading [level=3] [ref=f7e278]:
+                  - link "What are we working with?" [ref=f7e279] [cursor=pointer]:
+                    - /url: "#id10"
+                  - link "" [ref=f7e280] [cursor=pointer]:
+                    - /url: "#what-are-we-working-with"
+                - paragraph [ref=f7e281]:
+                  - text: The
+                  - link "ODrive S1" [ref=f7e282] [cursor=pointer]:
+                    - /url: ../hardware/s1-datasheet.html
+                  - text: ","
+                  - link "ODrive Pro" [ref=f7e283] [cursor=pointer]:
+                    - /url: ../hardware/pro-datasheet.html
+                  - text: ", and"
+                  - link "ODrive Micro" [ref=f7e284] [cursor=pointer]:
+                    - /url: ../hardware/micro-datasheet.html
+                  - text: have a built-in
+                  - link "MPS MA702" [ref=f7e285] [cursor=pointer]:
+                    - /url: https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MA702GQ-Z/document_id/3561/
+                  - text: absolute angle encoder. With a properly designed mounting solution, this can save the cost and space of a discrete external encoder.
+                - figure [ref=f7e286]:
+                  - link [ref=f7e287] [cursor=pointer]:
+                    - /url: ../_images/store-photo-side.jpg
+                    - img "Side-view photo of an ODrive S1 mounted to a M8325S motor. The magnetic encoder is robustly protected between the two for high performance control." [ref=f7e288]
+                  - paragraph [ref=f7e290]:
+                    - generic [ref=f7e291]:
+                      - text: ODrive S1 mounted to a M8325S motor. The magnetic encoder is robustly protected between the two for high performance control, both fixed to a
+                      - link "motor mounting plate" [ref=f7e292] [cursor=pointer]:
+                        - /url: https://shop.odriverobotics.com/collections/accessories/products/pancake-motor-plate
+                      - text: .
+                    - link "" [ref=f7e293] [cursor=pointer]:
+                      - /url: "#id2"
+                - paragraph [ref=f7e294]:
+                  - text: If you need to mount your ODrive somewhere else, the
+                  - link "ODrive OA1" [ref=f7e295] [cursor=pointer]:
+                    - /url: ../hardware/oa1-datasheet.html
+                  - text: contains the same magnetic encoder as the S1, Pro, and Micro, connected to a high-reliabity RS485 interface, helping bring the advantages of a magnetic encoder to any system.
+                - paragraph [ref=f7e296]: Note that while all the guidelines and points raised below are true of the specific sensor we’re utilizing, much of the theory also applies to other magnetic encoders.
+              - generic [ref=f7e297]:
+                - heading [level=3] [ref=f7e298]:
+                  - link "Basic Theory" [ref=f7e299] [cursor=pointer]:
+                    - /url: "#id11"
+                  - link "" [ref=f7e300] [cursor=pointer]:
+                    - /url: "#basic-theory"
+                - paragraph [ref=f7e301]:
+                  - text: Magnetic encoders sense, well, magnets! Specifically, they sense a
+                  - strong [ref=f7e302]: rotating magnetic field
+                  - text: ", using two or more hall sensors — specialized sensors that can measure a magnetic field strength — to determine the orientation of the field."
+                - figure [ref=f7e303]:
+                  - link [ref=f7e304] [cursor=pointer]:
+                    - /url: ../_images/ref_spinner.svg
+                    - img "Working principle of a magnetic encoder, showing a motor shaft with a magnet attached over a magnetic angle sensor" [ref=f7e305]
+                - paragraph [ref=f7e306]: Each hall sensor is oriented in a specific direction, and measures the strength of the magnetic field along that direction. As the magnet rotates, the strength of the field in each direction changes, and with some trigonometry (helpfully computed onboard the sensor), the absolute angle can be determined.
+            - generic [ref=f7e307]:
+              - heading [level=2] [ref=f7e308]:
+                - link "Design Consideration" [ref=f7e309] [cursor=pointer]:
+                  - /url: "#id12"
+                - link "" [ref=f7e310] [cursor=pointer]:
+                  - /url: "#design-consideration"
+              - generic [ref=f7e311]:
+                - heading [level=3] [ref=f7e312]:
+                  - link "Magnet Choice" [ref=f7e313] [cursor=pointer]:
+                    - /url: "#id13"
+                  - link "" [ref=f7e314] [cursor=pointer]:
+                    - /url: "#magnet-choice"
+                - paragraph [ref=f7e315]:
+                  - text: When choosing a magnet for use, all magnetic encoders require the use of a
+                  - strong [ref=f7e316]: diametrically polarized
+                  - text: magnet. While typical (“axially polarized”) magnets have their poles oriented at the top and bottom of the magnet, diametrically polarized magnets have a field oriented perpendicular to the magnet’s cylindrical axis. This orientation ensures the magnetic field rotates along with the magnet, enabling accurate angle measurement. Otherwise, the magnetic field wouldn’t change as the magnet rotates, so there wouldn’t be anything for the sensor to measure!
+                - figure [ref=f7e317]:
+                  - link [ref=f7e318] [cursor=pointer]:
+                    - /url: ../_images/magnet_needed_axial_polar.svg
+                    - img "Figure showing the way a diametrically polarized magnet is aligned, and how the magnetic poles are generally expected to behave." [ref=f7e319]
+                - paragraph [ref=f7e320]:
+                  - text: We like the magnets
+                  - link "on our store" [ref=f7e321] [cursor=pointer]:
+                    - /url: https://shop.odriverobotics.com/products/set-of-5-encoder-magnets
+                  - text: — they’re strong, high quality, and tolerant of temperatures up to 120°C. However, similar magnets in different sizes can be obtained from
+                  - link "DigiKey" [ref=f7e322] [cursor=pointer]:
+                    - /url: https://www.digikey.com/short/v7m0nt22
+                  - text: ","
+                  - link "McMaster-Carr" [ref=f7e323] [cursor=pointer]:
+                    - /url: https://www.mcmaster.com/products/magnets/magnets-1~/neodymium-magnets-7/direction-of-magnetization~through-diameter/magnet-grade~n52/
+                  - text: ", and many other places. Ensure your magnet is high-grade neodymium — we recommend grades of N42 or above."
+                - generic [ref=f7e324]:
+                  - paragraph [ref=f7e325]:  Tip
+                  - paragraph [ref=f7e326]: A suffix of -SH (such as N45SH) means the magnet can operate at a higher temperature — typically up to 120°C — as opposed to 80°C for normal magnets. This can make all the difference when bonded to a motor shaft that’ll get hot!
+              - separator [ref=f7e327]
+              - generic [ref=f7e328]:
+                - heading [level=3] [ref=f7e329]:
+                  - link "Magnet Mounting" [ref=f7e330] [cursor=pointer]:
+                    - /url: "#id14"
+                  - link "" [ref=f7e331] [cursor=pointer]:
+                    - /url: "#magnet-mounting"
+                - paragraph [ref=f7e332]:
+                  - text: It’s critical that your encoder magnet is coupled securely to the motor shaft. For proper, safe motor control, the ODrive relies on an accurate, reliable measurement of the motor’s shaft angle — incorrect measurements can lead to everything from poor control, to
+                  - link "spinout errors" [ref=f7e333] [cursor=pointer]:
+                    - /url: ../manual/control.html#spinout
+                  - text: ", to erratic behavior and damage. Your magnet should be press-fit, clamped, or glued to a magnet holder and/or motor shaft with a strength to ensure that even rapid motor movements won’t lead to any slippage whatsoever — a loose magnet holder is a fast track to frustrating errors and poor performance."
+                - paragraph [ref=f7e334]:
+                  - text: As a general rule of thumb, you can aim for a 0.5-3mm distance between your magnet and the magnetic encoder sensor on the ODrive or OA1. While the magnets sold
+                  - link "on the ODrive shop" [ref=f7e335] [cursor=pointer]:
+                    - /url: https://shop.odriverobotics.com/products/set-of-5-encoder-magnets
+                  - text: are strong enough to enable direct mounting to a ferromagnetic shaft or magnet holder/sleeve (with 2-3mm of stickout), not all magnets will be. If direct contact with a motor shaft produces a weak field or inconsistent sensing, a non-magnetic (e.g. aluminum, plastic, brass, etc) spacer or shim may be necessary.
+                - figure [ref=f7e336]:
+                  - link [ref=f7e337] [cursor=pointer]:
+                    - /url: ../_images/mag-encoder-spacing.svg
+                    - img "Enlarged figure of the spacing required of the magnet and the IC reading it's field strength respectively. The numbers between the top surface of the IC and the opposite surface of the magnet as sold by ODrive is between 0.5mm and 3.0mm per alternate information." [ref=f7e338]
+                  - paragraph [ref=f7e340]:
+                    - text: The spacing between the top surface of the IC and the close face of the magnet suggested should be between 0.5 and 3.0mm in most situations.
+                    - link "" [ref=f7e341] [cursor=pointer]:
+                      - /url: "#id3"
+                - generic [ref=f7e342]:
+                  - paragraph [ref=f7e343]:  Tip
+                  - paragraph [ref=f7e344]:
+                    - text: For more information on magnet spacing with an OA1 specifically, please see the appropriate
+                    - link "Magnet Mounting" [ref=f7e345] [cursor=pointer]:
+                      - /url: ../hardware/oa1-datasheet.html#oa1-mag-mounting
+                    - text: section.
+              - generic [ref=f7e346]:
+                - heading [level=3] [ref=f7e347]:
+                  - link "Materials" [ref=f7e348] [cursor=pointer]:
+                    - /url: "#id15"
+                  - link "" [ref=f7e349] [cursor=pointer]:
+                    - /url: "#materials"
+                - paragraph [ref=f7e350]: When designing a system that utilizes a magnetic encoder, materials selection can also come into consideration. Ferromagnetic materials (such as iron, steel, and some stainless steel alloys) will attenuate or distort the magnetic field.
+                - paragraph [ref=f7e351]:
+                  - text: It is
+                  - strong [ref=f7e352]: strongly
+                  - text: suggested that your magnet has at least 2-3mm of stickout if using a ferromagnetic magnet holder to retain full field strength.
+                - paragraph [ref=f7e353]: Generally, any plastic (ABS, PLA, PETG, Nylon, etc) will not be ferromagnetic, as well as metals such as aluminum, copper, brass, and certain alloys of stainless steel (notably 304 and 316).
+                - generic [ref=f7e354]:
+                  - paragraph [ref=f7e355]:  Tip
+                  - paragraph [ref=f7e356]: Use of a 3D printed design can remove the possibility of ferromagnetic interference, as thermoplastics are not generally ferromagnetic.
+                - figure [ref=f7e357]:
+                  - link [ref=f7e358] [cursor=pointer]:
+                    - /url: ../_images/mag-encoder-spacing.jpg
+                    - img "Detail photo showing the spacing of a magnet set up correctly for use with an OA1." [ref=f7e359]
+                  - paragraph [ref=f7e361]:
+                    - text: Detail photo showing magnet installation on the shaft of a motor, glued into a 3D printed magnet coupler. Note the spacing between the magnet and OA1. Click to enlarge.
+                    - link "" [ref=f7e362] [cursor=pointer]:
+                      - /url: "#id4"
+                - paragraph [ref=f7e363]: Additionally, presence of ferromagnetic materials within a roughly 2mm radius of the encoder can disort the magnetic field and cause poor performance; ensure sufficient space exists in your design to minimize this risk. This 2mm radius applies to both horizontal and vertical spacing.
+              - generic [ref=f7e364]:
+                - heading [level=3] [ref=f7e365]:
+                  - link "Alignment" [ref=f7e366] [cursor=pointer]:
+                    - /url: "#id16"
+                  - link "" [ref=f7e367] [cursor=pointer]:
+                    - /url: "#alignment"
+                - paragraph [ref=f7e368]: Magnetic encoders rely on precise alignment between the magnet, motor shaft, and encoder IC. Typically, the total misalignment between the encoder, magnet, and shaft should be kept under +/- 0.5mm. Additionally, the magnet (and motor shaft) must be perpendicular to the surface of the encoder IC.
+                - generic [ref=f7e369]:
+                  - term [ref=f7e370]: "Overall, make sure that:"
+                  - definition [ref=f7e371]:
+                    - list [ref=f7e372]:
+                      - listitem [ref=f7e373]:
+                        - paragraph [ref=f7e374]: The surface of the IC and of the magnet are parallel to one another.
+                      - listitem [ref=f7e375]:
+                        - paragraph [ref=f7e376]: The center of rotation of all three items are along the same axis.
+                - generic [ref=f7e377]:
+                  - paragraph [ref=f7e378]:  Caution
+                  - paragraph [ref=f7e379]: Common pitfalls include when a user “eyeballs” the ODrive or OA1 mounting, produces a 3D printed part with loose tolerances, or has a weak/flexible mounting bracket.
+                  - paragraph [ref=f7e380]: Any and all of the above severely effect the encoder performance.
+                - paragraph [ref=f7e381]:
+                  - text: A common symptom of poor alignment is
+                  - code [ref=f7e382]: POLE_PAIR_CPR_MISMATCH
+                  - text: errors, or a high amount of velocity ripple as the motor is spinning, manifesting in audible noise and vibration.
+                - paragraph [ref=f7e383]: Below are two (exaggerated) examples of common errors, showing a skewed shaft/magnet (Fig. A), and a magnetic encoder IC mounted off-center to the shaft/magnet (Fig. B).
+                - figure [ref=f7e384]:
+                  - img "Side profile examples of two setups, figure A depicting off-axis rotation skewed to the plane defined by the two surfaces, and figure B depicting the plane being parallel but the rotation not aligned to the same axis." [ref=f7e385]
+                  - paragraph [ref=f7e387]:
+                    - generic [ref=f7e388]:
+                      - text: Your setup should
+                      - emphasis [ref=f7e389]: NOT
+                      - text: resemble either of the above depicted scenarios.
+                    - link "" [ref=f7e390] [cursor=pointer]:
+                      - /url: "#id5"
+            - generic [ref=f7e391]:
+              - heading [level=2] [ref=f7e392]:
+                - link "Installation" [ref=f7e393] [cursor=pointer]:
+                  - /url: "#id17"
+                - link "" [ref=f7e394] [cursor=pointer]:
+                  - /url: "#installation"
+              - paragraph [ref=f7e395]: Generally, a 3D printed or simple machined coupler with the help of superglue, epoxy, or red Loctite can be used in many scenarios for an easy mounting solution. Press-fit couplers are economical at scale, but require proper tolerancing and machining for a robust interferance fit. Careful that an apparently secure friction fit does not accidentally cause magnet slippage over time. When in doubt, add some glue!
+              - figure [ref=f7e396]:
+                - link [ref=f7e397] [cursor=pointer]:
+                  - /url: ../_images/mag-encoder-spacer.svg
+                  - img "Enlarged side-profile figure depicting how a printed jig might be used to secure the magnet to the shaft without relying strictly on friction." [ref=f7e398]
+                - paragraph [ref=f7e400]:
+                  - text: Two styles of magnet coupler to keep the magnet rigidly secured and coaxial to the shaft.
+                  - link "" [ref=f7e401] [cursor=pointer]:
+                    - /url: "#id6"
+              - generic [ref=f7e402]:
+                - paragraph [ref=f7e403]:  Tip
+                - paragraph [ref=f7e404]: In applications with tight radial space constraints, the magnet can be glued directly to the end of the motor shaft, with no surrounding coupler. However, in these situations it’s critical that a precise alignment jig is used during assembly and gluing to ensure proper magnet alignment and spacing.
+              - generic [ref=f7e405]:
+                - paragraph [ref=f7e406]:  Caution
+                - paragraph [ref=f7e407]: Changes in ODrive mounting or magnet rotation relative to the motor shaft will invalidate any encoder calibration results produced prior.
+              - generic [ref=f7e408]:
+                - heading [level=3] [ref=f7e409]:
+                  - link "Harmonic Compensation" [ref=f7e410] [cursor=pointer]:
+                    - /url: "#id18"
+                  - link "" [ref=f7e411] [cursor=pointer]:
+                    - /url: "#harmonic-compensation"
+                - paragraph [ref=f7e412]:
+                  - text: Of course, the real world isn’t perfect, and tolerance stackups can quickly exceed the +/- 0.5mm recommended magnet mounting error. The ODrive has an experimental
+                  - link "harmonic compensation." [ref=f7e413] [cursor=pointer]:
+                    - /url: ../manual/hardware-config.html#harmonic-compensation
+                  - text: feature that automatically measures and corrects for magnet mounting error and misalignment. Use harmonic compensation if experiencing minor but persistent misalignment-induced velocity ripple, or if magnet mounting precision demands exceed your standard alignment capabilities.
+                - paragraph [ref=f7e414]: While not a substitue for best practices and careful design, harmonic compensation can correct for small misalignments and errors in encoder mounting, helping fully optimize any system’s performance.
+            - generic [ref=f7e415]:
+              - heading [level=2] [ref=f7e416]:
+                - link "Validation" [ref=f7e417] [cursor=pointer]:
+                  - /url: "#id19"
+                - link "" [ref=f7e418] [cursor=pointer]:
+                  - /url: "#validation"
+              - generic [ref=f7e419]:
+                - heading [level=3] [ref=f7e420]:
+                  - link "S1/Pro/Micro" [ref=f7e421] [cursor=pointer]:
+                    - /url: "#id20"
+                  - link "" [ref=f7e422] [cursor=pointer]:
+                    - /url: "#s1-pro-micro"
+                - paragraph [ref=f7e423]:
+                  - text: To ensure your magnet can be correctly sensed with the Pro/S1/Micro, you can call
+                  - link [ref=f7e424] [cursor=pointer]:
+                    - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.OnboardEncoder.get_field_strength
+                    - code [ref=f7e425]: <odrv>.onboard_encoder0.get_field_strength()
+                  - text: in ODrivetool or the
+                  - link "Web GUI" [ref=f7e426] [cursor=pointer]:
+                    - /url: https://gui.odriverobotics.com/#/dashboard
+                  - text: . A value above 0.045 is a sign it’s usable, lower field strengths will result in greater noise and error.
+                - paragraph [ref=f7e427]:
+                  - text: By default, the ODrive does not require that the field strength is in limits to run. The requirement is configurable through
+                  - link [ref=f7e428] [cursor=pointer]:
+                    - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.OnboardEncoder.Config.field_check_mode
+                    - code [ref=f7e429]: <odrv>.onboard_encoder0.field_check_mode
+                  - text: "with the following options:"
+                - list [ref=f7e430]:
+                  - listitem [ref=f7e431]:
+                    - paragraph [ref=f7e432]:
+                      - link [ref=f7e433] [cursor=pointer]:
+                        - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.FieldStrengthMonitoring.NONE
+                        - code [ref=f7e434]: NONE
+                      - text: "(default): disables field monitoring. Use when low-field operation is expected."
+                  - listitem [ref=f7e435]:
+                    - paragraph [ref=f7e436]:
+                      - link [ref=f7e437] [cursor=pointer]:
+                        - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.FieldStrengthMonitoring.LOW
+                        - code [ref=f7e438]: LOW
+                      - text: ": error if field falls below 26mT."
+                  - listitem [ref=f7e439]:
+                    - paragraph [ref=f7e440]:
+                      - link [ref=f7e441] [cursor=pointer]:
+                        - /url: ../fibre_types/com_odriverobotics_ODrive.html#ODrive.FieldStrengthMonitoring.BOTH
+                        - code [ref=f7e442]: BOTH
+                      - text: ": also monitors for excessive field strength to prevent resolution loss from quantization."
+              - generic [ref=f7e443]:
+                - heading [level=3] [ref=f7e444]:
+                  - link "OA1" [ref=f7e445] [cursor=pointer]:
+                    - /url: "#id21"
+                  - link "" [ref=f7e446] [cursor=pointer]:
+                    - /url: "#oa1"
+                - paragraph [ref=f7e447]: The OA1 has an indicator LED reflecting field strength. Green is good, otherwise the magnet cannot be successfully read, either being too near or too far away.
+                - figure [ref=f7e448]:
+                  - link [ref=f7e449] [cursor=pointer]:
+                    - /url: ../_images/oa1-status-good.jpg
+                    - img "Photo of OA1 mounted to test setup, closer to the camera with a brushless motor on the opposite side. The OA1 has a green light visible, diffuse through the casing." [ref=f7e450]
+                - paragraph [ref=f7e453]:
+                  - text: For more information specific to the OA1, please refer to the
+                  - link "OA1 Datasheet" [ref=f7e454] [cursor=pointer]:
+                    - /url: ../hardware/oa1-datasheet.html#oa1-led-colors
+                  - text: .
+            - generic [ref=f7e455]:
+              - heading [level=2] [ref=f7e456]:
+                - link "Mounting Examples and Pitfalls" [ref=f7e457] [cursor=pointer]:
+                  - /url: "#id22"
+                - link "" [ref=f7e458] [cursor=pointer]:
+                  - /url: "#mounting-examples-and-pitfalls"
+              - paragraph [ref=f7e459]: Using magnets that are too weak and/or too close to a ferromagnetic body (such as the motor shaft or a ferromagnetic coupler/sleeve) may result in distortion or attenuation of the fields. Below depicted are some common setups and errors.
+              - separator [ref=f7e460]
+              - figure [ref=f7e461]:
+                - link [ref=f7e462] [cursor=pointer]:
+                  - /url: ../_images/mag-encoder-ref-1.svg
+                  - img "If intending to use a strong magnet, using a plastic coupler or gluing the magnet directly are workable retention mechanisms." [ref=f7e463]
+              - paragraph [ref=f7e464]:
+                - text: The simplest mounting method is with a strong magnet (such as that
+                - link "from our shop" [ref=f7e465] [cursor=pointer]:
+                  - /url: https://shop.odriverobotics.com/products/set-of-5-encoder-magnets
+                - text: ), connected to the motor shaft via a 3D printed (non-magnetic) coupler, or directly with some glue. This ensures minimal field distortion, and good alignment (assuming the magnet is centered precisely if gluing).
+              - separator [ref=f7e466]
+              - figure [ref=f7e467]:
+                - link [ref=f7e468] [cursor=pointer]:
+                  - /url: ../_images/mag-encoder-ref-2.svg
+                  - img "Ferromagnetic retention can interfere with accurate sensing. Use plastic retention or leave room around the magnet." [ref=f7e469]
+              - paragraph [ref=f7e470]: If you’re using a strong magnet with a ferromagnetic coupler, ensure an adequate stickout of 2-3mm to avoid the coupler distorting or attenuating the magnet’s fields.
+              - separator [ref=f7e471]
+              - figure [ref=f7e472]:
+                - link [ref=f7e473] [cursor=pointer]:
+                  - /url: ../_images/mag-encoder-ref-3.svg
+                  - img "Weak magnets can be overwhelmed by adjacent ferromagnetic materials, including the motor shaft. Use a stronger magnet, or use a spacer to isolate the magnet trom the ferromagnetic materials." [ref=f7e474]
+              - paragraph [ref=f7e475]: If using a weaker or smaller/thinner magnet, it’s important to ensure adequate spacing from ferromagnetic materials, such as the motor shaft. Mounting the magnet flush will attenuate the fields, so a plastic spacer of 1-2mm can be added between the magnet and the shaft to ensure adequate field strength.
+              - separator [ref=f7e476]
+              - figure [ref=f7e477]:
+                - link [ref=f7e478] [cursor=pointer]:
+                  - /url: ../_images/mag-encoder-ref-4.svg
+                  - img "Weak magnets can be overwhelmed by adjacent ferromagnetic matenals, including the motor shaft. Remove material if neccesary to expose the magnet." [ref=f7e479]
+              - paragraph [ref=f7e480]: A convenient solution can be to mount an encoder magnet in a machined bore in the motor shaft. However, as with using ferromagnetic couplers, this requires a stronger magnet, and you should ensure 2-3mm of stickout to avoid distorting the fields.
+            - generic [ref=f7e481]:
+              - heading [level=2] [ref=f7e482]:
+                - link "Resources" [ref=f7e483] [cursor=pointer]:
+                  - /url: "#id23"
+                - link "" [ref=f7e484] [cursor=pointer]:
+                  - /url: "#resources"
+              - list [ref=f7e485]:
+                - listitem [ref=f7e486]:
+                  - paragraph [ref=f7e487]:
+                    - text: To help find optimal magnetic encoder mounting for non-standard magnets, use
+                    - link "Monolithic Power’s “Magnetic Simulation Tool”" [ref=f7e488] [cursor=pointer]:
+                      - /url: https://sensors.monolithicpower.com/
+                    - text: . The magnetic angle sensor used on the ODrive S1, Micro, Pro, and OA1 is the MA702.
+        - generic [ref=f7e489]:
+          - navigation "Footer" [ref=f7e490]:
+            - link "Previous" [ref=f7e491] [cursor=pointer]:
+              - /url: ground-loops.html
+              - generic [ref=f7e492]: 
+              - text: Previous
+            - link "Next" [ref=f7e493] [cursor=pointer]:
+              - /url: motor-parameters.html
+              - text: Next
+              - generic [ref=f7e494]: 
+          - separator [ref=f7e495]
+          - contentinfo [ref=f7e496]:
+            - paragraph [ref=f7e497]: © Copyright 2026, ODrive Robotics.
+          - text: Built with
+          - link "Sphinx" [ref=f7e498] [cursor=pointer]:
+            - /url: https://www.sphinx-doc.org/
+          - text: using a
+          - link "theme" [ref=f7e499] [cursor=pointer]:
+            - /url: https://github.com/readthedocs/sphinx_rtd_theme
+          - text: provided by
+          - link "Read the Docs" [ref=f7e500] [cursor=pointer]:
+            - /url: https://readthedocs.org
+          - text: .
+  - note "versions" [ref=f7e505]:
+    - generic [ref=f7e506] [cursor=pointer]:
+      - generic [ref=f7e507]:  Firmware Version
+      - text: "v: 0.6.12 (latest)"
+      - generic [ref=f7e508]: 

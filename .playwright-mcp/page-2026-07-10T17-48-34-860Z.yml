@@ -1,0 +1,491 @@
+- generic [active] [ref=f27e1]:
+  - banner [ref=f27e2]:
+    - link "Skip to Main Content" [ref=f27e4] [cursor=pointer]:
+      - /url: javascript:SkipLink();
+    - generic [ref=f27e7]:
+      - generic:
+        - generic [ref=f27e8]:
+          - text: 
+          - generic [ref=f27e10]:
+            - link "Part of the TTI Family of Specialists" [ref=f27e11] [cursor=pointer]:
+              - /url: /about-tti/
+            - generic [ref=f27e12]: "|"
+            - link "Contact Mouser (Europe) +49 (0)89 520 462 110" [ref=f27e13] [cursor=pointer]:
+              - /url: https://eu.mouser.com/contact/
+              - generic [ref=f27e14]: 
+              - text: Contact Mouser (Europe) +49 (0)89 520 462 110
+            - generic [ref=f27e15]: "|"
+            - link "Feedback - opens in a new window" [ref=f27e16] [cursor=pointer]:
+              - /url: https://eu.mouser.com/feedback/
+              - generic [ref=f27e17]: 
+              - text: Feedback
+        - generic [ref=f27e18]:
+          - link "Change Location - currently set to Europe" [ref=f27e19] [cursor=pointer]:
+            - /url: /cs/localsites?qs=0gZ0gv0KDwuPtNKmPFzo%252BJtpIelmyCO3BdQruV%2FRzE6BxqfBerNGBw%3D%3D
+            - text: Change Location
+          - button "English" [ref=f27e22] [cursor=pointer]:
+            - text: English
+            - generic [ref=f27e23]: 
+          - button "€ EUR" [expanded] [ref=f27e26] [cursor=pointer]:
+            - text: € EUR
+            - generic [ref=f27e27]: 
+    - generic [ref=f27e28]:
+      - generic [ref=f27e29]:
+        - generic:
+          - link "Mouser Electronics Europe - Electronic Components Distributor" [ref=f27e31] [cursor=pointer]:
+            - /url: https://eu.mouser.com/
+            - img "Mouser Logo" [ref=f27e32]
+          - generic [ref=f27e36]:
+            - generic:
+              - generic [ref=f27e38]:
+                - button "Filter your search - all categories" [ref=f27e40] [cursor=pointer]:
+                  - text: All
+                  - generic [ref=f27e41]: 
+                - generic:
+                  - textbox "Enter a part number or keyword" [ref=f27e43]:
+                    - /placeholder: Part No. / Keyword
+                  - text: 
+                - button "Search all Mouser parts" [ref=f27e45] [cursor=pointer]:
+                  - generic [ref=f27e46]: 
+              - generic [ref=f27e47]:
+                - generic [ref=f27e49]:
+                  - checkbox "In Stock" [ref=f27e50]
+                  - text: In Stock
+                - generic [ref=f27e52]:
+                  - checkbox "RoHS" [ref=f27e53]
+                  - text: RoHS
+      - navigation "main menu" [ref=f27e54]:
+        - generic [ref=f27e56]:
+          - generic:
+            - text:                    
+            - button "Toggle navigation menu." [ref=f27e58] [cursor=pointer]:
+              - generic [ref=f27e59]: 
+              - text: Menu
+            - generic [ref=f27e60]:
+              - link "Account & Orders" [ref=f27e62] [cursor=pointer]:
+                - /url: https://eu.mouser.com/app/account
+              - link "Basket" [ref=f27e66] [cursor=pointer]:
+                - /url: https://eu.mouser.com/Cart
+                - generic [ref=f27e67]: 
+          - text:   
+    - text:                       
+  - main [ref=f27e68]:
+    - generic [ref=f27e70]:
+      - generic [ref=f27e71]:
+        - generic [ref=f27e74]:
+          - navigation "breadcrumb" [ref=f27e76]:
+            - list [ref=f27e77]:
+              - listitem [ref=f27e78]:
+                - link "Home" [ref=f27e79] [cursor=pointer]:
+                  - /url: /
+                - text: 
+              - listitem [ref=f27e80]: All Products
+          - generic [ref=f27e81]:
+            - button "Share" [ref=f27e82] [cursor=pointer]:
+              - generic [ref=f27e83]: 
+              - text: Share
+            - text:   
+        - heading "All Results for \"AS5047U-HTSM\" (3)" [level=1] [ref=f27e87]
+        - generic [ref=f27e92]:
+          - generic [ref=f27e93]:
+            - generic [ref=f27e94]:
+              - text: Search within results
+              - generic [ref=f27e95]: Enter a part number or keyword
+            - generic [ref=f27e96]:
+              - textbox "Search within results Enter a part number or keyword" [ref=f27e97]:
+                - /placeholder: Part No. / Keyword
+                - text: AS5047U-HTSM
+              - button "Clear field" [ref=f27e98] [cursor=pointer]:
+                - generic: ×
+              - button "Search" [ref=f27e100] [cursor=pointer]:
+                - generic [ref=f27e101]: 
+            - generic [ref=f27e102]:
+              - generic [ref=f27e103]:
+                - checkbox "In Stock" [ref=f27e105]
+                - generic [ref=f27e106]: In Stock
+              - generic [ref=f27e108]:
+                - checkbox "Normally Stocked" [ref=f27e110]
+                - generic [ref=f27e111]: Normally Stocked
+              - generic [ref=f27e113]:
+                - checkbox "Active" [ref=f27e115]
+                - generic [ref=f27e116]: Active
+              - generic [ref=f27e118]:
+                - checkbox "New Products" [ref=f27e120]
+                - generic [ref=f27e121]: New Products
+              - generic [ref=f27e123]:
+                - checkbox "RoHS Compliant" [ref=f27e125]
+                - generic [ref=f27e126]: RoHS Compliant
+          - generic [ref=f27e128]:
+            - generic [ref=f27e129]: Filter by
+            - combobox "Filter by" [ref=f27e130]:
+              - option "All Manufacturers" [selected]
+              - option "ams OSRAM (1)"
+              - option "Infineon (2)"
+            - button "Apply" [ref=f27e131] [cursor=pointer]
+        - generic [ref=f27e134]:
+          - generic [ref=f27e135]: Select a category below to see filtering options and narrow down your search.
+          - generic [ref=f27e136]:
+            - generic [ref=f27e137]:
+              - link [ref=f27e139] [cursor=pointer]:
+                - /url: /c/sensors/?q=AS5047U-HTSM
+                - heading "Sensors" [level=2] [ref=f27e140]
+                - generic [ref=f27e141]: 
+              - list [ref=f27e144]:
+                - listitem [ref=f27e145]:
+                  - text: •
+                  - link "Board Mount Motion & Position Sensors (1 Productss )" [ref=f27e148] [cursor=pointer]:
+                    - /url: /c/sensors/motion-position-sensors/board-mount-motion-position-sensors/?q=AS5047U-HTSM
+                    - text: Board Mount Motion & Position Sensors
+                    - generic [ref=f27e149]:
+                      - text: (1
+                      - generic [ref=f27e150]: Productss
+                      - text: )
+            - generic [ref=f27e151]:
+              - link [ref=f27e153] [cursor=pointer]:
+                - /url: /c/unclassified/?q=AS5047U-HTSM
+                - heading "Unclassified" [level=2] [ref=f27e154]
+                - generic [ref=f27e155]: 
+              - list [ref=f27e158]:
+                - listitem [ref=f27e159]:
+                  - text: •
+                  - link "ams OSRAM (1 Productss )" [ref=f27e162] [cursor=pointer]:
+                    - /url: /c/unclassified/ams-osram/?q=AS5047U-HTSM
+                    - text: ams OSRAM
+                    - generic [ref=f27e163]:
+                      - text: (1
+                      - generic [ref=f27e164]: Productss
+                      - text: )
+                - listitem [ref=f27e165]:
+                  - text: •
+                  - link "Infineon (1 Productss )" [ref=f27e168] [cursor=pointer]:
+                    - /url: /c/unclassified/infineon/?q=AS5047U-HTSM
+                    - text: Infineon
+                    - generic [ref=f27e169]:
+                      - text: (1
+                      - generic [ref=f27e170]: Productss
+                      - text: )
+        - generic [ref=f27e172]:
+          - generic [ref=f27e173]:
+            - generic [ref=f27e174]:
+              - button "Buy Selected" [ref=f27e175] [cursor=pointer]
+              - button "Compare Selected (up to 20)" [ref=f27e176] [cursor=pointer]
+              - link "Download Table CSV" [ref=f27e177] [cursor=pointer]:
+                - /url: /c/?q=AS5047U-HTSM&download=N7q55MP5N44ZL0SFAkUh4HA7%2FR9I4HamWDsFnBZcNgsr0kqPY9AFc%2BpQfgYWFJHt5tDD6zH02EVnM91nStGPd9oXDNtoePuF
+                - generic [ref=f27e178]: 
+                - text: Download Table (.CSV)
+            - generic [ref=f27e179]:
+              - generic:
+                - generic:
+                  - table:
+                    - rowgroup
+              - generic [ref=f27e180]:
+                - table [ref=f27e181]:
+                  - rowgroup [ref=f27e182]:
+                    - row [ref=f27e183]:
+                      - columnheader "Select" [ref=f27e184]
+                      - columnheader "Image" [ref=f27e186]
+                      - 'columnheader "Part # Sort by Part #" [ref=f27e188]':
+                        - generic [ref=f27e189]: "Part #"
+                        - 'link "Sort by Part #" [ref=f27e191] [cursor=pointer]':
+                          - /url: https://eu.mouser.com/c/?q=AS5047U-HTSM&sort=manufacturerpartnumber
+                          - generic [ref=f27e192]: 
+                      - columnheader "Mfr. Sort by Mfr." [ref=f27e193]:
+                        - generic [ref=f27e194]: Mfr.
+                        - link "Sort by Mfr." [ref=f27e196] [cursor=pointer]:
+                          - /url: https://eu.mouser.com/c/?q=AS5047U-HTSM&sort=brand
+                          - generic [ref=f27e197]: 
+                      - columnheader "Description" [ref=f27e198]
+                      - columnheader "Datasheet" [ref=f27e199]
+                      - columnheader "Availability" [ref=f27e200]
+                      - columnheader "Pricing (EUR) Filter the results in the table by unit price based on your quantity. Sort by Pricing" [ref=f27e201]:
+                        - generic [ref=f27e202]:
+                          - text: Pricing (EUR)
+                          - generic [ref=f27e203]:
+                            - generic [ref=f27e204]: Filter the results in the table by unit price based on your quantity.
+                            - generic [ref=f27e205]: 
+                        - link "Sort by Pricing" [ref=f27e207] [cursor=pointer]:
+                          - /url: https://eu.mouser.com/c/?q=AS5047U-HTSM&sort=pricing
+                          - generic [ref=f27e208]: 
+                        - spinbutton "Price by Qty." [ref=f27e210]
+                      - columnheader "Qty." [ref=f27e211]
+                      - columnheader "RoHS" [ref=f27e213]
+                  - rowgroup [ref=f27e215]:
+                    - row [ref=f27e216]:
+                      - cell [ref=f27e217]:
+                        - checkbox "Infineon Technologies AS5047U-HTSM" [ref=f27e218]
+                      - cell [ref=f27e219]:
+                        - button [ref=f27e223] [cursor=pointer]:
+                          - img "Infineon Technologies AS5047U-HTSM" [ref=f27e224]
+                      - cell [ref=f27e225]:
+                        - generic [ref=f27e226]:
+                          - text: Mfr. Part No.
+                          - link "AS5047U-HTSM" [ref=f27e227] [cursor=pointer]:
+                            - /url: /ProductDetail/Infineon-Technologies/AS5047U-HTSM?qs=byeeYqUIh0NGoikretscuw%3D%3D
+                        - generic [ref=f27e228]: Mouser Part No 985-AS5047U-HTSM
+                      - cell [ref=f27e229]:
+                        - link "Infineon Technologies" [ref=f27e230] [cursor=pointer]:
+                          - /url: /manufacturer/infineon/
+                      - cell [ref=f27e231]:
+                        - text: Board Mount Motion & Position Sensors ROTATIVE MOTOR CONTROL ON-AXIS
+                        - link "Learn More about Infineon Technologies ams as5047u rotary position sensor" [ref=f27e233] [cursor=pointer]:
+                          - /url: /new/ams-osram/ams-as5047u-rotary-position-sensor/
+                          - text: Learn More
+                          - generic [ref=f27e234]: about Infineon Technologies ams as5047u rotary position sensor
+                      - cell [ref=f27e235]:
+                        - link "AS5047U-HTSM Datasheet - Opens in a new window" [ref=f27e237] [cursor=pointer]:
+                          - /url: https://eu.mouser.com/datasheet/3/5912/1/AS5047U_DS000637_1_01.pdf
+                          - generic [ref=f27e238]: 
+                          - text: Datasheet
+                      - cell "1.551 In Stock" [ref=f27e239]:
+                        - text: "1.551"
+                        - generic [ref=f27e240]: In Stock
+                      - cell [ref=f27e241]:
+                        - text: Cut Tape
+                        - 'button "Set quantity to: 1" [ref=f27e242] [cursor=pointer]': "1"
+                        - text: 9,56 €
+                        - 'button "Set quantity to: 5" [ref=f27e243] [cursor=pointer]': "5"
+                        - text: 8,06 €
+                        - 'button "Set quantity to: 10" [ref=f27e244] [cursor=pointer]': "10"
+                        - text: 7,49 €
+                        - 'button "Set quantity to: 25" [ref=f27e245] [cursor=pointer]': "25"
+                        - text: 6,80 € Reel
+                        - 'button "Set quantity to: 500" [ref=f27e246] [cursor=pointer]': "500"
+                        - text: 4,87 €
+                        - 'button "Set quantity to: 1000" [ref=f27e247] [cursor=pointer]': "1.000"
+                        - link "View" [ref=f27e248] [cursor=pointer]:
+                          - /url: /ProductDetail/Infineon-Technologies/AS5047U-HTSM?qs=byeeYqUIh0NGoikretscuw%3D%3D
+                      - cell [ref=f27e249]:
+                        - generic [ref=f27e250]:
+                          - textbox "Enter quantity to buy" [ref=f27e251]
+                          - button "Buy" [ref=f27e253] [cursor=pointer]
+                        - generic [ref=f27e254]: "Min.: 1 Mult.: 1"
+                        - generic [ref=f27e255]:
+                          - generic [ref=f27e256]:
+                            - button "Reel" [ref=f27e257] [cursor=pointer]
+                            - text: ":"
+                          - text: "500"
+                      - cell [ref=f27e258]:
+                        - generic [ref=f27e259]:
+                          - generic [ref=f27e260]: 
+                          - button "More details about the Restriction of Hazardous Substances." [ref=f27e261] [cursor=pointer]: Details
+                      - text: 
+                    - row [ref=f27e262]:
+                      - cell [ref=f27e263]:
+                        - checkbox "ams OSRAM AS5047U-HTSM" [ref=f27e264]
+                      - cell [ref=f27e265]:
+                        - link "ams OSRAM AS5047U-HTSM" [ref=f27e267] [cursor=pointer]:
+                          - /url: /ProductDetail/ams-OSRAM/AS5047U-HTSM?qs=AeBljyeJo%252BjCkVtUFJj%2FOw%3D%3D
+                          - generic [ref=f27e268]: 
+                      - cell [ref=f27e270]:
+                        - generic [ref=f27e271]:
+                          - text: Mfr. Part No.
+                          - link "AS5047U-HTSM" [ref=f27e272] [cursor=pointer]:
+                            - /url: /ProductDetail/ams-OSRAM/AS5047U-HTSM?qs=AeBljyeJo%252BjCkVtUFJj%2FOw%3D%3D
+                        - generic [ref=f27e273]: Mouser Part No Not Assigned
+                      - cell [ref=f27e274]:
+                        - link "ams OSRAM" [ref=f27e275] [cursor=pointer]:
+                          - /url: /manufacturer/ams-osram/
+                      - cell "ams OSRAM" [ref=f27e276]
+                      - cell [ref=f27e277]
+                      - cell "N/A" [ref=f27e278]
+                      - cell [ref=f27e280]
+                      - cell [ref=f27e281]:
+                        - link "Non-Stocked, Call To Request a Quote" [ref=f27e283] [cursor=pointer]:
+                          - /url: /contact
+                      - cell [ref=f27e284]:
+                        - generic [ref=f27e285]:
+                          - generic [ref=f27e286]: 
+                          - button "More details about the Restriction of Hazardous Substances." [ref=f27e287] [cursor=pointer]: Details
+                      - text: 
+                    - row [ref=f27e288]:
+                      - cell [ref=f27e289]:
+                        - checkbox "Infineon Technologies AS5047U-HTSM TSSOP14 LF T&RDP" [ref=f27e290]
+                      - cell [ref=f27e291]:
+                        - generic [ref=f27e292]:
+                          - link "Infineon Technologies AS5047U-HTSM TSSOP14 LF T&RDP" [ref=f27e293] [cursor=pointer]:
+                            - /url: /ProductDetail/Infineon-Technologies/AS5047U-HTSM-TSSOP14-LF-TRDP?qs=wT7LY0lnAe2QNhyUSjQPvQ%3D%3D
+                            - generic [ref=f27e294]: 
+                          - text: 
+                      - cell "Mfr. Part No. AS5047U-HTSM TSSOP14 LF T&RDP Mouser Part No 985-AS5047UHTSMT4LFT New At Mouser" [ref=f27e296]:
+                        - generic [ref=f27e297]:
+                          - text: Mfr. Part No.
+                          - link "AS5047U-HTSM TSSOP14 LF T&RDP" [ref=f27e298] [cursor=pointer]:
+                            - /url: /ProductDetail/Infineon-Technologies/AS5047U-HTSM-TSSOP14-LF-TRDP?qs=wT7LY0lnAe2QNhyUSjQPvQ%3D%3D
+                        - generic [ref=f27e299]: Mouser Part No 985-AS5047UHTSMT4LFT
+                        - generic [ref=f27e301]:
+                          - generic [ref=f27e302]: 
+                          - generic [ref=f27e303]: New At Mouser
+                      - cell [ref=f27e304]:
+                        - link "Infineon Technologies" [ref=f27e305] [cursor=pointer]:
+                          - /url: /manufacturer/infineon/
+                      - cell "Infineon" [ref=f27e306]
+                      - cell [ref=f27e307]
+                      - cell "Non-Stocked" [ref=f27e308]
+                      - cell [ref=f27e310]:
+                        - 'button "Set quantity to: 1" [ref=f27e311] [cursor=pointer]': "1"
+                        - text: 9,55 €
+                        - 'button "Set quantity to: 5" [ref=f27e312] [cursor=pointer]': "5"
+                        - text: 8,05 €
+                        - 'button "Set quantity to: 10" [ref=f27e313] [cursor=pointer]': "10"
+                        - text: 7,48 €
+                        - 'button "Set quantity to: 25" [ref=f27e314] [cursor=pointer]': "25"
+                        - text: 6,79 €
+                        - 'button "Set quantity to: 50" [ref=f27e315] [cursor=pointer]': "50"
+                        - link "View" [ref=f27e316] [cursor=pointer]:
+                          - /url: /ProductDetail/Infineon-Technologies/AS5047U-HTSM-TSSOP14-LF-TRDP?qs=wT7LY0lnAe2QNhyUSjQPvQ%3D%3D
+                      - cell [ref=f27e317]:
+                        - generic [ref=f27e318]:
+                          - textbox "Enter quantity to buy" [ref=f27e319]
+                          - button "Buy" [ref=f27e321] [cursor=pointer]
+                        - generic [ref=f27e322]: "Min.: 1 Mult.: 1"
+                      - cell [ref=f27e323]:
+                        - generic [ref=f27e324]:
+                          - generic [ref=f27e325]: 
+                          - button "More details about the Restriction of Hazardous Substances." [ref=f27e326] [cursor=pointer]: Details
+                      - text: 
+                - text: 
+                - generic [ref=f27e327]: .
+          - text: 
+      - text:  
+  - contentinfo [ref=f27e330]:
+    - generic [ref=f27e332]:
+      - generic [ref=f27e333]:
+        - generic:
+          - generic [ref=f27e334]: Get the Latest News
+          - generic [ref=f27e336]:
+            - textbox "Enter your Email" [ref=f27e337]
+            - button "Subscribe" [ref=f27e339] [cursor=pointer]
+      - generic [ref=f27e340]:
+        - generic:
+          - text:  
+          - generic:
+            - generic [ref=f27e341]:
+              - heading "Customer Service Office" [level=2] [ref=f27e342]
+              - list [ref=f27e346]:
+                - listitem [ref=f27e347]:
+                  - link "+49 (0)89 520 462 110" [ref=f27e348] [cursor=pointer]:
+                    - /url: tel:49089520462110
+                    - generic [ref=f27e349]: 
+                - listitem [ref=f27e351]:
+                  - link "europe@mouser.com" [ref=f27e352] [cursor=pointer]:
+                    - /url: mailto:europe%40mouser.com
+                    - generic [ref=f27e353]: 
+                - listitem [ref=f27e355]:
+                  - link [ref=f27e356] [cursor=pointer]:
+                    - /url: /contact/
+                    - generic [ref=f27e357]: 
+                    - generic [ref=f27e358]: Georg-Brauchle-Ring 5380992 MunichGermany
+                - listitem [ref=f27e359]:
+                  - generic [ref=f27e360]:
+                    - link [ref=f27e362] [cursor=pointer]:
+                      - /url: /about-tti/
+                      - img "About TTI" [ref=f27e363]
+                    - generic [ref=f27e364]: Part of the TTIFamily of Specialists
+            - generic [ref=f27e366]:
+              - heading "Company" [level=2] [ref=f27e367]
+              - list [ref=f27e369]:
+                - listitem [ref=f27e370]:
+                  - link "About Us" [ref=f27e371] [cursor=pointer]:
+                    - /url: /aboutus/
+                - listitem [ref=f27e372]:
+                  - link "Newsroom" [ref=f27e373] [cursor=pointer]:
+                    - /url: /newsroom/
+                - listitem [ref=f27e374]:
+                  - link "Educational Sales" [ref=f27e375] [cursor=pointer]:
+                    - /url: /educationalsales/
+                - listitem [ref=f27e376]:
+                  - link "Careers @ Mouser" [ref=f27e377] [cursor=pointer]:
+                    - /url: https://careers.mouser.com/
+                - listitem [ref=f27e378]:
+                  - link "Quality" [ref=f27e379] [cursor=pointer]:
+                    - /url: /quality/
+                - listitem [ref=f27e380]:
+                  - link "Environmental" [ref=f27e381] [cursor=pointer]:
+                    - /url: /environmental/
+                - listitem [ref=f27e382]:
+                  - link "Corporate Social Responsibility" [ref=f27e383] [cursor=pointer]:
+                    - /url: /corporate-responsibility/
+            - generic [ref=f27e384]:
+              - heading "Resources" [level=2] [ref=f27e385]
+              - list [ref=f27e387]:
+                - listitem [ref=f27e388]:
+                  - link "Blog" [ref=f27e389] [cursor=pointer]:
+                    - /url: /blog
+                - listitem [ref=f27e390]:
+                  - link "Newest Products" [ref=f27e391] [cursor=pointer]:
+                    - /url: /newest/
+                - listitem [ref=f27e392]:
+                  - link "New Manufacturers" [ref=f27e393] [cursor=pointer]:
+                    - /url: /new-manufacturer/
+                - listitem [ref=f27e394]:
+                  - link "Applications" [ref=f27e395] [cursor=pointer]:
+                    - /url: /applications/
+                - listitem [ref=f27e396]:
+                  - link "Services & Tools" [ref=f27e397] [cursor=pointer]:
+                    - /url: /servicesandtools/
+            - generic [ref=f27e398]:
+              - heading "Support" [level=2] [ref=f27e399]
+              - list [ref=f27e401]:
+                - listitem [ref=f27e402]:
+                  - link "Contact Us" [ref=f27e403] [cursor=pointer]:
+                    - /url: /contact/
+                - listitem [ref=f27e404]:
+                  - link "Help" [ref=f27e405] [cursor=pointer]:
+                    - /url: https://eu.mouser.com/help/
+                - listitem [ref=f27e406]:
+                  - link "Feedback" [ref=f27e407] [cursor=pointer]:
+                    - /url: https://eu.mouser.com/feedback/
+                    - generic [ref=f27e408]: 
+                    - text: Feedback
+                - listitem [ref=f27e409]:
+                  - link "Browser Support" [ref=f27e410] [cursor=pointer]:
+                    - /url: /browsersupport/
+                - listitem [ref=f27e411]:
+                  - link "Cookie Policy" [ref=f27e412] [cursor=pointer]:
+                    - /url: /cookie-policy/
+          - generic [ref=f27e413]:
+            - heading "Connect with Us" [level=2] [ref=f27e414]
+            - generic [ref=f27e415]:
+              - link "facebook" [ref=f27e416] [cursor=pointer]:
+                - /url: https://www.facebook.com/mouserelectronics
+                - generic [ref=f27e417]: 
+              - link "Instagram" [ref=f27e418] [cursor=pointer]:
+                - /url: https://www.instagram.com/mouserelec/
+                - generic [ref=f27e419]: 
+              - link "Twitter" [ref=f27e420] [cursor=pointer]:
+                - /url: https://www.x.com/mousereleceu
+                - generic [ref=f27e421]: 
+              - link "RSS" [ref=f27e422] [cursor=pointer]:
+                - /url: /rssfeeds
+                - generic [ref=f27e423]: 
+              - link "YouTube" [ref=f27e424] [cursor=pointer]:
+                - /url: https://www.youtube.com/mouserelec
+                - generic [ref=f27e425]: 
+              - link "LinkedIn" [ref=f27e426] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/mouser-electronics/
+                - generic [ref=f27e427]: 
+              - link "Subscription Centre" [ref=f27e428] [cursor=pointer]:
+                - /url: https://sub.info.mouser.com/subscriber-gb
+                - generic [ref=f27e429]: 
+              - link "Mouser Blog" [ref=f27e430] [cursor=pointer]:
+                - /url: /blog
+                - generic [ref=f27e431]: 
+      - generic [ref=f27e432]:
+        - generic:
+          - text: 
+          - generic [ref=f27e433]:
+            - paragraph [ref=f27e434]:
+              - link "Privacy Centre" [ref=f27e435] [cursor=pointer]:
+                - /url: /privacypolicy/
+              - text: "|"
+              - link "Terms and Conditions" [ref=f27e436] [cursor=pointer]:
+                - /url: /saleterms
+              - text: "|"
+              - link "Accessibility" [ref=f27e437] [cursor=pointer]:
+                - /url: /accessibility/
+              - text: "|"
+              - link "Sitemap" [ref=f27e438] [cursor=pointer]:
+                - /url: /html-sitemap/
+            - paragraph [ref=f27e439]: Copyright ©2026 Mouser Electronics, Inc.
+            - paragraph [ref=f27e440]: Mouser® and Mouser Electronics® are trademarks of Mouser Electronics, Inc. in the U.S. and/or other countries. All other trademarks are the property of their respective owners. Corporate headquarters and logistics centre in Mansfield, Texas USA.
+  - text: « »

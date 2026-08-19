@@ -1,0 +1,557 @@
+- generic [active] [ref=f33e1]:
+  - banner [ref=f33e2]:
+    - link "Skip to Main Content" [ref=f33e4] [cursor=pointer]:
+      - /url: javascript:SkipLink();
+    - generic [ref=f33e7]:
+      - generic [ref=f33e9]:
+        - text: 
+        - generic [ref=f33e10]:
+          - link "Part of the TTI Family of Specialists" [ref=f33e11] [cursor=pointer]:
+            - /url: /about-tti/
+          - text: "|"
+          - link "Contact Mouser (Europe) +49 (0)89 520 462 110" [ref=f33e12] [cursor=pointer]:
+            - /url: https://eu.mouser.com/contact/
+            - generic [ref=f33e13]: 
+            - text: Contact Mouser (Europe) +49 (0)89 520 462 110
+          - text: "|"
+          - link "Feedback - opens in a new window" [ref=f33e14] [cursor=pointer]:
+            - /url: https://eu.mouser.com/feedback/
+            - generic [ref=f33e15]: 
+            - text: Feedback
+      - generic [ref=f33e19]:
+        - link "Change Location - currently set to Europe" [ref=f33e20] [cursor=pointer]:
+          - /url: /cs/localsites?qs=0gZ0gv0KDwsPeU1aLKWeCtwA6kRRgv5JgWGzDg1o%252BVMqiPjjud8Yus8aTDzer8ry7fE%252BgRbvn9IjGHHGsN4F6BT8BlzVmfvi0kHZuc2JW6RW4L6cGyuygRwn3sRJiUjLUAg5tH7ReRs%3D
+          - text: Change Location
+        - button "Change Language - currently set to English" [ref=f33e23] [cursor=pointer]: English 
+        - button "€ EUR " [ref=f33e26] [cursor=pointer]
+    - generic [ref=f33e30]:
+      - link [ref=f33e32] [cursor=pointer]:
+        - /url: https://eu.mouser.com/
+        - img "Mouser Electronics Europe - Electronic Components Distributor" [ref=f33e33]
+      - generic [ref=f33e35]:
+        - generic [ref=f33e37]:
+          - button "Filter your search - all categories" [ref=f33e40] [cursor=pointer]: All 
+          - textbox "Search by part numbers or keywords" [ref=f33e41]:
+            - /placeholder: Part No. / Keyword
+          - text: 
+          - button "Search" [ref=f33e43] [cursor=pointer]:
+            - generic [ref=f33e44]: 
+        - generic [ref=f33e46]:
+          - generic [ref=f33e47]:
+            - checkbox "In Stock" [ref=f33e48]
+            - generic [ref=f33e49]: In Stock
+          - generic [ref=f33e50]:
+            - checkbox "RoHS" [ref=f33e51]
+            - generic [ref=f33e52]: RoHS
+    - generic [ref=f33e55]:
+      - navigation "Main Menu" [ref=f33e56]:
+        - button "Toggle navigation menu." [ref=f33e57] [cursor=pointer]:
+          - generic [ref=f33e58]: 
+        - generic:
+          - list:                    
+      - list [ref=f33e60]:
+        - listitem [ref=f33e61]:
+          - button "" [ref=f33e62] [cursor=pointer]
+        - text: 
+        - listitem [ref=f33e63]:
+          - link "" [ref=f33e64] [cursor=pointer]:
+            - /url: https://eu.mouser.com/Cart
+        - text:  
+    - text:                       
+  - main [ref=f33e65]:
+    - generic [ref=f33e67]:
+      - generic [ref=f33e71]:
+        - navigation "Breadcrumb" [ref=f33e74]:
+          - list [ref=f33e75]:
+            - listitem [ref=f33e76]:
+              - link "All Products" [ref=f33e77] [cursor=pointer]:
+                - /url: /electronic-components/
+              - text: 
+            - listitem [ref=f33e78]:
+              - link "Sensors" [ref=f33e79] [cursor=pointer]:
+                - /url: /c/sensors/
+              - text: 
+            - listitem [ref=f33e80]:
+              - link "Motion & Position Sensors" [ref=f33e81] [cursor=pointer]:
+                - /url: /c/sensors/motion-position-sensors/
+              - text: 
+            - listitem [ref=f33e82]:
+              - link "Board Mount Motion & Position Sensors" [ref=f33e83] [cursor=pointer]:
+                - /url: /c/sensors/motion-position-sensors/board-mount-motion-position-sensors/
+              - text: 
+            - listitem [ref=f33e84]: Infineon Technologies AS5147P-HTSM
+        - link "See an Error? - Opens in a new window" [ref=f33e87] [cursor=pointer]:
+          - /url: https://feedback.mouser.com/jfe/form/SV_5doRizEv1tqpkh0?Q_EED=eyJNeU1vdXNlciI6MCwiQ2FydEdVSUQiOiJmMmVmM2UwMC01MGU2LTQ0YmQtODNlOC05YWM0YTliM2IyNjMiLCJEb21haW4iOiJldSIsIkNvdW50cnkiOiJGcmFuY2UiLCJQRFBVcmwiOiJodHRwczovL2V1Lm1vdXNlci5jb20vUHJvZHVjdERldGFpbC9JbmZpbmVvbi1UZWNobm9sb2dpZXMvQVM1MTQ3UC1IVFNNP3FzPVJ0NlZFMFBFJTJGT2VhSXpJVWpjM2U2QSUzRCUzRCIsIkN1c3RvbWVySWQiOm51bGwsIkN1cnJlbmN5IjoiRXVybyIsIk1vdXNlclBhcnROdW1iZXIiOiI5ODUtQVM1MTQ3UC1IVFNNIiwiTWFudWZhY3R1cmVyUGFydE51bWJlciI6IkFTNTE0N1AtSFRTTSIsIk1hbnVmYWN0dXJlciI6IkluZmluZW9uIiwiQnJhbmQiOiJJbmZpbmVvbiBUZWNobm9sb2dpZXMiLCJEZXNjcmlwdGlvbiI6IkJvYXJkIE1vdW50IE1vdGlvbiBcdTAwMjYgUG9zaXRpb24gU2Vuc29ycyBUU1NPUDE0IiwiQ2F0ZWdvcnkiOiJCb2FyZCBNb3VudCBNb3Rpb24gXHUwMDI2IFBvc2l0aW9uIFNlbnNvcnMiLCJDYXRQYXRoIjoic2Vuc29ycy9tb3Rpb24gXHUwMDI2IHBvc2l0aW9uIHNlbnNvcnMvYm9hcmQgbW91bnQgbW90aW9uIFx1MDAyNiBwb3NpdGlvbiBzZW5zb3JzIn0%3d&Q_Language=GB
+          - generic [ref=f33e88]:
+            - generic [ref=f33e89]: 
+            - text: See an Error?
+      - generic [ref=f33e91]:
+        - generic [ref=f33e92]:
+          - generic [ref=f33e94]:
+            - heading "AS5147P-HTSM" [level=1] [ref=f33e96]
+            - generic [ref=f33e97]:
+              - generic [ref=f33e98]:
+                - generic [ref=f33e99]:
+                  - img "Infineon Technologies" [ref=f33e101]
+                  - generic [ref=f33e103]:
+                    - button [ref=f33e106] [cursor=pointer]:
+                      - img "Infineon Technologies AS5147P-HTSM Enlarged Image" [ref=f33e107]
+                      - generic [ref=f33e108]: 
+                    - generic [ref=f33e109]: Images are for reference onlySee Product Specifications
+                    - text: 
+                  - generic:
+                    - button "Share" [ref=f33e111] [cursor=pointer]:
+                      - emphasis [ref=f33e112]: 
+                      - text: Share
+                    - text:  
+                - generic [ref=f33e113]:
+                  - generic [ref=f33e114]:
+                    - generic [ref=f33e115]: "Mouser No:"
+                    - generic [ref=f33e117]: 985-AS5147P-HTSM
+                  - generic [ref=f33e118]:
+                    - generic [ref=f33e119]: "Mfr. No:"
+                    - generic [ref=f33e121]: AS5147P-HTSM
+                  - 'heading "Mfr.: Infineon Technologies" [level=2] [ref=f33e123]':
+                    - generic [ref=f33e124]: "Mfr.:"
+                    - link "Infineon Technologies" [ref=f33e127] [cursor=pointer]:
+                      - /url: https://eu.mouser.com/manufacturer/infineon/
+                  - generic [ref=f33e129]:
+                    - generic [ref=f33e130]: "Customer No:"
+                    - textbox "Customer No:" [ref=f33e134]:
+                      - /placeholder: Customer No
+                  - 'heading "Description: Board Mount Motion & Position Sensors TSSOP14" [level=2] [ref=f33e135]':
+                    - generic [ref=f33e136]: "Description:"
+                    - generic [ref=f33e138]: Board Mount Motion & Position Sensors TSSOP14
+                  - generic [ref=f33e140]:
+                    - generic [ref=f33e141]: "Datasheet:"
+                    - link "AS5147P-HTSM Datasheet (PDF) - Opens in a new window" [ref=f33e145] [cursor=pointer]:
+                      - /url: https://eu.mouser.com/datasheet/3/5912/1/AS5147P_DS000328_2_00.pdf
+                      - generic [ref=f33e146]: 
+                      - text: AS5147P-HTSM Datasheet (PDF)
+                  - generic [ref=f33e147]:
+                    - generic [ref=f33e148]: "ECAD Model:"
+                    - button [ref=f33e151] [cursor=pointer]:
+                      - img "Build or request PCB Symbol, Footprint or Model for AS5147P-HTSM" [ref=f33e152]
+                    - generic [ref=f33e153]:
+                      - text: Download the free
+                      - link "Library Loader" [ref=f33e154] [cursor=pointer]:
+                        - /url: http://mouser.componentsearchengine.com/pcb-libraries.php
+                      - text: to convert this file for your ECAD Tool.
+                      - link "Learn more about the ECAD Model." [ref=f33e155] [cursor=pointer]:
+                        - /url: /electronic-cad-symbols-models/
+              - generic [ref=f33e156]:
+                - generic [ref=f33e158]:
+                  - generic [ref=f33e161]:
+                    - checkbox "Compare Product" [ref=f33e162]
+                    - generic [ref=f33e163]: Compare Product
+                  - generic [ref=f33e164]:
+                    - button "Add To Project" [ref=f33e165] [cursor=pointer]
+                    - generic [ref=f33e166]: "|"
+                    - button "Add Notes" [ref=f33e167] [cursor=pointer]
+                - text:  
+          - generic [ref=f33e169]:
+            - 'heading "In Stock: 3.384" [level=2] [ref=f33e171]'
+            - generic [ref=f33e172]:
+              - generic [ref=f33e174]:
+                - generic [ref=f33e175]:
+                  - term [ref=f33e176]:
+                    - generic [ref=f33e177]: "Stock:"
+                  - definition [ref=f33e178]:
+                    - generic [ref=f33e179]: 3.384 Can Dispatch Immediately
+                - generic [ref=f33e180]:
+                  - term [ref=f33e181]:
+                    - generic [ref=f33e182]: "Factory Lead Time:"
+                  - definition [ref=f33e183]:
+                    - generic "Factory Lead Time:" [ref=f33e184]:
+                      - text: 22 Weeks
+                      - generic [ref=f33e185]:
+                        - generic [ref=f33e186]: Estimated factory production time for quantities greater than shown.
+                        - generic [ref=f33e187] [cursor=pointer]: 
+              - generic [ref=f33e191]:
+                - generic [ref=f33e192]: "Enter Quantity:"
+                - generic [ref=f33e195]: "Minimum: 1 Multiples: 1"
+                - generic [ref=f33e199]:
+                  - textbox "Enter Quantity:" [ref=f33e200]
+                  - button "Buy" [ref=f33e202] [cursor=pointer]
+              - heading "Pricing (EUR)" [level=2] [ref=f33e205]
+              - table [ref=f33e207]:
+                - rowgroup [ref=f33e208]:
+                  - row [ref=f33e209]:
+                    - columnheader "Qty." [ref=f33e210]
+                    - columnheader "Unit Price" [ref=f33e211]
+                    - columnheader "Extended Price" [ref=f33e212]:
+                      - generic [ref=f33e213]: Ext. Price
+                - rowgroup [ref=f33e214]:
+                  - row [ref=f33e215]:
+                    - rowheader [ref=f33e216]:
+                      - 'button "Set quantity to: 1" [ref=f33e217] [cursor=pointer]':
+                        - strong [ref=f33e218]: "1"
+                    - cell "6,95 €" [ref=f33e219]
+                    - cell "6,95 €" [ref=f33e220]
+                  - row [ref=f33e221]:
+                    - rowheader [ref=f33e222]:
+                      - 'button "Set quantity to: 5" [ref=f33e223] [cursor=pointer]':
+                        - strong [ref=f33e224]: "5"
+                    - cell "6,42 €" [ref=f33e225]
+                    - cell "32,10 €" [ref=f33e226]
+                  - row [ref=f33e227]:
+                    - rowheader [ref=f33e228]:
+                      - 'button "Set quantity to: 10" [ref=f33e229] [cursor=pointer]':
+                        - strong [ref=f33e230]: "10"
+                    - cell "6,03 €" [ref=f33e231]
+                    - cell "60,30 €" [ref=f33e232]
+                  - row [ref=f33e233]:
+                    - rowheader [ref=f33e234]:
+                      - 'button "Set quantity to: 25" [ref=f33e235] [cursor=pointer]':
+                        - strong [ref=f33e236]: "25"
+                    - cell "5,74 €" [ref=f33e237]
+                    - cell "143,50 €" [ref=f33e238]
+                  - row [ref=f33e239]:
+                    - rowheader [ref=f33e240]:
+                      - 'button "Set quantity to: 50" [ref=f33e241] [cursor=pointer]':
+                        - strong [ref=f33e242]: "50"
+                    - cell "5,50 €" [ref=f33e243]
+                    - cell "275,00 €" [ref=f33e244]
+                  - row [ref=f33e245]:
+                    - rowheader [ref=f33e246]:
+                      - 'button "Set quantity to: 100" [ref=f33e247] [cursor=pointer]':
+                        - strong [ref=f33e248]: "100"
+                    - cell "5,46 €" [ref=f33e249]
+                    - cell "546,00 €" [ref=f33e250]
+                  - row [ref=f33e251]:
+                    - columnheader "Full Reel (Order in multiples of 500)" [ref=f33e252]
+                  - row [ref=f33e253]:
+                    - rowheader [ref=f33e254]:
+                      - 'button "Set quantity to: 500" [ref=f33e255] [cursor=pointer]':
+                        - strong [ref=f33e256]: "500"
+                    - cell "5,02 €" [ref=f33e257]
+                    - cell "2.510,00 €" [ref=f33e258]
+            - text:  
+        - generic [ref=f33e260]:
+          - generic [ref=f33e262]:
+            - heading [level=2] [ref=f33e264]:
+              - button "Specifications " [expanded] [ref=f33e265] [cursor=pointer]
+            - generic [ref=f33e268]:
+              - generic:  
+              - table [ref=f33e270]:
+                - rowgroup [ref=f33e271]:
+                  - row [ref=f33e272]:
+                    - columnheader "Product Attribute" [ref=f33e273]
+                    - columnheader "Attribute Value" [ref=f33e274]
+                    - columnheader "Select Attribute" [ref=f33e275]
+                  - row [ref=f33e276]:
+                    - cell "Manufacturer:" [ref=f33e277]
+                    - cell "Infineon" [ref=f33e279]
+                    - cell [ref=f33e280]:
+                      - 'checkbox "Manufacturer: Infineon" [ref=f33e281]'
+                  - row [ref=f33e282]:
+                    - cell "Product Category:" [ref=f33e283]
+                    - cell "Board Mount Motion & Position Sensors" [ref=f33e284]
+                    - cell [ref=f33e285]
+                  - row [ref=f33e286]:
+                    - cell "RoHS:" [ref=f33e287]
+                    - cell [ref=f33e288]:
+                      - generic [ref=f33e289]: 
+                      - button "More details about the Restriction of Hazardous Substances." [ref=f33e290] [cursor=pointer]: Details
+                    - cell [ref=f33e291]
+                  - row [ref=f33e292]:
+                    - cell "Product:" [ref=f33e293]
+                    - cell "Rotary Position Sensors" [ref=f33e295]
+                    - cell [ref=f33e296]:
+                      - 'checkbox "Product: Rotary Position Sensors" [ref=f33e297]'
+                  - row [ref=f33e298]:
+                    - cell "Output Type:" [ref=f33e299]
+                    - cell "PWM, SPI, Quadrature" [ref=f33e301]
+                    - cell [ref=f33e302]:
+                      - 'checkbox "Output Type: PWM, SPI, Quadrature" [ref=f33e303]'
+                  - row [ref=f33e304]:
+                    - cell "Operating Supply Current:" [ref=f33e305]
+                    - cell "15 mA" [ref=f33e307]
+                    - cell [ref=f33e308]:
+                      - 'checkbox "Operating Supply Current: 15 mA" [ref=f33e309]'
+                  - row [ref=f33e310]:
+                    - cell "Supply Voltage - Min:" [ref=f33e311]
+                    - cell "3 V, 4.5 V" [ref=f33e313]
+                    - cell [ref=f33e314]:
+                      - 'checkbox "Supply Voltage - Min: 3 V, 4.5 V" [ref=f33e315]'
+                  - row [ref=f33e316]:
+                    - cell "Supply Voltage - Max:" [ref=f33e317]
+                    - cell "3.6 V, 5.5 V" [ref=f33e319]
+                    - cell [ref=f33e320]:
+                      - 'checkbox "Supply Voltage - Max: 3.6 V, 5.5 V" [ref=f33e321]'
+                  - row [ref=f33e322]:
+                    - cell "Maximum Operating Temperature:" [ref=f33e323]
+                    - cell "+ 150 C" [ref=f33e325]
+                    - cell [ref=f33e326]:
+                      - 'checkbox "Maximum Operating Temperature: + 150 C" [ref=f33e327]'
+                  - row [ref=f33e328]:
+                    - cell "Minimum Operating Temperature:" [ref=f33e329]
+                    - cell "- 40 C" [ref=f33e331]
+                    - cell [ref=f33e332]:
+                      - 'checkbox "Minimum Operating Temperature: - 40 C" [ref=f33e333]'
+                  - row [ref=f33e334]:
+                    - cell "Package/Case:" [ref=f33e335]
+                    - cell "TSSOP-14" [ref=f33e337]
+                    - cell [ref=f33e338]:
+                      - 'checkbox "Package/Case: TSSOP-14" [ref=f33e339]'
+                  - row [ref=f33e340]:
+                    - cell "Mounting Style:" [ref=f33e341]
+                    - cell "SMD/SMT" [ref=f33e343]
+                    - cell [ref=f33e344]:
+                      - 'checkbox "Mounting Style: SMD/SMT" [ref=f33e345]'
+                  - row [ref=f33e346]:
+                    - cell "Qualification:" [ref=f33e347]
+                    - cell "AEC-Q100" [ref=f33e349]
+                    - cell [ref=f33e350]:
+                      - 'checkbox "Qualification: AEC-Q100" [ref=f33e351]'
+                  - row [ref=f33e352]:
+                    - cell "Measures:" [ref=f33e353]
+                    - cell "Angle" [ref=f33e355]
+                    - cell [ref=f33e356]:
+                      - 'checkbox "Measures: Angle" [ref=f33e357]'
+                  - row [ref=f33e358]:
+                    - cell "Technology:" [ref=f33e359]
+                    - cell "Magnetic" [ref=f33e361]
+                    - cell [ref=f33e362]:
+                      - 'checkbox "Technology: Magnetic" [ref=f33e363]'
+                  - row [ref=f33e364]:
+                    - cell "Packaging:" [ref=f33e365]
+                    - cell "Reel" [ref=f33e367]
+                    - cell [ref=f33e368]:
+                      - 'checkbox "Packaging: Reel" [ref=f33e369]'
+                  - row [ref=f33e370]:
+                    - cell "Packaging:" [ref=f33e371]
+                    - cell "Cut Tape" [ref=f33e373]
+                    - cell [ref=f33e374]:
+                      - 'checkbox "Packaging: Cut Tape" [ref=f33e375]'
+                  - row [ref=f33e376]:
+                    - cell "Brand:" [ref=f33e377]
+                    - cell "Infineon Technologies" [ref=f33e378]
+                    - cell [ref=f33e379]
+                  - row [ref=f33e380]:
+                    - cell "Moisture Sensitive:" [ref=f33e381]
+                    - cell "Yes" [ref=f33e382]
+                    - cell [ref=f33e383]
+                  - row [ref=f33e384]:
+                    - cell "Operating Angle:" [ref=f33e385]
+                    - cell "360 deg" [ref=f33e386]
+                    - cell [ref=f33e387]
+                  - row [ref=f33e388]:
+                    - cell "Product Type:" [ref=f33e389]
+                    - cell "Board Mount Motion & Position Sensors" [ref=f33e390]
+                    - cell [ref=f33e391]
+                  - row [ref=f33e392]:
+                    - cell "Resolution:" [ref=f33e393]
+                    - cell "14 bit" [ref=f33e394]
+                    - cell [ref=f33e395]
+                  - row [ref=f33e396]:
+                    - cell "Series:" [ref=f33e397]
+                    - cell [ref=f33e398]:
+                      - link "AS5147P" [ref=f33e399] [cursor=pointer]:
+                        - /url: https://eu.mouser.com/c/sensors/motion-position-sensors/board-mount-motion-position-sensors/?m=Infineon&series=AS5147P
+                    - cell [ref=f33e400]
+                  - row [ref=f33e401]:
+                    - cell [ref=f33e402]:
+                      - button "Factory Pack Quantity" [ref=f33e403] [cursor=pointer]: "Factory Pack Quantity:"
+                    - cell "500" [ref=f33e404]
+                    - cell [ref=f33e405]
+                  - row [ref=f33e406]:
+                    - cell "Subcategory:" [ref=f33e407]
+                    - cell "Sensors" [ref=f33e408]
+                    - cell [ref=f33e409]
+                  - row [ref=f33e410]:
+                    - 'cell "Part # Aliases:" [ref=f33e411]'
+                    - cell "500430007 Q65114A1004" [ref=f33e412]
+                    - cell [ref=f33e413]
+                  - row [ref=f33e414]:
+                    - cell "Unit Weight:" [ref=f33e415]
+                    - cell "5,844 g" [ref=f33e416]
+                    - cell [ref=f33e417]
+              - generic [ref=f33e418]:
+                - text:  
+                - generic [ref=f33e419]:
+                  - text: 
+                  - strong [ref=f33e420]: Select at least one checkbox above to show similar products in this category.
+                - generic [ref=f33e421]:
+                  - button "Show Similar" [disabled] [ref=f33e422]
+                  - strong [ref=f33e424]: "Attributes selected: 0"
+          - generic [ref=f33e426]:
+            - heading [level=2] [ref=f33e428]:
+              - button "Documents (1) " [expanded] [ref=f33e429] [cursor=pointer]
+            - generic [ref=f33e431]:
+              - generic [ref=f33e433]:
+                - generic [ref=f33e434]: "Filter Document:"
+                - combobox "Filter Document:" [ref=f33e438]:
+                  - option "Choose a document type" [selected]
+                  - option "Datasheet (1)"
+              - generic [ref=f33e440]:
+                - heading "Datasheet" [level=3] [ref=f33e443]
+                - list [ref=f33e446]:
+                  - listitem [ref=f33e447]:
+                    - link "AS5147P-HTSM Datasheet (PDF) - Opens in a new window" [ref=f33e448] [cursor=pointer]:
+                      - /url: https://eu.mouser.com/datasheet/3/5912/1/AS5147P_DS000328_2_00.pdf
+                      - generic [ref=f33e449]: 
+                      - text: AS5147P-HTSM Datasheet (PDF)
+          - generic [ref=f33e451]:
+            - heading [level=2] [ref=f33e453]:
+              - button "Environmental Documents " [ref=f33e454] [cursor=pointer]
+            - text: 
+          - text: 
+          - generic [ref=f33e456]:
+            - heading [level=2] [ref=f33e458]:
+              - button "Product & Trade Compliance " [ref=f33e459] [cursor=pointer]
+            - text:   
+          - heading [level=2] [ref=f33e463]:
+            - button "More Information " [ref=f33e464] [cursor=pointer]
+          - heading [level=2] [ref=f33e468]:
+            - button "Customers Also Purchased " [expanded] [ref=f33e469] [cursor=pointer]
+      - generic: 
+      - text: 
+  - contentinfo [ref=f33e470]:
+    - generic [ref=f33e473]:
+      - generic [ref=f33e474]: Get the Latest News
+      - generic [ref=f33e476]:
+        - textbox "Enter your Email" [ref=f33e477]
+        - button "Subscribe" [ref=f33e479] [cursor=pointer]
+    - generic [ref=f33e481]:
+      - generic:  
+      - generic [ref=f33e482]:
+        - generic [ref=f33e483]:
+          - navigation "Customer Service Office" [ref=f33e485]:
+            - list [ref=f33e487]:
+              - listitem [ref=f33e488]:
+                - link "+49 (0)89 520 462 110" [ref=f33e489] [cursor=pointer]:
+                  - /url: tel:49089520462110
+                  - generic [ref=f33e490]: 
+                  - text: +49 (0)89 520 462 110
+              - listitem [ref=f33e491]:
+                - link "europe@mouser.com" [ref=f33e492] [cursor=pointer]:
+                  - /url: mailto:europe%40mouser.com
+                  - generic [ref=f33e493]: 
+                  - text: europe@mouser.com
+              - listitem [ref=f33e494]:
+                - link "Georg-Brauchle-Ring 53 80992 Munich Germany" [ref=f33e495] [cursor=pointer]:
+                  - /url: /contact/
+                  - generic [ref=f33e496]: 
+                  - text: Georg-Brauchle-Ring 5380992 MunichGermany
+              - listitem [ref=f33e497]:
+                - generic [ref=f33e498]:
+                  - link [ref=f33e499] [cursor=pointer]:
+                    - /url: /about-tti/
+                    - img "About TTI" [ref=f33e500]
+                  - generic [ref=f33e501]: Part of the TTIFamily of Specialists
+          - navigation "Company" [ref=f33e503]:
+            - list [ref=f33e505]:
+              - listitem [ref=f33e506]:
+                - link "About Us" [ref=f33e507] [cursor=pointer]:
+                  - /url: /aboutus/
+              - listitem [ref=f33e508]:
+                - link "Newsroom" [ref=f33e509] [cursor=pointer]:
+                  - /url: /newsroom/
+              - listitem [ref=f33e510]:
+                - link "Educational Sales" [ref=f33e511] [cursor=pointer]:
+                  - /url: /educationalsales/
+              - listitem [ref=f33e512]:
+                - link "Careers @ Mouser" [ref=f33e513] [cursor=pointer]:
+                  - /url: https://careers.mouser.com/
+              - listitem [ref=f33e514]:
+                - link "Quality" [ref=f33e515] [cursor=pointer]:
+                  - /url: /quality/
+              - listitem [ref=f33e516]:
+                - link "Environmental" [ref=f33e517] [cursor=pointer]:
+                  - /url: /environmental/
+              - listitem [ref=f33e518]:
+                - link "Corporate Social Responsibility" [ref=f33e519] [cursor=pointer]:
+                  - /url: /corporate-responsibility/
+          - navigation "Resources" [ref=f33e521]:
+            - list [ref=f33e523]:
+              - listitem [ref=f33e524]:
+                - link "Blog" [ref=f33e525] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=f33e526]:
+                - link "Newest Products" [ref=f33e527] [cursor=pointer]:
+                  - /url: /newest/
+              - listitem [ref=f33e528]:
+                - link "New Manufacturers" [ref=f33e529] [cursor=pointer]:
+                  - /url: /new-manufacturer/
+              - listitem [ref=f33e530]:
+                - link "Applications" [ref=f33e531] [cursor=pointer]:
+                  - /url: /applications/
+              - listitem [ref=f33e532]:
+                - link "Services & Tools" [ref=f33e533] [cursor=pointer]:
+                  - /url: /servicesandtools/
+          - navigation "Support" [ref=f33e535]:
+            - list [ref=f33e537]:
+              - listitem [ref=f33e538]:
+                - link "Contact Us" [ref=f33e539] [cursor=pointer]:
+                  - /url: /contact/
+              - listitem [ref=f33e540]:
+                - link "Help" [ref=f33e541] [cursor=pointer]:
+                  - /url: https://eu.mouser.com/help/
+              - listitem [ref=f33e542]:
+                - link "Feedback - opens in a new window" [ref=f33e543] [cursor=pointer]:
+                  - /url: https://eu.mouser.com/feedback/
+                  - generic [ref=f33e544]: 
+                  - text: Feedback
+              - listitem [ref=f33e545]:
+                - link "Browser Support" [ref=f33e546] [cursor=pointer]:
+                  - /url: /browsersupport/
+              - listitem [ref=f33e547]:
+                - link "Cookie Policy" [ref=f33e548] [cursor=pointer]:
+                  - /url: /cookie-policy/
+        - navigation "Connect with Us" [ref=f33e550]:
+          - list
+          - list [ref=f33e552]:
+            - listitem [ref=f33e553]:
+              - link "facebook" [ref=f33e554] [cursor=pointer]:
+                - /url: https://www.facebook.com/mouserelectronics
+                - generic [ref=f33e555]: 
+            - listitem [ref=f33e556]:
+              - link "Instagram" [ref=f33e557] [cursor=pointer]:
+                - /url: https://www.instagram.com/mouserelec/
+                - generic [ref=f33e558]: 
+            - listitem [ref=f33e559]:
+              - link "Twitter" [ref=f33e560] [cursor=pointer]:
+                - /url: https://www.x.com/mousereleceu
+                - generic [ref=f33e561]: 
+            - listitem [ref=f33e562]:
+              - link "RSS" [ref=f33e563] [cursor=pointer]:
+                - /url: /rssfeeds
+                - generic [ref=f33e564]: 
+            - listitem [ref=f33e565]:
+              - link "YouTube" [ref=f33e566] [cursor=pointer]:
+                - /url: https://www.youtube.com/mouserelec
+                - generic [ref=f33e567]: 
+            - listitem [ref=f33e568]:
+              - link "LinkedIn" [ref=f33e569] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/mouser-electronics/
+                - generic [ref=f33e570]: 
+            - listitem [ref=f33e571]:
+              - link "Subscription Centre" [ref=f33e572] [cursor=pointer]:
+                - /url: https://sub.info.mouser.com/subscriber-gb
+                - generic [ref=f33e573]: 
+            - listitem [ref=f33e574]:
+              - link "Mouser Blog" [ref=f33e575] [cursor=pointer]:
+                - /url: /blog
+                - generic [ref=f33e576]: 
+      - separator [ref=f33e577]
+      - generic [ref=f33e581]:
+        - list [ref=f33e582]:
+          - text: 
+          - listitem [ref=f33e583]:
+            - link "Privacy Centre" [ref=f33e584] [cursor=pointer]:
+              - /url: /privacypolicy/
+          - listitem [ref=f33e585]:
+            - link "Terms and Conditions" [ref=f33e586] [cursor=pointer]:
+              - /url: /saleterms
+          - listitem [ref=f33e587]:
+            - link "Accessibility" [ref=f33e588] [cursor=pointer]:
+              - /url: /accessibility/
+          - listitem [ref=f33e589]:
+            - link "Sitemap" [ref=f33e590] [cursor=pointer]:
+              - /url: /html-sitemap/
+        - paragraph [ref=f33e591]: Copyright ©2026 Mouser Electronics, Inc.
+        - paragraph [ref=f33e592]: Mouser® and Mouser Electronics® are trademarks of Mouser Electronics, Inc. in the U.S. and/or other countries. All other trademarks are the property of their respective owners. Corporate headquarters and logistics centre in Mansfield, Texas USA.
+  - button "Live Chat" [ref=f33e595] [cursor=pointer]:
+    - img "Live Chat" [ref=f33e597]
+  - log [ref=f33e601]

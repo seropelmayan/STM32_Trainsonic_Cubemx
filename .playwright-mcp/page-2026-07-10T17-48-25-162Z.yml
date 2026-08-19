@@ -1,0 +1,223 @@
+- generic [active] [ref=f23e1]:
+  - banner [ref=f23e2]:
+    - link "Skip to Main Content" [ref=f23e4] [cursor=pointer]:
+      - /url: javascript:SkipLink();
+    - generic [ref=f23e7]:
+      - generic:
+        - generic [ref=f23e8]:
+          - text: 
+          - generic [ref=f23e10]:
+            - link "Part of the TTI Family of Specialists" [ref=f23e11] [cursor=pointer]:
+              - /url: /about-tti/
+            - generic [ref=f23e12]: "|"
+            - link "Contact Mouser (Europe) +49 (0)89 520 462 110" [ref=f23e13] [cursor=pointer]:
+              - /url: https://eu.mouser.com/contact/
+              - generic [ref=f23e14]: 
+              - text: Contact Mouser (Europe) +49 (0)89 520 462 110
+            - generic [ref=f23e15]: "|"
+            - link "Feedback - opens in a new window" [ref=f23e16] [cursor=pointer]:
+              - /url: https://eu.mouser.com/feedback/
+              - generic [ref=f23e17]: 
+              - text: Feedback
+        - generic [ref=f23e18]:
+          - link "Change Location - currently set to Europe" [ref=f23e19] [cursor=pointer]:
+            - /url: /cs/localsites?qs=0gZ0gv0KDwsPeU1aLKWeCtwA6kRRgv5JNiNesNxM5woCaB7qQRm7U41TwAK5bSDZZOaTDotQpRw%3D
+            - text: Change Location
+          - button "English" [ref=f23e22] [cursor=pointer]:
+            - text: English
+            - generic [ref=f23e23]: 
+          - button "€ EUR" [expanded] [ref=f23e26] [cursor=pointer]:
+            - text: € EUR
+            - generic [ref=f23e27]: 
+    - generic [ref=f23e28]:
+      - generic [ref=f23e29]:
+        - generic:
+          - link "Mouser Electronics Europe - Electronic Components Distributor" [ref=f23e31] [cursor=pointer]:
+            - /url: https://eu.mouser.com/
+            - img "Mouser Logo" [ref=f23e32]
+          - generic [ref=f23e36]:
+            - generic:
+              - generic [ref=f23e38]:
+                - button "Filter your search - all categories" [ref=f23e40] [cursor=pointer]:
+                  - text: All
+                  - generic [ref=f23e41]: 
+                - generic:
+                  - textbox "Enter a part number or keyword" [ref=f23e43]:
+                    - /placeholder: Part No. / Keyword
+                  - text: 
+                - button "Search all Mouser parts" [ref=f23e45] [cursor=pointer]:
+                  - generic [ref=f23e46]: 
+              - generic [ref=f23e47]:
+                - generic [ref=f23e49]:
+                  - checkbox "In Stock" [ref=f23e50]
+                  - text: In Stock
+                - generic [ref=f23e52]:
+                  - checkbox "RoHS" [ref=f23e53]
+                  - text: RoHS
+      - navigation "main menu" [ref=f23e54]:
+        - generic [ref=f23e56]:
+          - generic:
+            - text:                    
+            - button "Toggle navigation menu." [ref=f23e58] [cursor=pointer]:
+              - generic [ref=f23e59]: 
+              - text: Menu
+            - generic [ref=f23e60]:
+              - link "Account & Orders" [ref=f23e62] [cursor=pointer]:
+                - /url: https://eu.mouser.com/app/account
+              - link "Basket" [ref=f23e66] [cursor=pointer]:
+                - /url: https://eu.mouser.com/Cart
+                - generic [ref=f23e67]: 
+          - text:   
+    - text:                       
+  - main [ref=f23e68]:
+    - generic [ref=f23e73]:
+      - generic [ref=f23e74]:
+        - heading "Sorry, we can’t find the page you’re looking for." [level=1] [ref=f23e75]
+        - paragraph [ref=f23e76]:
+          - text: Need help? Check out
+          - link "Help Centre" [ref=f23e77] [cursor=pointer]:
+            - /url: https://eu.mouser.com/help/
+          - text: .
+      - img "Girl sitting on a keyboard." [ref=f23e79]
+  - contentinfo [ref=f23e80]:
+    - generic [ref=f23e82]:
+      - generic [ref=f23e83]:
+        - generic:
+          - generic [ref=f23e84]: Get the Latest News
+          - generic [ref=f23e86]:
+            - textbox "Enter your Email" [ref=f23e87]
+            - button "Subscribe" [ref=f23e89] [cursor=pointer]
+      - generic [ref=f23e90]:
+        - generic:
+          - text:  
+          - generic:
+            - generic [ref=f23e91]:
+              - heading "Customer Service Office" [level=2] [ref=f23e92]
+              - list [ref=f23e96]:
+                - listitem [ref=f23e97]:
+                  - link "+49 (0)89 520 462 110" [ref=f23e98] [cursor=pointer]:
+                    - /url: tel:49089520462110
+                    - generic [ref=f23e99]: 
+                - listitem [ref=f23e101]:
+                  - link "europe@mouser.com" [ref=f23e102] [cursor=pointer]:
+                    - /url: mailto:europe%40mouser.com
+                    - generic [ref=f23e103]: 
+                - listitem [ref=f23e105]:
+                  - link [ref=f23e106] [cursor=pointer]:
+                    - /url: /contact/
+                    - generic [ref=f23e107]: 
+                    - generic [ref=f23e108]: Georg-Brauchle-Ring 5380992 MunichGermany
+                - listitem [ref=f23e109]:
+                  - generic [ref=f23e110]:
+                    - link [ref=f23e112] [cursor=pointer]:
+                      - /url: /about-tti/
+                      - img "About TTI" [ref=f23e113]
+                    - generic [ref=f23e114]: Part of the TTIFamily of Specialists
+            - generic [ref=f23e116]:
+              - heading "Company" [level=2] [ref=f23e117]
+              - list [ref=f23e119]:
+                - listitem [ref=f23e120]:
+                  - link "About Us" [ref=f23e121] [cursor=pointer]:
+                    - /url: /aboutus/
+                - listitem [ref=f23e122]:
+                  - link "Newsroom" [ref=f23e123] [cursor=pointer]:
+                    - /url: /newsroom/
+                - listitem [ref=f23e124]:
+                  - link "Educational Sales" [ref=f23e125] [cursor=pointer]:
+                    - /url: /educationalsales/
+                - listitem [ref=f23e126]:
+                  - link "Careers @ Mouser" [ref=f23e127] [cursor=pointer]:
+                    - /url: https://careers.mouser.com/
+                - listitem [ref=f23e128]:
+                  - link "Quality" [ref=f23e129] [cursor=pointer]:
+                    - /url: /quality/
+                - listitem [ref=f23e130]:
+                  - link "Environmental" [ref=f23e131] [cursor=pointer]:
+                    - /url: /environmental/
+                - listitem [ref=f23e132]:
+                  - link "Corporate Social Responsibility" [ref=f23e133] [cursor=pointer]:
+                    - /url: /corporate-responsibility/
+            - generic [ref=f23e134]:
+              - heading "Resources" [level=2] [ref=f23e135]
+              - list [ref=f23e137]:
+                - listitem [ref=f23e138]:
+                  - link "Blog" [ref=f23e139] [cursor=pointer]:
+                    - /url: /blog
+                - listitem [ref=f23e140]:
+                  - link "Newest Products" [ref=f23e141] [cursor=pointer]:
+                    - /url: /newest/
+                - listitem [ref=f23e142]:
+                  - link "New Manufacturers" [ref=f23e143] [cursor=pointer]:
+                    - /url: /new-manufacturer/
+                - listitem [ref=f23e144]:
+                  - link "Applications" [ref=f23e145] [cursor=pointer]:
+                    - /url: /applications/
+                - listitem [ref=f23e146]:
+                  - link "Services & Tools" [ref=f23e147] [cursor=pointer]:
+                    - /url: /servicesandtools/
+            - generic [ref=f23e148]:
+              - heading "Support" [level=2] [ref=f23e149]
+              - list [ref=f23e151]:
+                - listitem [ref=f23e152]:
+                  - link "Contact Us" [ref=f23e153] [cursor=pointer]:
+                    - /url: /contact/
+                - listitem [ref=f23e154]:
+                  - link "Help" [ref=f23e155] [cursor=pointer]:
+                    - /url: https://eu.mouser.com/help/
+                - listitem [ref=f23e156]:
+                  - link "Feedback" [ref=f23e157] [cursor=pointer]:
+                    - /url: https://eu.mouser.com/feedback/
+                    - generic [ref=f23e158]: 
+                    - text: Feedback
+                - listitem [ref=f23e159]:
+                  - link "Browser Support" [ref=f23e160] [cursor=pointer]:
+                    - /url: /browsersupport/
+                - listitem [ref=f23e161]:
+                  - link "Cookie Policy" [ref=f23e162] [cursor=pointer]:
+                    - /url: /cookie-policy/
+          - generic [ref=f23e163]:
+            - heading "Connect with Us" [level=2] [ref=f23e164]
+            - generic [ref=f23e165]:
+              - link "facebook" [ref=f23e166] [cursor=pointer]:
+                - /url: https://www.facebook.com/mouserelectronics
+                - generic [ref=f23e167]: 
+              - link "Instagram" [ref=f23e168] [cursor=pointer]:
+                - /url: https://www.instagram.com/mouserelec/
+                - generic [ref=f23e169]: 
+              - link "Twitter" [ref=f23e170] [cursor=pointer]:
+                - /url: https://www.x.com/mousereleceu
+                - generic [ref=f23e171]: 
+              - link "RSS" [ref=f23e172] [cursor=pointer]:
+                - /url: /rssfeeds
+                - generic [ref=f23e173]: 
+              - link "YouTube" [ref=f23e174] [cursor=pointer]:
+                - /url: https://www.youtube.com/mouserelec
+                - generic [ref=f23e175]: 
+              - link "LinkedIn" [ref=f23e176] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/mouser-electronics/
+                - generic [ref=f23e177]: 
+              - link "Subscription Centre" [ref=f23e178] [cursor=pointer]:
+                - /url: https://sub.info.mouser.com/subscriber-gb
+                - generic [ref=f23e179]: 
+              - link "Mouser Blog" [ref=f23e180] [cursor=pointer]:
+                - /url: /blog
+                - generic [ref=f23e181]: 
+      - generic [ref=f23e182]:
+        - generic:
+          - text: 
+          - generic [ref=f23e183]:
+            - paragraph [ref=f23e184]:
+              - link "Privacy Centre" [ref=f23e185] [cursor=pointer]:
+                - /url: /privacypolicy/
+              - text: "|"
+              - link "Terms and Conditions" [ref=f23e186] [cursor=pointer]:
+                - /url: /saleterms
+              - text: "|"
+              - link "Accessibility" [ref=f23e187] [cursor=pointer]:
+                - /url: /accessibility/
+              - text: "|"
+              - link "Sitemap" [ref=f23e188] [cursor=pointer]:
+                - /url: /html-sitemap/
+            - paragraph [ref=f23e189]: Copyright ©2026 Mouser Electronics, Inc.
+            - paragraph [ref=f23e190]: Mouser® and Mouser Electronics® are trademarks of Mouser Electronics, Inc. in the U.S. and/or other countries. All other trademarks are the property of their respective owners. Corporate headquarters and logistics centre in Mansfield, Texas USA.
+  - text: « »

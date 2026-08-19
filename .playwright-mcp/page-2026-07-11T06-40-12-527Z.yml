@@ -1,0 +1,18 @@
+- generic [active] [ref=f21e1]:
+  - main [ref=f21e2]:
+    - generic [ref=f21e3]:
+      - heading "hgtmagnets.com" [level=1] [ref=f21e5]
+      - heading "Performing security verification" [level=2] [ref=f21e6]
+      - paragraph [ref=f21e7]: This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
+  - contentinfo [ref=f21e14]:
+    - generic [ref=f21e16]:
+      - generic [ref=f21e18]:
+        - text: "Ray ID:"
+        - code [ref=f21e19]: a195d0c16e8601ff
+      - generic [ref=f21e20]:
+        - generic [ref=f21e21]:
+          - text: Performance and Security by
+          - link "Cloudflare" [ref=f21e22] [cursor=pointer]:
+            - /url: https://www.cloudflare.com?utm_source=challenge&utm_campaign=l
+        - link "Privacy" [ref=f21e24] [cursor=pointer]:
+          - /url: https://www.cloudflare.com/privacypolicy/

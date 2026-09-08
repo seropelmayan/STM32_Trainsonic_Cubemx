@@ -104,8 +104,17 @@
 #define DEFAULT_FLUX_COMPONENT_A            0
 
 /**************************    FIRMWARE PROTECTIONS SECTION   *****************/
-#define OV_VOLTAGE_THRESHOLD_V              60.0 /*!< Over-voltage threshold */
-#define UD_VOLTAGE_THRESHOLD_V              20.0 /*!< Under-voltage threshold */
+#define OV_VOLTAGE_THRESHOLD_V              70.0 /* raised 60->70 for the 15S pack (hand-edit; REDO IN MC WORKBENCH on regen).
+                                                 15S full = 63 V; bench scope shows ~+5 V IR rise at the pack during heavy
+                                                 regen (58 V rest -> ~64 V), so 60 V nuisance-tripped. 70 V = 6 V above that
+                                                 peak, 20 V below the weakest bus part (90 V buck converter), and 10 V below
+                                                 the Vbus sense saturation (ADC_REFERENCE_VOLTAGE/VBUS_PARTITIONING_FACTOR
+                                                 = 80.3 V) so the reading stays linear through the threshold. */
+#define UD_VOLTAGE_THRESHOLD_V              42.0 /* raised 20->42 for the 15S pack (hand-edit; REDO IN MC WORKBENCH on regen).
+                                                 = 2.8 V/cell. 20.0 was a 13S-era placeholder that let the drive keep pulling
+                                                 29 A far below the pack floor, leaving the BMS to disconnect under load --
+                                                 the failure FW_OPTIMIZATION_AUDIT.md flags as the classic VESC field kill.
+                                                 MUST sit ABOVE the BMS LVC setpoint so firmware stops FIRST -- VERIFY. */
 #ifdef NOT_IMPLEMENTED
 #define ON_OVER_VOLTAGE                     TURN_ON_LOW_SIDES /*!< TURN_OFF_PWM, TURN_ON_R_BRAKE or TURN_ON_LOW_SIDES */
 #endif /* NOT_IMPLEMENTED */

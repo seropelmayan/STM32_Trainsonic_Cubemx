@@ -1048,10 +1048,15 @@ static void motor_status_log(void)
     extern volatile float    g_spdcap_rpm;
     extern volatile float    g_spdcap_brake_now_a;
     extern volatile uint32_t g_spi_err_count;
+    extern volatile float    g_lowv_vrest_v;   /* IR-compensated pack estimate */
+    extern volatile float    g_lowv_factor;    /* low-pack taper, 1.0 = none    */
+    extern volatile float    g_modcap_factor;  /* modulation ceiling,     1 = none */
     extern int16_t Ropetow_McFwAvVolt(void);
     extern int16_t Ropetow_McFwVTarget(void);
+    int32_t vrest_dv = (int32_t)(g_lowv_vrest_v * 10.0f);   /* tenths of a volt */
     LOG_Printf("[m] %s spd=%ld cap=%d brk=%d | Iqref=%d Iq=%d Id=%d IdFW=%d | "
-               "avV=%d/%d | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
+               "avV=%d/%d | I=%ld.%ldA Vb=%uV pack=%ld.%ldV tap=%d%% "
+               "mod=%d%% enc=%s err=%lu\r\n",
                mc_state_name(state),
                (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT,
                (int)g_spdcap_rpm,
@@ -1063,6 +1068,9 @@ static void motor_status_log(void)
                (int)Ropetow_McFwAvVolt(), (int)Ropetow_McFwVTarget(),
                i_tenths / 10, i_tenths % 10,
                (unsigned)VBS_GetAvBusVoltage_V(&BusVoltageSensor_M1._Super),
+               vrest_dv / 10, (vrest_dv < 0) ? -(vrest_dv % 10) : (vrest_dv % 10),
+               (int)(g_lowv_factor * 100.0f),
+               (int)(g_modcap_factor * 100.0f),
                MC_GetSpeedSensorReliabilityMotor1() ? "ok" : "BAD",
                (unsigned long)g_spi_err_count);
   }

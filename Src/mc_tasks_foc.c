@@ -399,7 +399,10 @@ volatile float    g_spdcap_hard_rpm  = 800.0f; /* ABSOLUTE firmware ceiling: the
                                                   sends, so the request passes through unclamped. Only
                                                   affects MOTOR-driven motion (q*spd > 0): the brake and
                                                   roll-off never touch a pull. Keep < the 1150 rpm
-                                                  over-speed fault (mc_config_common.c). */
+                                                  over-speed fault (mc_config_common.c). In practice the
+                                                  MODCAP_* modulation ceiling below eases the command off
+                                                  before the ~815 rpm voltage wall (57 V pack), so this
+                                                  brake is a backstop, not the normal rewind limiter. */
 #define SPDCAP_BAND_RPM   120.0f                /* roll-off band below the cap (rpm). Widened 40->120:
                                                    VESC-documented anti-limit-cycle rule is band >> speed
                                                    ripple -- at 40 the derating acted as a relay (7 A
@@ -504,6 +507,105 @@ volatile float    g_fwff_ma_per_rpm = 0.0f;   /* speed-scheduled Id feed-forward
                                                  ~10 ms anyway. Keep the mechanism for A/B or if the FW
                                                  loop ever has to slow down again. */
 volatile float    g_fwff_knee_rpm   = 500.0f; /* FF starts above this |speed| (SPI speed, rpm) */
+
+/* ---- Modulation ceiling (Ropetow): FADE THE COMMAND at the voltage wall, never brake
+   Replaces "accelerate the handle home at the full weight setting until the
+   governor brakes it at the cap". Braking against your own torque command burns
+   current to fight yourself (see REWIND_DERATE_ESP_PATCH.md); simply not commanding
+   the force is smooth and free. Only ever REDUCES |q|, and is gated on MOTOR-DRIVEN
+   motion (q and speed same sign), so pull purity is untouched.
+
+   PRODUCT RULE (Serop, 2026-09-08): the rewind must feel like the SAME weight as the
+   pull. An earlier "stage 1" faded retract torque with speed down to a fixed 2 A
+   keep-tension floor (150..400 rpm); it was rejected on the machine -- "much lower
+   than the pull torque, didn't feel good" -- and removed. Do NOT reintroduce any
+   speed-indexed torque fade here. The command stays at the full weight setting
+   until the inverter physically runs out of volts, and only then eases off.
+
+   MODCAP_* -- physics ceiling. Fades the command as the inverter runs out
+   of voltage, using the modulation index |Vqd|/MAX_MODULE (FW_M1.AvVoltAmpl, the
+   same filtered signal the FW PI regulates, ~1.3 ms). That ratio is inherently
+   BUS-RELATIVE: as the pack sags, holding a speed needs a higher modulation, so the
+   ceiling tracks whatever the bus allows at that moment with no Vbus term, no Ke
+   constant (and no Ke temperature drift), and load/IR drop already folded in.
+   Cascades below the FW PI (target 85%): FW gets first crack at making headroom --
+   it costs volts, not felt force -- and only if voltage still climbs does the torque
+   command back off. Ends at 95%, the linear-modulation ceiling, so the drive never
+   enters overmodulation (the #1 roughness source in the literature per
+   FW_OPTIMIZATION_AUDIT.md).
+
+   Equilibrium is self-finding: drum accelerates -> back-EMF rises -> modulation
+   rises -> command fades -> acceleration goes to zero. Negative feedback into an
+   integrating plant, so it settles rather than oscillates. */
+#define MODCAP_START         0.90f   /* begin fading at this fraction of MAX_MODULE  */
+#define MODCAP_END           0.95f   /* fully faded here (linear-modulation ceiling) */
+#define MODCAP_SLEW_ALPHA    (1.0f / (0.080f * (float)SPEED_LOOP_FREQUENCY_HZ))
+volatile float    g_modcap_factor  = 1.0f;   /* telemetry: modulation ceiling factor, 1 = idle  */
+
+/* ---- Low-pack taper (Ropetow): fade power draw to zero as the battery empties -
+   A UV fault at speed is the SAME event as an OV fault -- PWM off, resistance
+   gone under the user's hands, drive freewheeling into uncontrolled
+   rectification. This taper exists so UD_VOLTAGE_THRESHOLD_V is never reached:
+   the machine eases off over a few volts instead of letting go at a threshold.
+
+   IR-COMPENSATED, and that is the whole design. Tapering on the raw (sagged) bus
+   makes a feedback loop -- less torque -> less sag -> higher bus -> more torque --
+   with static gain (sag authority)/(taper band). At the ~5 V of sag measured on
+   this pack that ratio exceeds 1 for any sensible band, so it limit-cycles; and
+   its equilibrium k = (Vrest-end)/(band+sag) would demand Vrest >= ~52 V
+   (3.5 V/cell) for full resistance, throwing away half the pack. Estimating the
+   RESTING voltage removes the loop entirely -- Vrest is invariant to how much
+   current we happen to be drawing -- so the taper becomes a pure function of pack
+   state. It is the same compensation the BMS does internally, which is why the
+   BMS trips on true depletion (3.0 V/cell) rather than on transient sag.
+
+       Vrest ~= Vbus + Ibus * R_PACK,    Ibus = P_elec / Vbus
+
+   P_elec (PQD) is signed: +ve = drawing from the pack, -ve = regenerating, so the
+   estimate is correct in both directions. The taper is APPLIED only while drawing:
+   on this machine a PULL regenerates and CHARGES the pack, so throttling pull
+   resistance would be backwards. It is the rewind -- and any standstill hold --
+   that drains it. */
+/* Band placement. Setting (START - END) == the full-draw sag has a useful
+   property: the SAGGED bus is then held FLAT at END right across the band, since
+   bus = Vrest - sag*f = Vrest - sag*(Vrest-END)/(START-END) = END. So the taper
+   behaves as a passive bus regulator pinned at END, and UD_VOLTAGE_THRESHOLD_V
+   is simply never reached while drawing. With the measured ~5 V sag:
+     START 51.0 -> full resistance down to 3.40 V/cell (~12% SoC on a Li-ion curve)
+     END   46.0 -> faded to zero at 3.07 V/cell, holding the bus at 46 V (4 V above
+                   the 42 V UV fault)
+   END is deliberately ~1 V above the BMS's 3.0 V/cell LVC: that trip watches the
+   WEAKEST cell, so on a pack with ~100 mV of spread the weakest reaches 3.0 while
+   the average is ~3.07 -- this way the draw is already zero before the BMS can
+   open the pack under load. Widen the spread -> raise BOTH by the same amount to
+   keep the band equal to the sag. */
+#define LOWV_START_V     51.0f   /* begin fading  (3.40 V/cell on 15S) */
+#define LOWV_END_V       46.0f   /* fully faded   (3.07 V/cell on 15S) */
+#define LOWV_D_TO_V      ((float)(ADC_REFERENCE_VOLTAGE / VBUS_PARTITIONING_FACTOR) / 65535.0f)
+/* Ibus filter matched to the ~250 ms Vbus average (RVBS_CalcAvVbus is a >>8 IIR)
+   so the two terms of the estimate are time-aligned; PQD's own filter is >>4
+   (~16 ms) and would otherwise lurch the estimate on every transient. */
+#define LOWV_IBUS_ALPHA  (1.0f / (0.250f * (float)SPEED_LOOP_FREQUENCY_HZ))
+/* Output slew: depletion takes minutes, and the felt force must not wobble with
+   per-pull power ripple. Also guarantees dynamic stability whatever the map. */
+#define LOWV_LPF_ALPHA   (1.0f / (1.000f * (float)SPEED_LOOP_FREQUENCY_HZ))
+/* Deadband on the "am I drawing?" gate. Without it Ibus dithers about zero while
+   idling in RUN and the taper would engage/release on alternating ticks, i.e. a
+   relay inside the felt force -- the same failure the brake deadband exists for
+   (see g_spdcap_brake_now_a). 0.1 A of bus current is ~5 W, safely below any
+   real draw. */
+#define LOWV_DRAW_DEADBAND_A  0.1f
+/* Pack + wiring + BMS path resistance, ohms. CALIBRATE: it is the resistance that
+   produced the measured sag, R = dV / Ibus (bench 2026-09-08: ~5 V at the pack
+   under heavy load, both directions). 0.31 assumes that 5 V came at ~16 A and is
+   an ESTIMATE, not a measurement -- 0.31 ohm is high for a 15S pack's cells, so
+   most of it is probably wiring/connector/BMS-FET and worth chasing.
+   Too LARGE -> Vrest overestimated -> taper engages late -> UV fault still fires
+   (no worse than today). Too SMALL -> engages early -> capacity lost but safe.
+   Set 0 to disable the taper entirely. */
+volatile float    g_lowv_r_pack_ohm = 0.31f;
+volatile float    g_lowv_vrest_v    = 0.0f;  /* telemetry: estimated resting pack voltage */
+volatile float    g_lowv_factor     = 1.0f;  /* telemetry: applied taper, 1 = no taper     */
 /* USER CODE END Private Variables */
 
 /* Private functions ---------------------------------------------------------*/
@@ -1302,6 +1404,104 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
       s_brk_lpf     = 0.0f;
       s_roll_lpf    = 1.0f;
       g_spdcap_brake_now_a = 0.0f;
+    }
+  }
+
+  /* ---- Modulation ceiling (see the MODCAP_ defines) ---------------------------
+     Cascade of pure |q| reductions: modulation ceiling (physics) -> low-pack taper
+     (battery) -> the governor brake remains only as a backstop at
+     g_spdcap_hard_rpm. No speed-indexed fade: rewind torque == pull torque. */
+  {
+    static float s_mod_lpf = 1.0f;      /* slewed modulation-ceiling factor */
+    if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN))
+    {
+      /* Same speed source and sign convention as the governor: magnitude AND sign
+         from one averaged sensor is reversal-safe by construction. */
+      int32_t spd_rpm = ((int32_t)ENCODER_M1._Super.hAvrMecSpeedUnit * U_RPM) / SPEED_UNIT;
+      int16_t q       = FOCVars[M1].Iqdref.q;
+      int16_t qnew    = q;
+      uint8_t driven  = (((int32_t)q * spd_rpm) > 0) ? 1U : 0U;   /* motor-driven */
+
+      {
+        float f = 1.0f;
+        if (driven != 0U)
+        {
+          float m = (float)FW_M1.AvVoltAmpl / (float)MAX_MODULE;   /* modulation index */
+          f = (MODCAP_END - m) / (MODCAP_END - MODCAP_START);
+          if (f < 0.0f) { f = 0.0f; }
+          if (f > 1.0f) { f = 1.0f; }
+        }
+        s_mod_lpf += (f - s_mod_lpf) * MODCAP_SLEW_ALPHA;
+        g_modcap_factor = s_mod_lpf;
+        if ((driven != 0U) && (s_mod_lpf < 0.999f))
+        {
+          qnew = (int16_t)((float)qnew * s_mod_lpf);
+        }
+      }
+
+      if (qnew != q)
+      {
+        __disable_irq();
+        FOCVars[M1].Iqdref.q = qnew;
+        __enable_irq();
+      }
+    }
+    else
+    {
+      s_mod_lpf       = 1.0f;           /* stopped / step-test: re-seed clean */
+      g_modcap_factor = 1.0f;
+    }
+  }
+
+  /* ---- Low-pack taper (see LOWV_* in Private Variables for the design) -------
+     Runs LAST so it caps the final q reference, after anti-cogging FF, the FW
+     circle clamp and the speed governor. Only ever REDUCES |q|. */
+  {
+    static float s_lowv_ibus = 0.0f;   /* Ibus, LPF'd to match the Vbus average */
+    static float s_lowv_lpf  = 1.0f;   /* slewed taper factor actually applied   */
+    if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN)
+        && (g_lowv_r_pack_ohm > 0.0f))
+    {
+      float vbus = (float)VBS_GetAvBusVoltage_d(&BusVoltageSensor_M1._Super) * LOWV_D_TO_V;
+      float f    = 1.0f;
+      uint8_t drawing = 0U;
+
+      if (vbus > 1.0f)                 /* guard the divide before the bus is up */
+      {
+        float p_w = PQD_GetAvrgElMotorPowerW(pMPM[M1]);   /* signed, +ve = drawing */
+        s_lowv_ibus += ((p_w / vbus) - s_lowv_ibus) * LOWV_IBUS_ALPHA;
+        {
+          float vrest = vbus + (s_lowv_ibus * g_lowv_r_pack_ohm);
+          g_lowv_vrest_v = vrest;
+          f = (vrest - LOWV_END_V) / (LOWV_START_V - LOWV_END_V);
+          if (f < 0.0f) { f = 0.0f; }
+          if (f > 1.0f) { f = 1.0f; }
+        }
+        /* Estimate tracks pack state in BOTH directions, but only throttle while
+           actually drawing -- a pull is recharging the pack, not draining it. */
+        if (s_lowv_ibus > LOWV_DRAW_DEADBAND_A) { drawing = 1U; }
+      }
+
+      s_lowv_lpf += (f - s_lowv_lpf) * LOWV_LPF_ALPHA;
+      g_lowv_factor = s_lowv_lpf;
+
+      if ((drawing != 0U) && (s_lowv_lpf < 0.999f))
+      {
+        int16_t q  = FOCVars[M1].Iqdref.q;
+        int16_t qn = (int16_t)((float)q * s_lowv_lpf);
+        if (qn != q)
+        {
+          __disable_irq();
+          FOCVars[M1].Iqdref.q = qn;
+          __enable_irq();
+        }
+      }
+    }
+    else
+    {
+      s_lowv_ibus   = 0.0f;            /* stopped / taper disabled: re-seed clean */
+      s_lowv_lpf    = 1.0f;
+      g_lowv_factor = 1.0f;
     }
   }
   /* USER CODE END FOC_CalcCurrRef 1 */

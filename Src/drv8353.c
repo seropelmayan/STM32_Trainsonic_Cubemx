@@ -30,7 +30,10 @@
 #define DRV_GDLS_TDRIVE_500NS (0x1U << 8) /* bits[9:8] peak gate-current drive time     */
 
 /* OCP Control (0x05) */
-#define DRV_OCP_DEAD_TIME_50NS  (0x0U << 8) /* bits[9:8]=00 -> 50ns; only used in 1x/3x PWM modes */
+#define DRV_OCP_DEAD_TIME_50NS  (0x0U << 8) /* bits[9:8]=00 -> 50ns digital tDEAD. Per datasheet 8.3.1.4.2 this
+                                              * applies in ALL PWM modes incl. 6x, ON TOP of the VGS handshake
+                                              * (only Independent mode bypasses the handshake). TIM1 also
+                                              * inserts SW_DEADTIME_NS (100 ns) -- kept as defence in depth. */
 #define DRV_OCP_MODE_LATCH      (0x0U << 6) /* bits[7:6] = 00 -> overcurrent latches off */
 #define DRV_OCP_DEG_4US         (0x2U << 4) /* bits[5:4] overcurrent deglitch time      */
 

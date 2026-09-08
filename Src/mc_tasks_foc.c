@@ -404,16 +404,16 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 700.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+volatile float    g_spdcap_hard_rpm  = 600.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
                                                   min(requested, hard), and enforces hard even when the
                                                   request is 0/absent. NOT writable from the ESP link --
                                                   the STM32 has the last word on top speed. The ESP
-                                                  heartbeat asks for 800; it is clamped to this. 700
-                                                  (Serop, 2026-09-08): 800 rpm rewind "didn't feel
-                                                  good" even with the modulation ceiling; 700 keeps
-                                                  ~15% voltage headroom at a 57 V pack (~815 rpm wall)
-                                                  so the governor roll-off band (580..700) does the
-                                                  limiting in a region the current loop still owns.
+                                                  heartbeat asks for 800; it is clamped to this. 600
+                                                  (Serop, 2026-09-08): 800 and then 700 both still
+                                                  "hit the wall" on the rewind under load -- the pack
+                                                  sags and IR drop moves the ~815 rpm no-load wall
+                                                  down. 600 leaves ~25% headroom so the roll-off band
+                                                  (480..600) limits well inside current-loop authority.
                                                   Only affects MOTOR-driven motion (q*spd > 0): the
                                                   brake and roll-off never touch a pull. Keep < the
                                                   1150 rpm over-speed fault (mc_config_common.c). */

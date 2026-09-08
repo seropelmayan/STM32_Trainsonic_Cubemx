@@ -26,7 +26,7 @@
 
 /* Bump on ANY incompatible change (add/remove/resize a message or field).
    Exchanged in TSL_MSG_HELLO; a mismatch must be treated as a fatal link fault. */
-#define TSL_PROTOCOL_VERSION      3u   /* v3: TSL_MSG_CALIBRATE (anti-cogging control) */
+#define TSL_PROTOCOL_VERSION      4u   /* v4: heartbeat carries brake_mA (speed-window control); v3: TSL_MSG_CALIBRATE */
 
 /* Link watchdog: STM32 enters safe state if no valid ESP32 frame arrives within this. */
 #define TSL_LINK_TIMEOUT_MS       200u
@@ -93,6 +93,7 @@ typedef enum { TSL_CAL_START=0, TSL_CAL_ABORT=1, TSL_CAL_SAVE=2, TSL_CAL_ERASE=3
 #define TSL_SFLAG_FW_ON        0x02u     /* flux weakening active             */
 #define TSL_SFLAG_CALIBRATING  0x04u     /* anti-cogging cal in progress (probe or sweep) */
 #define TSL_SFLAG_READY        0x08u     /* boot + encoder alignment complete; latched once ready for commands */
+#define TSL_SFLAG_AT_LIMIT     0x10u     /* speed-window: speed PI is on a torque limit (drive side or brake side) */
 
 /* ------------------------------------------------------------------------- */
 /* Payload structs. Little-endian, explicitly packed. Fixed scaling in comments. */
@@ -110,9 +111,21 @@ typedef struct {                    /* TSL_MSG_ACK */
 
 typedef struct {                    /* TSL_MSG_HEARTBEAT (ESP32->STM32) */
   uint32_t seq;                     /* increments each heartbeat         */
-  int16_t  torque_mA;              /* live torque setpoint, milliamps (signed) */
-  int16_t  speed_rpm;              /* SPEED mode: speed setpoint.
-                                      TORQUE mode: velocity-limit MAGNITUDE (rpm), 0 = unlimited */
+  int16_t  torque_mA;              /* DRIVE-side torque limit, milliamps, SIGNED. The sign is the
+                                      direction of the speed reference: <0 = inward (retract, the
+                                      weight), >0 = outward (push the cable out, e.g. home wall).
+                                      0 = no drive torque (slack), reference stays inward.
+                                      Legacy torque-mode builds apply it as a plain torque setpoint. */
+  int16_t  speed_rpm;              /* speed reference MAGNITUDE, rpm. 0 or above the STM32 hard
+                                      ceiling -> the hard ceiling. In speed-window control the drive
+                                      holds |torque_mA| until the drum reaches this speed in the
+                                      reference direction, then eases off and holds the speed.
+                                      (Legacy torque mode: the governor cap.) */
+  int16_t  brake_mA;               /* v4: BRAKE-side torque limit, milliamps, >= 0: the most torque
+                                      the drive may apply AGAINST motion faster than the reference
+                                      (free-fall catch). 0 = never brake, only ease the drive to 0.
+                                      A v3 (8-byte) heartbeat is still accepted: the STM32 then uses
+                                      its console default ('%<mA>', 2000). */
 } tsl_heartbeat_t;
 
 typedef struct {                    /* TSL_MSG_SET_MODE */
@@ -164,7 +177,7 @@ typedef struct {                    /* TSL_MSG_CONFIG_SET / _VAL */
 #if __STDC_VERSION__ >= 201112L
 _Static_assert(sizeof(tsl_hello_t)       == 6,  "tsl_hello_t size");
 _Static_assert(sizeof(tsl_ack_t)         == 1,  "tsl_ack_t size");
-_Static_assert(sizeof(tsl_heartbeat_t)   == 8,  "tsl_heartbeat_t size");
+_Static_assert(sizeof(tsl_heartbeat_t)   == 10, "tsl_heartbeat_t size");
 _Static_assert(sizeof(tsl_setpoint_t)    == 4,  "tsl_setpoint_t size");
 _Static_assert(sizeof(tsl_calibrate_t)   == 1,  "tsl_calibrate_t size");
 _Static_assert(sizeof(tsl_status_t)      == 18, "tsl_status_t size");

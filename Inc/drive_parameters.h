@@ -31,7 +31,11 @@
 /******** MAIN AND AUXILIARY SPEED/POSITION SENSOR(S) SETTINGS SECTION ********/
 
 /*** Speed measurement settings ***/
-#define MAX_APPLICATION_SPEED_RPM           700 /*!< rpm, mechanical */
+#define MAX_APPLICATION_SPEED_RPM           1200 /*!< rpm, mechanical. 700->1200 (hand-edit; REDO IN MC WORKBENCH on regen):
+                                                 only bounds the speed REFERENCE a ramp may program (CHECK_BOUNDARY in
+                                                 speed_torq_ctrl.c silently rejects anything above it). The speed-window
+                                                 control programs references up to g_spdcap_hard_rpm; the over-speed
+                                                 FAULT is the separate 1150 rpm line in mc_config_common.c. */
 #define MIN_APPLICATION_SPEED_RPM           0 /*!< rpm, mechanical, absolute value */
 #define M1_SS_MEAS_ERRORS_BEFORE_FAULTS     16 /*!< 3->16: tolerate occasional ABI/EMI speed-read glitches (enc=BAD) instead of faulting. Set in MC Workbench too to survive regen. */
 
@@ -74,7 +78,8 @@
 #define TF_KDDIV_LOG                        LOG2((8192))
 #define TFDIFFERENTIAL_TERM_ENABLING        DISABLE
 
-#define PID_SPEED_KP_DEFAULT                10000/(SPEED_UNIT/10) /* bench-tuned 10000/10000 best ratio (hot; revisit after Feed-Forward + anti-cogging) */
+#define PID_SPEED_KP_DEFAULT                312/(SPEED_UNIT/10) /* = the old 10000 @ SP_KPDIV 512, rescaled for SP_KPDIV 16 (same effective gain).
+                                                 Only used when the speed-window band is 0 (manual 'p'); the band recomputes Kp per heartbeat. */
 #define PID_SPEED_KI_DEFAULT                10000/(SPEED_UNIT/10) /* = raw 10000 (SPEED_UNIT=10); matches live p10000/i10000 */
 #define PID_SPEED_KD_DEFAULT                0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 
@@ -82,10 +87,11 @@
 #define SPEED_LOOP_FREQUENCY_HZ             (uint16_t)1000 /*!<Execution rate of speed regulation loop (Hz) */
 
 /* Speed PID parameter dividers */
-#define SP_KPDIV                            512 /* lowered from 8192: typed Kp produces 16x more proportional torque (Kp range was the bottleneck) */
+#define SP_KPDIV                            16 /* 8192->512 (June) ->16 (2026-09-08, hand-edit; REDO IN MC WORKBENCH on regen): the speed-window
+                                                 control needs Kp up to ~0.2 A/rpm (a 120 rpm fade band at 80 kg); at 512 that overflows int16. */
 #define SP_KIDIV                            16384
 #define SP_KDDIV                            16
-#define SP_KPDIV_LOG                        LOG2((512))
+#define SP_KPDIV_LOG                        LOG2((16))
 #define SP_KIDIV_LOG                        LOG2((16384))
 #define SP_KDDIV_LOG                        LOG2((16))
 

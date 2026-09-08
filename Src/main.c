@@ -876,6 +876,11 @@ static void esp_build_status(tsl_status_t *s)
     if (s_boot_ready != 0u)     { s->flags |= (uint8_t)TSL_SFLAG_READY; }
     if (g_cogg_enable != 0u)    { s->flags |= (uint8_t)TSL_SFLAG_COGGING_ON; }
     if (g_cogg_cal_state != 0u) { s->flags |= (uint8_t)TSL_SFLAG_CALIBRATING; }
+    {
+      extern volatile uint8_t g_ctrl_scheme;
+      extern uint8_t Ropetow_SpeedWindowSat(void);
+      if ((g_ctrl_scheme != 0u) && (Ropetow_SpeedWindowSat() != 0u)) { s->flags |= (uint8_t)TSL_SFLAG_AT_LIMIT; }
+    }
     s->position = g_pos_counts;
   }
 }
@@ -900,7 +905,8 @@ void Ropetow_EspLinkService(void)
     if ((esp_link_rx_frames() > 0U) && (esp_link_ok(now) == 0U))
     {
       extern volatile int32_t g_torque_set_ma; extern volatile uint8_t g_torque_set_req;
-      g_torque_set_ma = 0; g_torque_set_req = 1U;  /* link lost -> safe: command 0 torque */
+      extern volatile int32_t g_hb_brake_ma;
+      g_torque_set_ma = 0; g_hb_brake_ma = 0; g_torque_set_req = 1U;  /* link lost -> safe: 0 drive, 0 brake */
     }
   }
 
@@ -914,13 +920,30 @@ void Ropetow_EspLinkService(void)
   {
     extern volatile int32_t g_torque_set_ma;
     extern volatile uint8_t g_torque_set_req;
+    extern volatile int32_t g_hb_brake_ma;
+    extern volatile uint8_t g_ctrl_scheme;
+    extern volatile uint8_t g_pos_mode;
+    extern void Ropetow_SpeedWindowApply(int32_t drive_ma, int32_t brake_ma);
     if ((g_torque_set_req != 0U) && (MC_GetSTMStateMotor1() == RUN))
     {
       int32_t ma = g_torque_set_ma;
+      int32_t br = g_hb_brake_ma;
       g_torque_set_req = 0U;
-      if (ma >  29000) { ma =  29000; }
-      if (ma < -29000) { ma = -29000; }
-      MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 0U);   /* 0 ms = immediate */
+      if (g_pos_mode != 0U)
+      {
+        /* position servo / cogging calibration owns the STC: leave it alone
+           (the old path zeroed the servo's torque one MF tick in four). */
+      }
+      else if (g_ctrl_scheme != 0U)
+      {
+        Ropetow_SpeedWindowApply(ma, br);                       /* speed mode + torque window */
+      }
+      else
+      {
+        if (ma >  29000) { ma =  29000; }
+        if (ma < -29000) { ma = -29000; }
+        MC_ProgramTorqueRampMotor1_F((float)ma / 1000.0f, 0U);  /* legacy: torque mode, 0 ms */
+      }
     }
   }
 }
@@ -1048,14 +1071,22 @@ static void motor_status_log(void)
     extern volatile float    g_spdcap_rpm;
     extern volatile float    g_spdcap_brake_now_a;
     extern volatile uint32_t g_spi_err_count;
+    extern volatile uint8_t  g_ctrl_scheme;
+    extern volatile int16_t  g_spd_ref_rpm, g_spd_lim_lo, g_spd_lim_hi, g_spd_kp;
+    extern uint8_t Ropetow_SpeedWindowSat(void);
     extern int16_t Ropetow_McFwAvVolt(void);
     extern int16_t Ropetow_McFwVTarget(void);
-    LOG_Printf("[m] %s spd=%ld cap=%d brk=%d | Iqref=%d Iq=%d Id=%d IdFW=%d | "
+    /* sch=S : speed window -- ref=signed reference rpm, lim=lo/hi (s16), kp, sat=L/H/-
+       sch=T : legacy torque mode + governor -- cap / brk as before */
+    LOG_Printf("[m] %s spd=%ld sch=%c cap=%d brk=%d ref=%d lim=%d/%d kp=%d sat=%c | Iqref=%d Iq=%d Id=%d IdFW=%d | "
                "avV=%d/%d | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
                mc_state_name(state),
                (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT,
+               (g_ctrl_scheme != 0U) ? 'S' : 'T',
                (int)g_spdcap_rpm,
                (int)(g_spdcap_brake_now_a * 1000.0f),
+               (int)g_spd_ref_rpm, (int)g_spd_lim_lo, (int)g_spd_lim_hi, (int)g_spd_kp,
+               (Ropetow_SpeedWindowSat() == 1U) ? 'L' : ((Ropetow_SpeedWindowSat() == 2U) ? 'H' : '-'),
                (int)FOCVars[M1].Iqdref.q,
                (int)FOCVars[M1].Iqd.q,
                (int)FOCVars[M1].Iqd.d,

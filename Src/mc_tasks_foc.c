@@ -448,6 +448,39 @@ volatile float    g_spdcap_brake_max_a     = 16.0f; /* braking Iq ceiling, A. Ra
                                                        vector stays <=20 A even with FW at its 12 A
                                                        floor (sqrt(16^2+12^2), motor rated 29 A).      */
 volatile float    g_spdcap_brake_now_a     = 0.0f;  /* braking ACTUALLY applied, A (telemetry, 0=idle)  */
+/* ---- Speed-window control (Ropetow, 2026-09-08) -------------------------------
+   Replaces the hand-written governor above with the MCSDK SPEED loop plus per-tick
+   TORQUE LIMITS on its PI ("speed control with torque limit", the same mechanism
+   ST prescribes for a runtime current limit: PID_Set{Lower,Upper}OutputLimit on
+   PIDSpeedHandle_M1, community thread "Change max current limit during RUN state").
+     reference : g_spdcap_rpm (heartbeat speed_rpm / CDC 'V'), signed by the DRIVE
+                 direction (sign of the heartbeat torque; <0 = inward/retract).
+     lo / hi   : the most negative / positive Iq the speed PI may output. Below the
+                 reference speed the PI is SATURATED on the drive-side limit, so the
+                 cable feels exactly the commanded weight at any speed in either
+                 direction (pull, hold, slow eccentric) -- pure torque mode. Only when
+                 the drum runs FASTER than the reference in the drive direction (a
+                 released handle) does the PI come off the clamp, ease the drive to 0
+                 and, if allowed, brake with up to the brake-side limit.
+     band      : the PI's proportional gain is recomputed every apply so that the
+                 output swings from full drive to full brake across g_spd_band_rpm
+                 of speed error (constant fade band whatever the weight); 0 = manual
+                 Kp via CDC 'p'. Ki stays the PID default / CDC 'i'.
+   Anti-windup is the SDK's own (integral clamped to the same window + back-calc),
+   so there is no relay, no filter and no direction gate: the pull is never braked
+   because the reference points inward. The legacy torque-mode governor is kept
+   behind g_ctrl_scheme = 0 (CDC '#') for A/B on the same image. The position servo
+   and the cogging calibration own the STC while g_pos_mode != 0; the heartbeat is
+   ignored meanwhile (also fixes their torque being zeroed 1 tick in 4 by the old
+   torque-ramp path). */
+volatile uint8_t  g_ctrl_scheme          = 1U;     /* 1 = speed window (default), 0 = legacy torque + governor. CDC '#' toggles */
+volatile int32_t  g_hb_brake_ma          = -1;     /* brake-side limit from the last heartbeat, mA; <0 = g_spd_brake_default_ma */
+volatile int32_t  g_spd_brake_default_ma = 2000;   /* brake-side limit when the ESP sends none (v3 heartbeat / CDC 't'); CDC '%<mA>' */
+volatile float    g_spd_band_rpm         = 120.0f; /* full-drive -> full-brake fade band, rpm (0 = manual Kp); CDC '$<rpm>' */
+volatile int16_t  g_spd_ref_rpm          = 0;      /* telemetry: signed speed reference actually programmed, rpm */
+volatile int16_t  g_spd_lim_lo           = 0;      /* telemetry: speed PI lower output limit, s16 */
+volatile int16_t  g_spd_lim_hi           = 0;      /* telemetry: speed PI upper output limit, s16 */
+volatile int16_t  g_spd_kp               = 0;      /* telemetry: speed PI Kp in use */
 /* ---- MCSDK native flux weakening (voltage-feedback) -- hand-instantiated -----
    The project was generated without FW, so ST's FW_Handle (flux_weakening_ctrl.c)
    is wired up here by hand. It is the ADAPTIVE voltage-feedback FW: a PI on the
@@ -538,6 +571,8 @@ void TSK_SafetyTask_LSON(uint8_t motor);
 /* USER CODE BEGIN Private Functions */
 void Ropetow_EncoderUpdate(void);   /* called from the MF hook (mc_app_hooks.c) */
 void Ropetow_SetSpeedKp(int32_t kp); /* live speed-loop tuning (CDC RX handler)  */
+void Ropetow_SpeedWindowApply(int32_t drive_ma, int32_t brake_ma); /* speed-window: reference + torque limits (MF thread) */
+uint8_t Ropetow_SpeedWindowSat(void); /* 0 = PI regulating, 1 = on lower limit, 2 = on upper limit (telemetry) */
 void Ropetow_SetSpeedKi(int32_t ki);
 void Ropetow_SetTorqueKp(int32_t kp); /* live Iq+Id-loop tuning (CDC RX handler) */
 void Ropetow_SetTorqueKi(int32_t ki);
@@ -1150,7 +1185,9 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     static float s_brk_integ_a = 0.0f;    /* brake integral, A */
     static float s_brk_lpf     = 0.0f;    /* smoothed applied brake, A (see LPF note below) */
     static float s_roll_lpf    = 1.0f;    /* smoothed roll-off factor (see note at use site) */
-    if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN))
+    /* LEGACY ONLY (g_ctrl_scheme == 0): in speed-window control the MCSDK speed PI
+       owns the cap and this block must not touch Iqdref. */
+    if ((bMotor == M1) && (g_inj_override == 0U) && (Mci[M1].State == RUN) && (g_ctrl_scheme == 0U))
     {
       /* Effective cap = min(requested, hard ceiling). A request of 0 ("no cap")
          still enforces the hard ceiling -- whatever the ESP asks for, the STM32
@@ -1765,6 +1802,8 @@ void Ropetow_EncoderUpdate(void)
    write is atomic on M4 -- the next MF speed-loop cycle picks it up. */
 void Ropetow_SetSpeedKp(int32_t kp)
 {
+  g_spd_band_rpm = 0.0f;                     /* typed Kp = manual: stop the band auto-scaling it */
+  g_spd_kp       = (int16_t)kp;
   PID_SetKP(&PIDSpeedHandle_M1, (int16_t)kp);
 }
 
@@ -1773,13 +1812,79 @@ void Ropetow_SetSpeedKi(int32_t ki)
   PID_SetKI(&PIDSpeedHandle_M1, (int16_t)ki);
 }
 
+/* Speed-window apply (see the g_ctrl_scheme block in Private Variables). MF THREAD
+   context only (same thread that runs the speed PI, so the limit writes race
+   nothing). drive_ma: signed drive-side limit from the heartbeat / CDC 't' (sign =
+   reference direction, <0 inward). brake_ma: brake-side limit, <0 = console default.
+   Reference magnitude = g_spdcap_rpm (heartbeat speed_rpm / CDC 'V'), hard-clamped. */
+void Ropetow_SpeedWindowApply(int32_t drive_ma, int32_t brake_ma)
+{
+  float   cap     = g_spdcap_rpm;
+  uint8_t outward = (drive_ma > 0) ? 1U : 0U;
+  int32_t drive   = (drive_ma < 0) ? -drive_ma : drive_ma;
+  int32_t brake   = (brake_ma < 0) ? g_spd_brake_default_ma : brake_ma;
+  int32_t d16, b16, kp;
+  int16_t lo, hi, ref_unit;
+
+  if ((cap <= 0.0f) || (cap > g_spdcap_hard_rpm)) { cap = g_spdcap_hard_rpm; }
+  if (drive > 29000) { drive = 29000; }            /* motor peak (datasheet 29 A) */
+  if (brake > 29000) { brake = 29000; }
+  d16 = (int32_t)(((float)drive * 0.001f) * (float)CURRENT_CONV_FACTOR);
+  b16 = (int32_t)(((float)brake * 0.001f) * (float)CURRENT_CONV_FACTOR);
+  if (d16 > INT16_MAX) { d16 = INT16_MAX; }
+  if (b16 > INT16_MAX) { b16 = INT16_MAX; }
+  if (outward != 0U) { hi = (int16_t)d16;  lo = (int16_t)(-b16); }
+  else               { lo = (int16_t)(-d16); hi = (int16_t)b16;  }
+
+  /* torque window = the speed PI's output clamp + matching integral clamp */
+  PID_SetLowerOutputLimit(&PIDSpeedHandle_M1, lo);
+  PID_SetUpperOutputLimit(&PIDSpeedHandle_M1, hi);
+  PID_SetLowerIntegralTermLimit(&PIDSpeedHandle_M1, (int32_t)lo * (int32_t)SP_KIDIV);
+  PID_SetUpperIntegralTermLimit(&PIDSpeedHandle_M1, (int32_t)hi * (int32_t)SP_KIDIV);
+
+  /* constant fade band: Kp so that (hi - lo) is spanned by g_spd_band_rpm of error */
+  if (g_spd_band_rpm > 0.0f)
+  {
+    float band_units = (g_spd_band_rpm * (float)SPEED_UNIT) / (float)U_RPM;   /* rpm -> 0.1 Hz units */
+    kp = (int32_t)(((float)((int32_t)hi - (int32_t)lo) * (float)SP_KPDIV) / band_units);
+    if (kp < 1)     { kp = 1; }
+    if (kp > 32767) { kp = 32767; }                /* very heavy windows: band widens instead */
+    PID_SetKP(&PIDSpeedHandle_M1, (int16_t)kp);
+    g_spd_kp = (int16_t)kp;
+  }
+
+  /* reference: signed by the drive direction, 0 ms ramp (applied next MF tick) */
+  ref_unit = (int16_t)(((int32_t)cap * (int32_t)SPEED_UNIT) / (int32_t)U_RPM);
+  if (outward == 0U) { ref_unit = (int16_t)(-ref_unit); }
+  MCI_ExecSpeedRamp(&Mci[M1], ref_unit, 0U);
+
+  g_spd_ref_rpm = (int16_t)((outward != 0U) ? cap : -cap);
+  g_spd_lim_lo  = lo;
+  g_spd_lim_hi  = hi;
+}
+
+uint8_t Ropetow_SpeedWindowSat(void)
+{
+  int16_t q = FOCVars[M1].Iqdref.q;
+  if (q <= PIDSpeedHandle_M1.hLowerOutputLimit) { return 1U; }
+  if (q >= PIDSpeedHandle_M1.hUpperOutputLimit) { return 2U; }
+  return 0U;
+}
+
 /* MCSDK native flux-weakening init -- called once from MC_APP_BootHook. Sets up
    the FW PI working gains from defaults and binds the FW component to the speed
    PID (used only for its integral-limit writes, harmless in torque mode). */
 void Ropetow_McFwInit(void)
 {
+  /* FW_CalcCurrRef rewrites the integral limits of the PID it is bound to on EVERY
+     tick (+/- the Iq circle). Bound to the real speed PID that would silently undo
+     the speed-window torque limits, so bind it to a private shadow copy instead:
+     FW keeps its Iq circle clamp, the speed PI keeps its limits. */
+  static PID_Handle_t s_fw_shadow_pid;
+  s_fw_shadow_pid = PIDSpeedHandle_M1;       /* same divisors/gains, separate state */
+  PID_HandleInit(&s_fw_shadow_pid);
   PID_HandleInit(&PIDFluxWeakeningHandle_M1);
-  FW_Init(&FW_M1, &PIDSpeedHandle_M1, &PIDFluxWeakeningHandle_M1);
+  FW_Init(&FW_M1, &s_fw_shadow_pid, &PIDFluxWeakeningHandle_M1);
   FW_Clear(&FW_M1);
 }
 

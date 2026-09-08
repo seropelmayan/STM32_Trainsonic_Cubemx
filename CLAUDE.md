@@ -120,7 +120,7 @@ Getting this wrong is the classic bug here (e.g. HAL SPI reads hang in the prior
 | `TIM3_IRQn`, prio 3 | — | encoder ABI |
 | `TIM1_BRK_TIM15_IRQn`, prio 4 | — | PWM break / overcurrent |
 | `USART2_IRQn`, prio 6 | — | ESP32 link RX bytes (deliberately below all control ISRs) |
-| `mediumFrequency` task | 1 kHz | MCSDK MF task (speed loop, state machine) → `FOC_CalcCurrRef` (speed override, governor, modulation ceiling, low-pack taper) → then `MC_APP_PostMediumFrequencyHook_M1` |
+| `mediumFrequency` task | 1 kHz | MCSDK MF task (state machine, **speed PI = the torque-limited governor**) → `FOC_CalcCurrRef` (speed-source override, FW, legacy governor when `#`) → then `MC_APP_PostMediumFrequencyHook_M1` (encoder → position servo → ESP link: heartbeat → `Ropetow_SpeedWindowApply`) |
 | `appTask` (`StartAppTask`, prio Low) | 50 ms | USB CDC bring-up, DRV8353 + AS5047 init, auto-start, status logging, and executing CDC command requests |
 
 ISR bodies: `Src/stm32g4xx_mc_it.c`, `Src/stm32_mc_common_it.c`.
@@ -147,15 +147,28 @@ speed.
 - **Flux weakening** — two implementations coexist: ST's native voltage-feedback FW (hand-instantiated
   by `Ropetow_McFwInit()`, **on at boot**) and a legacy constant-Id block (`g_fw_*`, off at boot).
   FW is a transient handler for max-effort pulls, not part of the normal envelope.
-- **Overspeed governor** — `g_spdcap_*` PI braking, always active in RUN, enforcing
-  `min(requested cap, hard 550 rpm ceiling)`. Braking regenerates into the bus, bounded by
-  `g_spdcap_brake_max_a`. Distinct from the 1150 rpm over-speed *fault* line in `mc_config_common.c`,
-  which is set deliberately high because a fault trip at speed cuts PWM into uncontrolled rectification.
+- **Speed-window control** (2026-09-08, `Ropetow_SpeedWindowApply`) — the drive runs in MCSDK
+  **speed mode** with the speed PI's output limits set from every heartbeat: reference =
+  `min(heartbeat speed_rpm, g_spdcap_hard_rpm 550)` signed by the drive direction, `lo`/`hi` =
+  drive-side / brake-side torque limits. Below the cap the PI is saturated on the drive limit,
+  so pull, hold and a hand-controlled eccentric feel exactly the commanded weight (pure torque
+  mode); only a released drum running faster than the reference eases off and, if allowed,
+  brakes. Kp is recomputed per heartbeat so the full-drive-to-full-brake fade spans
+  `g_spd_band_rpm` (120) at any weight. This is ST's prescribed "speed control with torque
+  limit" (`PID_Set{Lower,Upper}OutputLimit` on `PIDSpeedHandle_M1`). Wire contract:
+  [SPEED_WINDOW_ESP_PATCH.md](SPEED_WINDOW_ESP_PATCH.md). Flux weakening is bound to a shadow
+  PID so it cannot overwrite the speed PI limits.
+- **Legacy overspeed governor** — `g_spdcap_*` hand-written roll-off + P/I brake inside torque
+  mode, kept behind CDC `#` (`g_ctrl_scheme = 0`) for A/B. A relay-plus-lag structure that
+  limit-cycles at the cap in simulation (~6 Hz, ±4 A); do not develop it further. Distinct from
+  the 1150 rpm over-speed *fault* line in `mc_config_common.c`, which is set deliberately high
+  because a fault trip at speed cuts PWM into uncontrolled rectification.
 - **Position servo** — `Ropetow_PositionControl()`, PD on multi-turn encoder counts.
 - **ESP32 link** — `Src/esp_link.c` on USART2 (PA2/PA3, 115200), SLIP framing + CRC16, with a
   200 ms watchdog that commands 0 torque if the ESP goes silent after first contact.
   `protocol/trainsonic_link.h` is the **shared wire contract** — it is meant to be used verbatim by
-  both firmwares, so bump `TSL_PROTOCOL_VERSION` on any incompatible change. The ESP-IDF side is in
+  both firmwares, so bump `TSL_PROTOCOL_VERSION` on any incompatible change. v4 (2026-09-08) adds
+  `brake_mA` to the heartbeat; v3 8-byte heartbeats are still accepted. The ESP-IDF side is in
   `esp32/ts_link/` (not built by this project).
 
 ### Parameter flow
@@ -180,7 +193,8 @@ is tuned and tested; skim the `case` block there for the current set. Representa
 | `X` / `n` | save / erase the cogging map in flash |
 | `K` / `k`, `E<pct>` | anti-cogging FF on / off, amplitude |
 | `x`, `w` | toggle MCSDK-native FW / legacy FW |
-| `V<rpm>` | governor speed cap |
+| `V<rpm>` | speed reference / cap (hard-clamped to 550) |
+| `#`, `$<rpm>`, `%<mA>` | toggle speed-window vs legacy governor; fade band; default brake-side limit |
 | `R` | acknowledge faults + restart at 0 A |
 
 Host-side analysis scripts (run against saved console text, not the board):

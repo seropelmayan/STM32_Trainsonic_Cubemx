@@ -356,7 +356,11 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_iadc_log_req;           /* 'j<rpm>' raw per-phase current log */
   extern volatile int32_t g_iadc_speed_rpm;         /* j arg: 0 standstill, >0 at speed   */
   extern volatile uint8_t g_restart_req;            /* 'R' ack faults + restart motor     */
-  extern volatile float   g_spdcap_rpm;             /* 'V<rpm>' torque-mode speed cap     */
+  extern volatile float   g_spdcap_rpm;             /* 'V<rpm>' speed reference / cap (speed window: reference magnitude) */
+  extern volatile uint8_t g_ctrl_scheme;            /* '#' toggle: 1 speed window, 0 legacy torque governor */
+  extern volatile float   g_spd_band_rpm;           /* '$<rpm>' speed-window fade band (0 = manual 'p' Kp) */
+  extern volatile int32_t g_spd_brake_default_ma;   /* '%<mA>' brake-side limit when the heartbeat sends none */
+  extern volatile int32_t g_hb_brake_ma;            /* heartbeat brake-side limit; 't' resets it to the default */
   extern volatile uint8_t g_mcfw_enable;            /* 'x' MCSDK native flux weakening on/off */
   extern void Ropetow_SetMcFwVRef(int32_t v);       /* 'A<n>' FW target voltage, tenths-of-%  */
   extern void Ropetow_SetMcFwKi(int32_t ki);        /* 'B<n>' FW PI Ki                         */
@@ -407,7 +411,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         case 'D': g_dt_comp = (int16_t)s_val;  break;
         case 'f': Ropetow_SetCurrentLpf(s_val); break;
         case 'F': Ropetow_SetEncVelLp(s_val); break;
-        case 't': g_torque_set_ma = (int32_t)s_tsign * s_val; g_torque_set_req = 1U; break;
+        case 't': g_torque_set_ma = (int32_t)s_tsign * s_val; g_hb_brake_ma = -1; g_torque_set_req = 1U; break; /* speed window: drive limit, ref = 'V' */
         case 's': g_speed_set_rpm = s_val; g_speed_set_req = 1U; break;
         case 'C': g_cogg_clamp = (int16_t)s_val; break;
         case 'W': g_fw_speed_thr_rpm = (float)s_val; break;       /* FW speed threshold, rpm   */
@@ -444,6 +448,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
                     g_cogg_cal_iq_a = a; } break;
         case 'T': { if (s_val < 1) { s_val = 1; } if (s_val > 12) { s_val = 12; } /* cal passes */
                     g_cogg_cal_passes = (uint8_t)s_val; } break;
+        case '$': g_spd_band_rpm = (float)s_val; break;              /* speed-window fade band, rpm (0 = manual 'p') */
+        case '%': g_spd_brake_default_ma = s_val; break;             /* speed-window default brake-side limit, mA */
         default:  break;
       }
     }
@@ -477,9 +483,11 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
       case 'x': g_mcfw_enable ^= 1U;   break;   /* toggle MCSDK native flux weakening */
       case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
+      case '#': g_ctrl_scheme ^= 1U;   break;   /* toggle speed-window (1) / legacy torque governor (0); takes effect on the next heartbeat or 't' */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J': case 'q':
       case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z': case 'T':
+      case '$': case '%':
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

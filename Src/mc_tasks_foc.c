@@ -404,16 +404,16 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 600.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+volatile float    g_spdcap_hard_rpm  = 550.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
                                                   min(requested, hard), and enforces hard even when the
                                                   request is 0/absent. NOT writable from the ESP link --
                                                   the STM32 has the last word on top speed. The ESP
-                                                  heartbeat asks for 800; it is clamped to this. 600
-                                                  (Serop, 2026-09-08): the July governor exactly as
-                                                  tuned in 73b017b (120 rpm roll-off band + brake, no
-                                                  command fading of any kind), cap raised 550 -> 600.
-                                                  The modulation-ceiling / low-pack-taper experiments
-                                                  of 2026-09-08 are reverted. Only affects MOTOR-driven motion
+                                                  heartbeat asks for 800; it is clamped to this. 550 =
+                                                  the July value (73b017b). 2026-09-08: 800 / 700 / 650
+                                                  / 600 were all tried on the machine and all felt
+                                                  worse than 550 -- leave it. The modulation-ceiling /
+                                                  low-pack-taper experiments of the same day are
+                                                  reverted; the governor is the July one untouched. Only affects MOTOR-driven motion
                                                   (q*spd > 0): the brake and roll-off never touch a
                                                   pull. Keep < the 1150 rpm over-speed fault
                                                   (mc_config_common.c). */

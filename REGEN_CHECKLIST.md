@@ -88,6 +88,12 @@ hand-written blocks (all were OUTSIDE USER CODE guards):
 - **avg Iq/Id** diagnostic (8192-sample accumulator → `g_avg_iq`/`g_avg_id`).
 - **Step/ripple capture** (`g_step_state==1 && g_step_mode==0`).
 - **Dead-time compensation** (`g_dt_comp`, added after `Circle_Limitation`).
+- **Anti-cogging FF at the HF rate** (2026-09-08): the `iq_ref` block right before
+  the two `PI_Controller` calls -- extrapolates `g_enc_mech14`, interpolates
+  `g_cogg_lut`, adds to a local `iq_ref` (NOT to `FOCVars.Iqdref.q`). A regen puts
+  `FOCVars[M1].Iqdref.q` straight back into the q-axis PI and the cogging map
+  silently stops being applied. Also needs `COGG_MECH_PER_EL` (Private define).
+
 - **`FW_DataProcess(&FW_M1, Vqd)` at the function tail** (after the FOCVars
   stores, post-Circle_Limitation Vqd). Feeds the flux-weakening voltage filter
   at 25 kHz; without it FW never engages (avV stays 0) since the MF-rate call

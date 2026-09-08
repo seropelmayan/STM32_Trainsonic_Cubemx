@@ -267,10 +267,15 @@ volatile int16_t  g_avg_id = 0;
 volatile float    g_enc_vel_lp = ENC_VEL_LP;
 /* ---- Anti-cogging (Ropetow) -------------------------------------------------
    Position-indexed Iq feed-forward that cancels cogging / low-speed torque ripple.
-   The table is captured by a both-direction slow sweep (host cogging.py combines
-   fwd+rev), compiled in via cogg_table.h, and applied in FOC_CalcCurrRef (MF,
-   guarded). Gated by g_cogg_enable (default OFF) and clamped by g_cogg_clamp so a
-   bad table can never command large current. See the plan / cogg_table.h. */
+   The table is captured by the auto-cal sweep ('y'), compiled in via cogg_table.h
+   (cogg_pull.ps1) and/or restored from flash page 63, and APPLIED AT THE 25 kHz HF
+   RATE in FOC_CurrControllerM1 (2026-09-08; was the 1 kHz MF task): the ISR
+   extrapolates the hook's mechanical angle by the published velocity, interpolates
+   linearly between the 512 bins, and adds the result to the Iq reference it hands
+   the PI. That removes the 1 ms sample-and-hold staircase the MF application had
+   at speed (a few-count Iq step every ms = audible). Gated by g_cogg_enable
+   (default OFF unless a map exists) and clamped by g_cogg_clamp so a bad table can
+   never command large current. Table size is unchanged: rate != resolution. */
 #define COGG_DEFINE_TABLE
 #include "cogg_table.h"
 int16_t           g_cogg_lut[COGG_NBINS];        /* runtime FF table (copied from COGG_TABLE_INIT at boot) */
@@ -290,6 +295,14 @@ volatile float    g_cogg_cal_iq_a = 10.0f;       /* calib current: torque author
    FREEZE_LO and resume tracking above FREEZE_HI (hysteresis). CDC 'l' toggles it. */
 #define COGG_FREEZE_LO_RPM 1.0f
 #define COGG_FREEZE_HI_RPM 2.0f
+/* HF-rate FF: electrical s16 counts/tick -> mechanical 14-bit counts/tick.
+   el = mech * POLE_PAIR_NUM * 4 (Ropetow_EncoderUpdate), negated when
+   ENC_SPI_INVERT, so mech = el / (PP*4) with the sign put back. */
+#if (ENC_SPI_INVERT != 0)
+#define COGG_MECH_PER_EL   (-1.0f / (float)(POLE_PAIR_NUM * 4))
+#else
+#define COGG_MECH_PER_EL   ( 1.0f / (float)(POLE_PAIR_NUM * 4))
+#endif
 volatile uint8_t  g_cogg_freeze_en = 0U;         /* OFF: A/B'd neutral, and research advises against velocity-gated FF terms; kept behind 'l' */
 volatile uint16_t g_enc_mech14  = 0U;            /* latest mechanical angle 0..16383 (published by MF hook) */
 volatile int16_t  g_cogg_ff_now = 0;             /* cogging FF applied this cycle (0 if off); ILC subtracts it from measured Iq to get the residual */
@@ -391,18 +404,19 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 800.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+volatile float    g_spdcap_hard_rpm  = 700.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
                                                   min(requested, hard), and enforces hard even when the
                                                   request is 0/absent. NOT writable from the ESP link --
-                                                  the STM32 has the last word on top speed. 550 -> 800
-                                                  (2026-09-08): matches the 800 rpm the ESP heartbeat
-                                                  sends, so the request passes through unclamped. Only
-                                                  affects MOTOR-driven motion (q*spd > 0): the brake and
-                                                  roll-off never touch a pull. Keep < the 1150 rpm
-                                                  over-speed fault (mc_config_common.c). In practice the
-                                                  MODCAP_* modulation ceiling below eases the command off
-                                                  before the ~815 rpm voltage wall (57 V pack), so this
-                                                  brake is a backstop, not the normal rewind limiter. */
+                                                  the STM32 has the last word on top speed. The ESP
+                                                  heartbeat asks for 800; it is clamped to this. 700
+                                                  (Serop, 2026-09-08): 800 rpm rewind "didn't feel
+                                                  good" even with the modulation ceiling; 700 keeps
+                                                  ~15% voltage headroom at a 57 V pack (~815 rpm wall)
+                                                  so the governor roll-off band (580..700) does the
+                                                  limiting in a region the current loop still owns.
+                                                  Only affects MOTOR-driven motion (q*spd > 0): the
+                                                  brake and roll-off never touch a pull. Keep < the
+                                                  1150 rpm over-speed fault (mc_config_common.c). */
 #define SPDCAP_BAND_RPM   120.0f                /* roll-off band below the cap (rpm). Widened 40->120:
                                                    VESC-documented anti-limit-cycle rule is band >> speed
                                                    ripple -- at 40 the derating acted as a relay (7 A
@@ -1124,57 +1138,11 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
     __enable_irq();
   }
 
-  /* Anti-cogging feed-forward: add the position-indexed Iq term to the freshly
-     latched reference. Skipped during the step-test override. Gated by
-     g_cogg_enable (default OFF) and clamped by g_cogg_clamp. Linear interpolation
-     between bins. g_enc_mech14 is the latest mechanical angle from the MF hook
-     (<=1 ms stale -> negligible at the low speeds where cogging is felt). */
-  if (bMotor == M1) { g_cogg_ff_now = 0; }   /* default: no FF applied this cycle (ILC) */
-  if ((bMotor == M1) && (g_inj_override == 0U) && (g_cogg_enable != 0U) &&
-      (Mci[M1].State == RUN))
-  {
-    uint16_t m    = g_enc_mech14;
-    uint16_t bin  = (uint16_t)(m >> COGG_SHIFT);
-    uint16_t nb   = (uint16_t)((bin + 1U) & (uint16_t)(COGG_NBINS - 1U));
-    int32_t  frac = (int32_t)(m & (uint16_t)((1U << COGG_SHIFT) - 1U));   /* 0..31 */
-    int32_t  ff   = (int32_t)g_cogg_lut[bin] +
-                    ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
-    if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); } /* amplitude scale */
-    {
-      /* Speed fade-out: full FF below fade_lo, linear to ZERO by fade_hi. At
-         speed the position-indexed FF becomes an audible multi-kHz Iq whine
-         (bench: 'k' at speed removed the noise) while real cogging is already
-         inertia-filtered -- so keep the FF only where it does its job. */
-      float aspd = fabsf(g_enc_speed_rpm);
-      if      (aspd >= g_cogg_fade_hi_rpm) { ff = 0; }
-      else if (aspd >  g_cogg_fade_lo_rpm)
-      {
-        float f = (g_cogg_fade_hi_rpm - aspd) / (g_cogg_fade_hi_rpm - g_cogg_fade_lo_rpm);
-        ff = (int32_t)((float)ff * f);
-      }
-    }
-    if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
-    if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
-    /* Anti-cogging applied at ALL speeds incl. standstill (constant "gravity" force).
-       Standstill FF freeze: latch the FF when ~stopped so a settle-creep can't modulate
-       the held force (the "release at stop" feel); resume tracking once moving again. */
-    {
-      static uint8_t frozen = 0U;
-      static int32_t latch  = 0;
-      if (g_cogg_freeze_en != 0U)
-      {
-        float aspd = g_enc_speed_rpm; if (aspd < 0.0f) { aspd = -aspd; }
-        if (frozen == 0U) { if (aspd < COGG_FREEZE_LO_RPM) { frozen = 1U; } }
-        else              { if (aspd > COGG_FREEZE_HI_RPM) { frozen = 0U; } }
-        if (frozen != 0U) { ff = latch; } else { latch = ff; }
-      }
-      else { frozen = 0U; }
-    }
-    g_cogg_ff_now = (int16_t)ff;              /* record FF for ILC residual capture */
-    __disable_irq();
-    FOCVars[M1].Iqdref.q = (int16_t)((int32_t)FOCVars[M1].Iqdref.q + ff);
-    __enable_irq();
-  }
+  /* Anti-cogging feed-forward: NO LONGER applied here. Since 2026-09-08 the lookup
+     runs at the 25 kHz HF rate inside FOC_CurrControllerM1 (extrapolated mechanical
+     angle + linear interpolation) and is added to the Iq reference the PI sees --
+     FOCVars[M1].Iqdref.q stays the PURE command, so the governor / modulation
+     ceiling / low-pack stages below operate on the command alone. */
 
   /* Flux weakening: speed-gated d-axis current injection with hysteresis. While
      RUNNING, FW ENGAGES once |mech speed| rises above g_fw_speed_thr_rpm and
@@ -1672,9 +1640,80 @@ inline uint16_t FOC_CurrControllerM1(void)
     }
   }
 
+  /* --- Anti-cogging feed-forward at the HF rate (Ropetow, 2026-09-08) ---------
+   * Position-indexed Iq term, looked up EVERY PWM cycle instead of once per 1 kHz
+   * MF tick, so at speed the FF is a smooth function of position rather than a
+   * 1 ms sample-and-hold staircase (which was an audible few-count Iq step).
+   *   angle : the hook's mechanical angle (g_enc_mech14, published together with
+   *           g_enc_theta0 / g_enc_base_tick) extrapolated by the published
+   *           velocity. Electrical -> mechanical: el = mech * PP * 4 (negated if
+   *           ENC_SPI_INVERT), so mech/tick = omega_tick / (PP*4), sign-adjusted.
+   *           Same dt clamp as the commutation extrapolation above.
+   *   table : linear interpolation between the two neighbouring bins (same
+   *           512-entry table -- update rate does not change map size).
+   *   scale : g_cogg_gain, then the (dormant) speed fade, then g_cogg_clamp.
+   *   freeze: optional standstill latch ('l'), same semantics as before.
+   * The result is added to a LOCAL copy of the Iq reference: FOCVars.Iqdref.q is
+   * left as the pure command so the MF-side torque shaping never double-counts
+   * it. g_cogg_ff_now publishes the applied value for the ILC residual capture.
+   * Cost: ~1 float mul, 2 table reads, a few int ops -- well under 1 us. */
+  int32_t iq_ref = (int32_t)FOCVars[M1].Iqdref.q;
+  if ((g_cogg_enable != 0U) && (g_inj_override == 0U) && (Mci[M1].State == RUN))
+  {
+    uint32_t dt = g_hf_tick_count - g_enc_base_tick;      /* HF ticks since publish */
+    int32_t  m, ff;
+    uint16_t bin, nb;
+    int32_t  frac;
+    if (dt > (uint32_t)(4U * ENC_HF_PER_MF)) { dt = (uint32_t)(4U * ENC_HF_PER_MF); }
+    m  = (int32_t)g_enc_mech14
+       + (int32_t)(g_enc_omega_tick * (COGG_MECH_PER_EL * (float)dt));
+    m &= (POS_COUNTS_PER_REV - 1);                        /* wrap 0..16383 (pow2)  */
+    bin  = (uint16_t)((uint32_t)m >> COGG_SHIFT);
+    nb   = (uint16_t)((bin + 1U) & (uint16_t)(COGG_NBINS - 1U));
+    frac = m & (int32_t)((1U << COGG_SHIFT) - 1U);        /* 0..31 within the bin  */
+    ff   = (int32_t)g_cogg_lut[bin]
+         + ((((int32_t)g_cogg_lut[nb] - (int32_t)g_cogg_lut[bin]) * frac) >> COGG_SHIFT);
+    if (g_cogg_gain != 1.0f) { ff = (int32_t)((float)ff * g_cogg_gain); }
+    {
+      /* Speed fade-out (dormant by default, see g_cogg_fade_*): full FF below
+         fade_lo, linear to zero by fade_hi. */
+      float aspd = g_enc_speed_rpm; if (aspd < 0.0f) { aspd = -aspd; }
+      if      (aspd >= g_cogg_fade_hi_rpm) { ff = 0; }
+      else if (aspd >  g_cogg_fade_lo_rpm)
+      {
+        float f = (g_cogg_fade_hi_rpm - aspd) / (g_cogg_fade_hi_rpm - g_cogg_fade_lo_rpm);
+        ff = (int32_t)((float)ff * f);
+      }
+    }
+    if (ff >  (int32_t)g_cogg_clamp) { ff =  (int32_t)g_cogg_clamp; }
+    if (ff < -(int32_t)g_cogg_clamp) { ff = -(int32_t)g_cogg_clamp; }
+    {
+      /* Standstill FF freeze ('l'): latch the FF when ~stopped so a settle-creep
+         can't modulate the held force; resume tracking once moving again. */
+      static uint8_t frozen = 0U;
+      static int32_t latch  = 0;
+      if (g_cogg_freeze_en != 0U)
+      {
+        float aspd = g_enc_speed_rpm; if (aspd < 0.0f) { aspd = -aspd; }
+        if (frozen == 0U) { if (aspd < COGG_FREEZE_LO_RPM) { frozen = 1U; } }
+        else              { if (aspd > COGG_FREEZE_HI_RPM) { frozen = 0U; } }
+        if (frozen != 0U) { ff = latch; } else { latch = ff; }
+      }
+      else { frozen = 0U; }
+    }
+    g_cogg_ff_now = (int16_t)ff;
+    iq_ref += ff;
+    if (iq_ref >  32767) { iq_ref =  32767; }
+    if (iq_ref < -32767) { iq_ref = -32767; }
+  }
+  else
+  {
+    g_cogg_ff_now = 0;
+  }
+
   if (PWMC_GetPWMState(pwmcHandle[M1]) == true)
   {
-    Vqd.q = PI_Controller(pPIDIq[M1], (int32_t)(FOCVars[M1].Iqdref.q) - Iqd.q);
+    Vqd.q = PI_Controller(pPIDIq[M1], iq_ref - Iqd.q);
     Vqd.d = PI_Controller(pPIDId[M1], (int32_t)(FOCVars[M1].Iqdref.d) - Iqd.d);
   }
   else
@@ -1802,8 +1841,9 @@ void Ropetow_EncoderUpdate(void)
       enc_meas             = (int16_t)(spi_el - spi_offset);
       g_dbg_spi_minus_tim3 = (int16_t)(enc_meas - tim3_el);
 
-      /* Anti-cogging: publish the mechanical angle (consumed by the FF lookup in
-         FOC_CalcCurrRef) and, while calibrating, bin the measured Iq the loop
+      /* Anti-cogging: publish the mechanical angle (consumed by the HF-rate FF
+         lookup in FOC_CurrControllerM1, which extrapolates it from g_enc_base_tick
+         with g_enc_omega_tick) and, while calibrating, bin the measured Iq the loop
          fights by mechanical position. FOCVars[M1].Iqd.q is the latest measured Iq
          (stored by the HF loop each tick). Sweep both directions on the host. */
       g_enc_mech14 = mech;

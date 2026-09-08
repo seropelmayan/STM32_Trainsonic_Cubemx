@@ -115,12 +115,12 @@ Getting this wrong is the classic bug here (e.g. HAL SPI reads hang in the prior
 
 | Context | Rate | What runs there |
 |---|---|---|
-| `TIM1_UP_TIM16_IRQn`, prio **0** | 25 kHz | `FOC_CurrControllerM1` — current loop, commutation angle extrapolation, dead-time comp, `FW_DataProcess`, step capture. **Never block this.** |
+| `TIM1_UP_TIM16_IRQn`, prio **0** | 25 kHz | `FOC_CurrControllerM1` — current loop, commutation angle extrapolation, **anti-cogging FF lookup (interpolated, since 2026-09-08)**, dead-time comp, `FW_DataProcess`, step capture. **Never block this.** |
 | `ADC1_2_IRQn`, prio 2 | 25 kHz | current-reading completion feeding FOC |
 | `TIM3_IRQn`, prio 3 | — | encoder ABI |
 | `TIM1_BRK_TIM15_IRQn`, prio 4 | — | PWM break / overcurrent |
 | `USART2_IRQn`, prio 6 | — | ESP32 link RX bytes (deliberately below all control ISRs) |
-| `mediumFrequency` task | 1 kHz | MCSDK MF task (speed loop, state machine) → `FOC_CalcCurrRef` (anti-cogging FF, speed override) → then `MC_APP_PostMediumFrequencyHook_M1` |
+| `mediumFrequency` task | 1 kHz | MCSDK MF task (speed loop, state machine) → `FOC_CalcCurrRef` (speed override, governor, modulation ceiling, low-pack taper) → then `MC_APP_PostMediumFrequencyHook_M1` |
 | `appTask` (`StartAppTask`, prio Low) | 50 ms | USB CDC bring-up, DRV8353 + AS5047 init, auto-start, status logging, and executing CDC command requests |
 
 ISR bodies: `Src/stm32g4xx_mc_it.c`, `Src/stm32_mc_common_it.c`.

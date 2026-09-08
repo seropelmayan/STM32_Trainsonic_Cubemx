@@ -2320,11 +2320,24 @@ void Ropetow_SetTorqueKi(int32_t ki)
    a one-time calibrate-and-save (CDC 'X'). */
 void Ropetow_CoggInit(void)
 {
-  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++) { g_cogg_lut[i] = COGG_TABLE_INIT[i]; }
+  uint8_t builtin_nonzero = 0U;
+  for (uint16_t i = 0U; i < (uint16_t)COGG_NBINS; i++)
+  {
+    g_cogg_lut[i] = COGG_TABLE_INIT[i];
+    if (COGG_TABLE_INIT[i] != 0) { builtin_nonzero = 1U; }
+  }
   if (Ropetow_CoggLoadFromFlash() != 0U)
   {
     g_cogg_from_flash = 1U;
     g_cogg_enable     = 1U;   /* a user-saved calibration exists -> use it */
+  }
+  else if (builtin_nonzero != 0U)
+  {
+    /* No saved map (fresh / erased chip) but a real calibration was compiled in
+       via cogg_table.h (cogg_pull.ps1) -> use it, so the FF works out of the box
+       and nobody has to re-run the calibration sweep. Clamp/gain stay at their
+       compile-time defaults (the flash record is the only carrier of those). */
+    g_cogg_enable = 1U;
   }
 }
 

@@ -391,7 +391,17 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 550.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
+volatile float    g_spdcap_hard_rpm  = 1000.0f; /* SAFETY LINE, not the operating limit (2026-09-09).
+                                                  550 -> 1000 so the ESP's request finally gets through:
+                                                  it asks for 800 in every heartbeat and, being above the
+                                                  old 550 ceiling, that number was discarded and replaced
+                                                  every time. Only homing (150) ever passed. The return
+                                                  speed is now set on the ESP, in DEFAULT_SPEED_LIMIT_RPM,
+                                                  which is where it belongs. Keep this WELL above anything
+                                                  the ESP would ask for -- it exists so a bug over the
+                                                  link cannot command an unsafe drum speed, nothing more.
+                                                  CDC '^<rpm>' sets it live for bench work (RAM only).
+                                                  ABSOLUTE firmware ceiling: the governor always enforces
                                                   min(requested, hard), and enforces hard even when the
                                                   request is 0/absent. NOT writable from the ESP link --
                                                   the STM32 has the last word on top speed (drum release

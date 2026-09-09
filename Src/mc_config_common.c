@@ -42,7 +42,12 @@ ENCODER_Handle_t ENCODER_M1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1500 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1500 rpm (2026-09-09, hand-edit;
+                                                                             REDO IN MC WORKBENCH on regen). 1150 was BELOW the 1350 rpm
+                                                                             measured on a hard pull today, and only 150 above the new
+                                                                             1000 rpm ceiling. A trip cuts PWM into uncontrolled
+                                                                             rectification at exactly the speed where that is worst.
+                                                                             ABOVE human-reachable pull
                                                                              speed (max observed 1068). Pulls are intentionally UNBRAKED
                                                                              (resistance purity); FW keeps control up there, and a fault
                                                                              trip at speed would cut PWM into uncontrolled rectification
@@ -82,7 +87,12 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1500 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1500 rpm (2026-09-09, hand-edit;
+                                                                             REDO IN MC WORKBENCH on regen). 1150 was BELOW the 1350 rpm
+                                                                             measured on a hard pull today, and only 150 above the new
+                                                                             1000 rpm ceiling. A trip cuts PWM into uncontrolled
+                                                                             rectification at exactly the speed where that is worst.
+                                                                             ABOVE human-reachable pull
                                                                              speed (max observed 1068). Pulls are intentionally UNBRAKED
                                                                              (resistance purity); FW keeps control up there, and a fault
                                                                              trip at speed would cut PWM into uncontrolled rectification

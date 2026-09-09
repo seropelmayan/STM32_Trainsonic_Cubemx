@@ -397,7 +397,17 @@ volatile float    g_spdcap_hard_rpm  = 550.0f; /* ABSOLUTE firmware ceiling: the
                                                   the STM32 has the last word on top speed (drum release
                                                   overspeed + the ~715 rpm voltage wall live above this).
                                                   Keep < the 800 rpm over-speed fault. */
-#define SPDCAP_BAND_RPM   120.0f                /* roll-off band below the cap (rpm). Widened 40->120:
+volatile float    g_spdcap_band_rpm = 180.0f;   /* CDC '[<rpm>' roll-off band below the cap. The retract
+                                                   command fades 1 -> 0 across this. WIDER = gentler
+                                                   approach but the return force starts easing earlier,
+                                                   so a fast eccentric feels lighter sooner. Tune by feel. */
+volatile float    g_spdcap_brake_start_rpm = 60.0f; /* CDC ']<rpm>' the brake now starts ABOVE the cap by
+                                                   this much and reaches full 60 rpm later. It is a
+                                                   BACKSTOP for a heavy release, not part of normal
+                                                   settling -- the roll-off alone holds the cap. 0 puts it
+                                                   back at the cap. (It used to start a whole band BELOW
+                                                   the cap, which is why it fired on every rep.) */
+#define SPDCAP_BAND_RPM   g_spdcap_band_rpm     /* roll-off band below the cap (rpm). Widened 40->120:
                                                    VESC-documented anti-limit-cycle rule is band >> speed
                                                    ripple -- at 40 the derating acted as a relay (7 A
                                                    command chopped full<->zero by +/-25 rpm of speed
@@ -1264,7 +1274,7 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
            speed crossed 480). The fade keeps the low-speed guarantee without
            the discontinuity. */
       {
-        float bgate = ((float)aspd - (cap - SPDCAP_BAND_RPM)) / 60.0f;
+        float bgate = ((float)aspd - (cap + g_spdcap_brake_start_rpm)) / 60.0f;
         if (bgate < 0.0f) { bgate = 0.0f; }
         if (bgate > 1.0f) { bgate = 1.0f; }
         float brk_app = brake_a * bgate;
@@ -1277,12 +1287,20 @@ __weak void FOC_CalcCurrRef(uint8_t bMotor)
            high rpm". Pull overspeed is instead handled by FW (proven in control
            to 1068 rpm, costs volts not felt force) + the raised over-speed
            fault (mc_config_common.c) sitting above human-reachable speed. */
-        if ((brk_app > 0.3f) && (spd_rpm != 0) && (((int32_t)q * spd_rpm) > 0))
+        /* ADDITIVE, not "stronger of" (2026-09-09). The old rule REPLACED the
+           command with the brake -- on a return the faded retract is inward and
+           the brake is outward, so the output stepped straight from pulling in to
+           pushing out with no value in between. That discontinuity, inside ~100 ms
+           of loop lag, is the hard block felt at the cap on every rep. Adding
+           instead means the force walks continuously down through zero and out the
+           other side, so there is nothing to step across. */
+        if ((brk_app > 0.05f) && (spd_rpm != 0) && (((int32_t)q * spd_rpm) > 0))
         {
           int32_t brk = (int32_t)(brk_app * (float)CURRENT_CONV_FACTOR);
-          if (brk > INT16_MAX) { brk = INT16_MAX; }
-          if (spd_rpm > 0) { if (qnew > (int16_t)-brk) { qnew = (int16_t)-brk; } }
-          else             { if (qnew < (int16_t)brk)  { qnew = (int16_t)brk;  } }
+          int32_t sum = (int32_t)qnew + ((spd_rpm > 0) ? -brk : brk);
+          if (sum > INT16_MAX) { sum = INT16_MAX; }
+          if (sum < INT16_MIN) { sum = INT16_MIN; }
+          qnew = (int16_t)sum;
         }
       }
 

@@ -426,6 +426,34 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
           if ((v <= 0.0f) || (v > g_spdcap_hard_rpm)) { v = g_spdcap_hard_rpm; }
           g_spdcap_rpm = v;
         } break;
+        case '[':                                                  /* governor roll-off band, rpm */
+        {
+          extern volatile float g_spdcap_band_rpm;
+          if (s_val < 10)   { s_val = 10; }
+          if (s_val > 2000) { s_val = 2000; }
+          g_spdcap_band_rpm = (float)s_val;
+        } break;
+        case ']':                                                  /* brake start ABOVE the cap, rpm */
+        {
+          extern volatile float g_spdcap_brake_start_rpm;
+          if (s_val < 0)    { s_val = 0; }
+          if (s_val > 2000) { s_val = 2000; }
+          g_spdcap_brake_start_rpm = (float)s_val;
+        } break;
+        case '{':                                                  /* brake ceiling, mA */
+        {
+          extern volatile float g_spdcap_brake_max_a;
+          if (s_val < 0)     { s_val = 0; }
+          if (s_val > 29000) { s_val = 29000; }
+          g_spdcap_brake_max_a = (float)s_val / 1000.0f;
+        } break;
+        case '^':                                                  /* hard speed ceiling, rpm */
+        {
+          extern volatile float g_spdcap_hard_rpm;
+          if (s_val < 50)   { s_val = 50; }
+          if (s_val > 1200) { s_val = 1200; }                      /* < the over-speed fault */
+          g_spdcap_hard_rpm = (float)s_val;
+        } break;
         case 'A': Ropetow_SetMcFwVRef(s_val); break;               /* MCSDK FW target voltage, tenths-of-% */
         case 'B': Ropetow_SetMcFwKi(s_val);   break;               /* MCSDK FW PI Ki */
         case 'G': g_enc_ff_ticks = (float)s_val * 0.1f; break;     /* commutation latency FF, tenths of HF ticks */
@@ -480,6 +508,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J': case 'q':
       case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z': case 'T':
+      case '[': case ']': case '{': case '^':   /* governor: band / brake-start / brake-max / ceiling */
         s_numcmd = (char)ch; s_val = 0; s_ndig = 0U; break;
       default:  break;   /* CR/LF/space/unknown: ignore */
     }

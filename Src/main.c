@@ -1072,17 +1072,21 @@ static void motor_status_log(void)
     extern volatile float    g_spdcap_brake_now_a;
     extern volatile uint32_t g_spi_err_count;
     extern volatile uint8_t  g_ctrl_scheme;
+    extern volatile uint8_t  g_ctrl_scheme_lock;
     extern volatile int16_t  g_spd_ref_rpm, g_spd_lim_lo, g_spd_lim_hi, g_spd_kp;
     extern uint8_t Ropetow_SpeedWindowSat(void);
     extern int16_t Ropetow_McFwAvVolt(void);
     extern int16_t Ropetow_McFwVTarget(void);
     /* sch=S : speed window -- ref=signed reference rpm, lim=lo/hi (s16), kp, sat=L/H/-
-       sch=T : legacy torque mode + governor -- cap / brk as before */
-    LOG_Printf("[m] %s spd=%ld sch=%c cap=%d brk=%d ref=%d lim=%d/%d kp=%d sat=%c | Iqref=%d Iq=%d Id=%d IdFW=%d | "
+       sch=T : legacy torque mode + governor -- cap / brk as before
+       a trailing '*' means CDC '#' pinned the scheme; without it the heartbeat picks
+       (v4 frame -> S, v3 frame / setpoint -> T), which is the boot state. */
+    LOG_Printf("[m] %s spd=%ld sch=%s cap=%d brk=%d ref=%d lim=%d/%d kp=%d sat=%c | Iqref=%d Iq=%d Id=%d IdFW=%d | "
                "avV=%d/%d | I=%ld.%ldA Vb=%uV enc=%s err=%lu\r\n",
                mc_state_name(state),
                (int32_t)MC_GetMecSpeedAverageMotor1() * U_RPM / SPEED_UNIT,
-               (g_ctrl_scheme != 0U) ? 'S' : 'T',
+               (g_ctrl_scheme != 0U) ? ((g_ctrl_scheme_lock != 0U) ? "S*" : "S")
+                                     : ((g_ctrl_scheme_lock != 0U) ? "T*" : "T"),
                (int)g_spdcap_rpm,
                (int)(g_spdcap_brake_now_a * 1000.0f),
                (int)g_spd_ref_rpm, (int)g_spd_lim_lo, (int)g_spd_lim_hi, (int)g_spd_kp,

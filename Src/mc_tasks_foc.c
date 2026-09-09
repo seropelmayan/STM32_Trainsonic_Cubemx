@@ -469,11 +469,17 @@ volatile float    g_spdcap_brake_now_a     = 0.0f;  /* braking ACTUALLY applied,
    Anti-windup is the SDK's own (integral clamped to the same window + back-calc),
    so there is no relay, no filter and no direction gate: the pull is never braked
    because the reference points inward. The legacy torque-mode governor is kept
-   behind g_ctrl_scheme = 0 (CDC '#') for A/B on the same image. The position servo
+   in the same image and is what the board boots into: g_ctrl_scheme starts at 0 and
+   THE ESP PICKS THE SCHEME PER HEARTBEAT -- a v4 frame (10 B, it carries brake_mA)
+   selects the speed window, a v3 frame (8 B) or a TSL_MSG_SETPOINT keeps the legacy
+   governor. So flashing this image in front of an unmodified ESP changes nothing;
+   the ESP opts in by sending the new field. CDC '#' pins the scheme (sets
+   g_ctrl_scheme_lock) so the bench can A/B live against a running ESP. The position servo
    and the cogging calibration own the STC while g_pos_mode != 0; the heartbeat is
    ignored meanwhile (also fixes their torque being zeroed 1 tick in 4 by the old
    torque-ramp path). */
-volatile uint8_t  g_ctrl_scheme          = 1U;     /* 1 = speed window (default), 0 = legacy torque + governor. CDC '#' toggles */
+volatile uint8_t  g_ctrl_scheme          = 0U;     /* 1 = speed window, 0 = legacy torque + governor (BOOT DEFAULT). Set per heartbeat by the ESP; CDC '#' toggles + pins */
+volatile uint8_t  g_ctrl_scheme_lock     = 0U;     /* 1 = CDC '#' has pinned the scheme; the heartbeat stops selecting it (cleared only by reset) */
 volatile int32_t  g_hb_brake_ma          = -1;     /* brake-side limit from the last heartbeat, mA; <0 = g_spd_brake_default_ma */
 volatile int32_t  g_spd_brake_default_ma = 2000;   /* brake-side limit when the ESP sends none (v3 heartbeat / CDC 't'); CDC '%<mA>' */
 volatile float    g_spd_band_rpm         = 120.0f; /* full-drive -> full-brake fade band, rpm (0 = manual Kp); CDC '$<rpm>' */

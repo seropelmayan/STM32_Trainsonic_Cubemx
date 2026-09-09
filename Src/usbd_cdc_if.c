@@ -358,6 +358,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   extern volatile uint8_t g_restart_req;            /* 'R' ack faults + restart motor     */
   extern volatile float   g_spdcap_rpm;             /* 'V<rpm>' speed reference / cap (speed window: reference magnitude) */
   extern volatile uint8_t g_ctrl_scheme;            /* '#' toggle: 1 speed window, 0 legacy torque governor */
+  extern volatile uint8_t g_ctrl_scheme_lock;       /* set by '#': stop the heartbeat selecting the scheme */
   extern volatile float   g_spd_band_rpm;           /* '$<rpm>' speed-window fade band (0 = manual 'p' Kp) */
   extern volatile int32_t g_spd_brake_default_ma;   /* '%<mA>' brake-side limit when the heartbeat sends none */
   extern volatile int32_t g_hb_brake_ma;            /* heartbeat brake-side limit; 't' resets it to the default */
@@ -483,7 +484,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
       case 'R': g_restart_req    = 1U; break;   /* ack faults + restart motor (0 A) */
       case 'x': g_mcfw_enable ^= 1U;   break;   /* toggle MCSDK native flux weakening */
       case 'u': g_pll_enable  ^= 1U;   break;   /* toggle PLL velocity observer vs finite-diff LPF */
-      case '#': g_ctrl_scheme ^= 1U;   break;   /* toggle speed-window (1) / legacy torque governor (0); takes effect on the next heartbeat or 't' */
+      case '#': g_ctrl_scheme ^= 1U; g_ctrl_scheme_lock = 1U; break;   /* toggle speed-window (1) / legacy governor (0) AND pin it: the heartbeat stops choosing the scheme until reset ([m] then shows a trailing star) */
       case 'p': case 'i': case 'P': case 'I': case 'D': case 'f': case 'F': case 't': case 's': case 'C':
       case 'W': case 'H': case 'J': case 'q':
       case 'o': case 'L': case 'N': case 'M': case 'Q': case 'j': case 'V': case 'A': case 'B': case 'G': case 'S': case 'U': case 'E': case 'Z': case 'T':

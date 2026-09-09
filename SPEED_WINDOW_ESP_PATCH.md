@@ -3,8 +3,28 @@
 STM32 branch `speed-window` replaces the hand-written torque-mode governor with the
 MCSDK **speed loop plus per-heartbeat torque limits** ("speed control with torque
 limit"). The ESP32 keeps owning all training logic; only the *meaning* of the heartbeat
-changes, and one field is added. A v3 ESP (8-byte heartbeat) still works unchanged --
-the STM32 fills the missing field from its console default.
+changes, and one field is added.
+
+## The ESP picks the scheme -- flashing alone changes nothing
+
+The STM32 **boots into the legacy torque governor** (`g_ctrl_scheme = 0`) and chooses the
+scheme from every heartbeat it receives:
+
+| Frame the ESP sends | Scheme the STM32 runs |
+|---|---|
+| v3 heartbeat, 8 bytes (no `brake_mA`) | legacy torque mode + governor, exactly as before |
+| `TSL_MSG_SETPOINT` (0x11), 4 bytes | legacy torque mode + governor |
+| **v4 heartbeat, 10 bytes (carries `brake_mA`)** | **speed window** |
+
+Carrying `brake_mA` is proof the sender knows `torque_mA` is now a *limit* and `speed_rpm`
+a *reference*. So this image can be flashed in front of the current, unmodified ESP build
+and the machine behaves identically; the ESP opts in when it starts sending the tenth
+byte, and opts back out by sending eight. Nothing is persisted -- the board is legacy
+again on the next power-up until a v4 frame arrives.
+
+For the bench, CDC `#` toggles the scheme *and pins it*, so the heartbeat stops choosing
+and both schemes can be A/B'd against a live ESP. The `[m]` line shows `sch=S*` / `sch=T*`
+while pinned, `sch=S` / `sch=T` while the wire is choosing. Reset clears the pin.
 
 ## Wire format (TSL_MSG_HEARTBEAT, id 0x01, stream frame, seq byte 0)
 
@@ -17,10 +37,10 @@ SLIP-framed exactly as today; CRC16 over id..payload as today. `len` is 10 (was 
 |---|---|---|
 | `torque_mA` (signed) | **Drive-side torque limit.** Sign = direction of the speed reference: `< 0` inward (retract = the weight), `> 0` outward (push the cable out, home wall). `0` = no drive torque (slack zone). | plain torque setpoint, as before |
 | `speed_rpm` (magnitude) | **Speed reference.** The drive holds `|torque_mA|` until the drum reaches this speed *in the reference direction*, then eases the torque to 0 and holds the speed. `0` or above the STM32 hard ceiling (550) = the hard ceiling. | governor cap, as before |
-| `brake_mA` (>= 0, new) | **Brake-side torque limit.** Most torque the drive may apply *against* motion faster than the reference (a released handle overshooting the cap). `0` = never brake, only ease off. Absent (v3 frame) = STM32 console default `%<mA>`, 2000. | ignored |
+| `brake_mA` (>= 0, new) | **Brake-side torque limit.** Most torque the drive may apply *against* motion faster than the reference (a released handle overshooting the cap). `0` = never brake, only ease off. Its presence is also what selects this scheme; pinned to legacy with `#`, the console default `%<mA>` (2000) stands in. | absent, so the legacy scheme is what runs |
 
-`TSL_MSG_SETPOINT` (0x11) keeps its 4-byte payload and is treated like a heartbeat with
-`brake_mA` absent.
+`TSL_MSG_SETPOINT` (0x11) keeps its 4-byte payload and is treated like a v3 heartbeat: it
+selects the legacy scheme and its `torque_mA` is a plain torque setpoint.
 
 New status flag: `TSL_SFLAG_AT_LIMIT` (0x10) in `tsl_status_t.flags` = the speed PI is
 sitting on a torque limit (drive side or brake side). Set while the cable is held,
@@ -44,6 +64,10 @@ at any speed. Only a *released* cable running faster than `speed_rpm` inward see
 torque ease off and (if `brake_mA` > 0) a brake.
 
 ## Minimal ESP diff (trainsonic-firmware)
+
+Steps 1-5 together are what flips the STM32 into the speed window; until the heartbeat
+grows its tenth byte the ESP keeps driving the legacy governor, so the patch can be
+staged and reverted freely.
 
 1. **`components/ts_link/trainsonic_link.h`** -- replace with the STM32 repo's
    `protocol/trainsonic_link.h` (v4, verbatim; it is the shared contract).
@@ -81,7 +105,7 @@ torque ease off and (if `brake_mA` > 0) a brake.
 
 | Cmd | Effect |
 |---|---|
-| `#` | toggle speed-window (default) / legacy torque governor; the `[m]` line shows `sch=S` or `sch=T` |
+| `#` | toggle speed-window / legacy torque governor **and pin the choice**, so the heartbeat stops selecting it. `[m]` shows `sch=S*` / `sch=T*` while pinned. Reset returns to legacy + wire-selected |
 | `t<mA>` | drive-side limit (signed), reference = `V` cap, brake = `%` default -- same as a heartbeat |
 | `V<rpm>` | speed reference magnitude (hard-clamped to 550) |
 | `$<rpm>` | fade band: speed error over which the torque swings from full drive to full brake (default 120; 0 = manual `p`) |

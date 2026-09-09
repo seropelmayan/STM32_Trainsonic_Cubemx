@@ -32,6 +32,8 @@ extern volatile uint8_t g_cogg_erase_req;   /* 'n' erase saved map           */
 extern volatile float   g_spdcap_rpm;       /* torque-mode velocity cap (rpm), same as CDC 'V' */
 extern volatile float   g_spdcap_hard_rpm;  /* firmware ceiling: ESP requests are clamped to this */
 extern volatile int32_t g_hb_brake_ma;      /* speed-window brake-side limit from the heartbeat (mA); <0 = console default */
+extern volatile uint8_t g_ctrl_scheme;      /* 1 = speed window, 0 = legacy torque governor; selected by the heartbeat below */
+extern volatile uint8_t g_ctrl_scheme_lock; /* 1 = CDC '#' pinned it: leave the scheme alone */
 
 /* Clamp an ESP-requested speed cap to the firmware hard ceiling. 0 ("unlimited")
    also becomes the hard ceiling -- the STM32 has the last word on top speed. */
@@ -212,10 +214,17 @@ static void esp_dispatch(uint8_t id, const uint8_t *pl, uint8_t len)
     case TSL_MSG_HEARTBEAT:
       if (len >= 8u)                                   /* v3 (8 B) or v4 (10 B, + brake_mA) */
       {
+        uint8_t v4 = (len >= (uint8_t)sizeof(tsl_heartbeat_t)) ? 1U : 0U;
         tsl_heartbeat_t hb;
         memset(&hb, 0, sizeof(hb));
-        memcpy(&hb, pl, (len >= (uint8_t)sizeof(hb)) ? sizeof(hb) : 8u);
-        g_hb_brake_ma   = (len >= (uint8_t)sizeof(hb)) ? (int32_t)hb.brake_mA : -1;  /* -1 = console default */
+        memcpy(&hb, pl, v4 ? sizeof(hb) : 8u);
+        /* THE SENDER PICKS THE CONTROL SCHEME. A v4 heartbeat carries brake_mA, so its
+           author knows torque_mA is a LIMIT and speed_rpm a REFERENCE -> speed window.
+           A v3 heartbeat means an ESP that still speaks plain torque -> legacy governor,
+           i.e. flashing this image in front of an unmodified ESP changes nothing.
+           CDC '#' pins the scheme for bench A/B and switches this line off. */
+        if (g_ctrl_scheme_lock == 0U) { g_ctrl_scheme = v4; }
+        g_hb_brake_ma   = v4 ? (int32_t)hb.brake_mA : -1;     /* -1 = console default */
         g_torque_set_ma = (int32_t)hb.torque_mA; g_torque_set_req = 1U;
         g_spdcap_rpm    = esp_cap_clamp((float)hb.speed_rpm); /* speed reference / cap, hard-limited by STM32 */
       }
@@ -224,6 +233,7 @@ static void esp_dispatch(uint8_t id, const uint8_t *pl, uint8_t len)
       if (len >= (uint8_t)sizeof(tsl_setpoint_t))
       {
         tsl_setpoint_t sp; memcpy(&sp, pl, sizeof(sp));
+        if (g_ctrl_scheme_lock == 0U) { g_ctrl_scheme = 0U; } /* plain torque setpoint: legacy scheme */
         g_hb_brake_ma   = -1;                                 /* no brake field: console default */
         g_torque_set_ma = (int32_t)sp.torque_mA; g_torque_set_req = 1U;
         g_spdcap_rpm    = esp_cap_clamp((float)sp.speed_rpm); /* velocity cap, hard-limited by STM32 */

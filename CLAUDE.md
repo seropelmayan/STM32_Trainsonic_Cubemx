@@ -158,8 +158,13 @@ speed.
   limit" (`PID_Set{Lower,Upper}OutputLimit` on `PIDSpeedHandle_M1`). Wire contract:
   [SPEED_WINDOW_ESP_PATCH.md](SPEED_WINDOW_ESP_PATCH.md). Flux weakening is bound to a shadow
   PID so it cannot overwrite the speed PI limits.
+  **The board boots into the legacy scheme and the ESP selects this one per heartbeat**: a
+  v4 frame (10 B, carries `brake_mA`) runs the speed window, a v3 frame (8 B) or a
+  `TSL_MSG_SETPOINT` runs the legacy governor, so this image in front of an unmodified ESP
+  behaves exactly like the old one. CDC `#` toggles *and pins* the scheme for bench A/B
+  (`g_ctrl_scheme_lock`; `[m]` then shows `sch=S*`). Reset clears the pin.
 - **Legacy overspeed governor** — `g_spdcap_*` hand-written roll-off + P/I brake inside torque
-  mode, kept behind CDC `#` (`g_ctrl_scheme = 0`) for A/B. A relay-plus-lag structure that
+  mode, `g_ctrl_scheme = 0`: the **boot default**, and what a v3 ESP keeps getting. A relay-plus-lag structure that
   limit-cycles at the cap in simulation (~6 Hz, ±4 A); do not develop it further. Distinct from
   the 1150 rpm over-speed *fault* line in `mc_config_common.c`, which is set deliberately high
   because a fault trip at speed cuts PWM into uncontrolled rectification.
@@ -168,7 +173,8 @@ speed.
   200 ms watchdog that commands 0 torque if the ESP goes silent after first contact.
   `protocol/trainsonic_link.h` is the **shared wire contract** — it is meant to be used verbatim by
   both firmwares, so bump `TSL_PROTOCOL_VERSION` on any incompatible change. v4 (2026-09-08) adds
-  `brake_mA` to the heartbeat; v3 8-byte heartbeats are still accepted. The ESP-IDF side is in
+  `brake_mA` to the heartbeat; v3 8-byte heartbeats are still accepted and keep the legacy
+  control scheme (see speed-window control above). The ESP-IDF side is in
   `esp32/ts_link/` (not built by this project).
 
 ### Parameter flow
@@ -194,7 +200,7 @@ is tuned and tested; skim the `case` block there for the current set. Representa
 | `K` / `k`, `E<pct>` | anti-cogging FF on / off, amplitude |
 | `x`, `w` | toggle MCSDK-native FW / legacy FW |
 | `V<rpm>` | speed reference / cap (hard-clamped to 550) |
-| `#`, `$<rpm>`, `%<mA>` | toggle speed-window vs legacy governor; fade band; default brake-side limit |
+| `#`, `$<rpm>`, `%<mA>` | toggle **and pin** speed-window vs legacy governor (otherwise the heartbeat picks); fade band; default brake-side limit |
 | `R` | acknowledge faults + restart at 0 A |
 
 Host-side analysis scripts (run against saved console text, not the board):

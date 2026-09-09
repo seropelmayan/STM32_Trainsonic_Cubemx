@@ -42,7 +42,9 @@ ENCODER_Handle_t ENCODER_M1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1700 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1700 rpm (1150 on this branch originally;
+                                                                             raised 2026-09-09 ONLY so this A/B build cannot trip at the
+                                                                             1350 rpm measured today) -- ABOVE human-reachable pull
                                                                              speed (max observed 1068). Pulls are intentionally UNBRAKED
                                                                              (resistance purity); FW keeps control up there, and a fault
                                                                              trip at speed would cut PWM into uncontrolled rectification
@@ -82,7 +84,9 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1700 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1700 rpm (1150 on this branch originally;
+                                                                             raised 2026-09-09 ONLY so this A/B build cannot trip at the
+                                                                             1350 rpm measured today) -- ABOVE human-reachable pull
                                                                              speed (max observed 1068). Pulls are intentionally UNBRAKED
                                                                              (resistance purity); FW keeps control up there, and a fault
                                                                              trip at speed would cut PWM into uncontrolled rectification

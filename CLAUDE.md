@@ -166,7 +166,7 @@ speed.
 - **Legacy overspeed governor** — `g_spdcap_*` hand-written roll-off + P/I brake inside torque
   mode, `g_ctrl_scheme = 0`: the **boot default**, and what a v3 ESP keeps getting. A relay-plus-lag structure that
   limit-cycles at the cap in simulation (~6 Hz, ±4 A); do not develop it further. Distinct from
-  the 1150 rpm over-speed *fault* line in `mc_config_common.c`, which is set deliberately high
+  the 1400 rpm over-speed *fault* line in `mc_config_common.c`, which is set deliberately high
   because a fault trip at speed cuts PWM into uncontrolled rectification.
 - **Position servo** — `Ropetow_PositionControl()`, PD on multi-turn encoder counts.
 - **ESP32 link** — `Src/esp_link.c` on USART2 (PA2/PA3, 115200), SLIP framing + CRC16, with a

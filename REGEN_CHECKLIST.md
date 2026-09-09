@@ -37,9 +37,9 @@ tick the checkbox in the GUI — that's authoritative.)
 
 Also `Src/mc_config_common.c` (regenerated, edits are OUTSIDE user guards): both
 `hMaxReliableMecSpeedUnit` initializers (in `ENCODER_M1` and
-`VirtualSpeedSensorM1`) are hand-set to `(1150 * SPEED_UNIT) / U_RPM` — the
-over-speed fault line, deliberately ABOVE human-reachable pull speed (~1070
-observed): pulls are unbraked by design (resistance purity), FW keeps control
+`VirtualSpeedSensorM1`) are hand-set to `(1400 * SPEED_UNIT) / U_RPM` (1150 until
+2026-09-09) — the over-speed fault line, deliberately ABOVE human-reachable pull
+speed (~1070 observed), now with more margin so a hard yank cannot trip it: pulls are unbraked by design (resistance purity), FW keeps control
 up there, and a fault trip at speed cuts PWM into uncontrolled rectification.
 Motor-driven overspeed (release) is handled by the speed-window control (MCSDK speed
 PI + per-heartbeat torque limits, `Ropetow_SpeedWindowApply` in `mc_tasks_foc.c`,

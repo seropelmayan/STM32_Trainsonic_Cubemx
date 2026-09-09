@@ -35,7 +35,7 @@
                                                  only bounds the speed REFERENCE a ramp may program (CHECK_BOUNDARY in
                                                  speed_torq_ctrl.c silently rejects anything above it). The speed-window
                                                  control programs references up to g_spdcap_hard_rpm; the over-speed
-                                                 FAULT is the separate 1150 rpm line in mc_config_common.c. */
+                                                 FAULT is the separate 1400 rpm line in mc_config_common.c. */
 #define MIN_APPLICATION_SPEED_RPM           0 /*!< rpm, mechanical, absolute value */
 #define M1_SS_MEAS_ERRORS_BEFORE_FAULTS     16 /*!< 3->16: tolerate occasional ABI/EMI speed-read glitches (enc=BAD) instead of faulting. Set in MC Workbench too to survive regen. */
 

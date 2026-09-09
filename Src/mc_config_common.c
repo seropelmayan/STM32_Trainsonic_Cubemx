@@ -42,11 +42,16 @@ ENCODER_Handle_t ENCODER_M1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
-                                                                             speed (max observed 1068). Pulls are intentionally UNBRAKED
-                                                                             (resistance purity); FW keeps control up there, and a fault
-                                                                             trip at speed would cut PWM into uncontrolled rectification
-                                                                             (the real hazard). Motor-driven overspeed is governed at 600. */
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1400 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 rpm (2026-09-09, hand-edit;
+                                                                             REDO IN MC WORKBENCH on regen). Kept well ABOVE human-reachable
+                                                                             pull speed (max observed 1068) so a hard yank cannot trip it.
+                                                                             Pulls are intentionally UNBRAKED (resistance purity); FW keeps
+                                                                             control up there, and a fault trip at speed would cut PWM into
+                                                                             uncontrolled rectification -- that, not the speed itself, is the
+                                                                             hazard this high line avoids. Motor-driven overspeed is governed
+                                                                             at g_spdcap_hard_rpm 550, and the speed REFERENCE is separately
+                                                                             bounded by MAX_APPLICATION_SPEED_RPM 1200, so nothing commands
+                                                                             the drum anywhere near this. */
     .hMinReliableMecSpeedUnit  = (uint16_t)(MIN_APPLICATION_SPEED_UNIT),
     .bMaximumSpeedErrorsNumber = M1_SS_MEAS_ERRORS_BEFORE_FAULTS,
     .hMaxReliableMecAccelUnitP = 65535,
@@ -82,11 +87,16 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1150 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 rpm -- ABOVE human-reachable pull
-                                                                             speed (max observed 1068). Pulls are intentionally UNBRAKED
-                                                                             (resistance purity); FW keeps control up there, and a fault
-                                                                             trip at speed would cut PWM into uncontrolled rectification
-                                                                             (the real hazard). Motor-driven overspeed is governed at 600. */
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1400 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 rpm (2026-09-09, hand-edit;
+                                                                             REDO IN MC WORKBENCH on regen). Kept well ABOVE human-reachable
+                                                                             pull speed (max observed 1068) so a hard yank cannot trip it.
+                                                                             Pulls are intentionally UNBRAKED (resistance purity); FW keeps
+                                                                             control up there, and a fault trip at speed would cut PWM into
+                                                                             uncontrolled rectification -- that, not the speed itself, is the
+                                                                             hazard this high line avoids. Motor-driven overspeed is governed
+                                                                             at g_spdcap_hard_rpm 550, and the speed REFERENCE is separately
+                                                                             bounded by MAX_APPLICATION_SPEED_RPM 1200, so nothing commands
+                                                                             the drum anywhere near this. */
     .hMinReliableMecSpeedUnit  = (uint16_t)(MIN_APPLICATION_SPEED_UNIT),
     .bMaximumSpeedErrorsNumber = M1_SS_MEAS_ERRORS_BEFORE_FAULTS,
     .hMaxReliableMecAccelUnitP = 65535,

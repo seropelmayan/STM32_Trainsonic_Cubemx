@@ -42,9 +42,10 @@ ENCODER_Handle_t ENCODER_M1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1400 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 rpm (2026-09-09, hand-edit;
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1700 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 -> 1700 rpm (2026-09-09, hand-edit;
                                                                              REDO IN MC WORKBENCH on regen). Kept well ABOVE human-reachable
-                                                                             pull speed (max observed 1068) so a hard yank cannot trip it.
+                                                                             pull speed (1350 rpm measured on the bench 2026-09-09, which
+                                                                             is why 1400 was not enough) so a hard yank cannot trip it.
                                                                              Pulls are intentionally UNBRAKED (resistance purity); FW keeps
                                                                              control up there, and a fault trip at speed would cut PWM into
                                                                              uncontrolled rectification -- that, not the speed itself, is the
@@ -87,9 +88,10 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
   ._Super =
   {
     .bElToMecRatio             = POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit  = (uint16_t)((1400 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 rpm (2026-09-09, hand-edit;
+    .hMaxReliableMecSpeedUnit  = (uint16_t)((1700 * SPEED_UNIT) / U_RPM), /* over-speed fault: 1150 -> 1400 -> 1700 rpm (2026-09-09, hand-edit;
                                                                              REDO IN MC WORKBENCH on regen). Kept well ABOVE human-reachable
-                                                                             pull speed (max observed 1068) so a hard yank cannot trip it.
+                                                                             pull speed (1350 rpm measured on the bench 2026-09-09, which
+                                                                             is why 1400 was not enough) so a hard yank cannot trip it.
                                                                              Pulls are intentionally UNBRAKED (resistance purity); FW keeps
                                                                              control up there, and a fault trip at speed would cut PWM into
                                                                              uncontrolled rectification -- that, not the speed itself, is the

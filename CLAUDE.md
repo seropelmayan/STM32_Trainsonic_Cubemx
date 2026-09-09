@@ -149,7 +149,7 @@ speed.
   FW is a transient handler for max-effort pulls, not part of the normal envelope.
 - **Speed-window control** (2026-09-08, `Ropetow_SpeedWindowApply`) — the drive runs in MCSDK
   **speed mode** with the speed PI's output limits set from every heartbeat: reference =
-  `min(heartbeat speed_rpm, g_spdcap_hard_rpm 550)` signed by the drive direction, `lo`/`hi` =
+  `min(heartbeat speed_rpm, g_spdcap_hard_rpm 800)` signed by the drive direction, `lo`/`hi` =
   drive-side / brake-side torque limits. Below the cap the PI is saturated on the drive limit,
   so pull, hold and a hand-controlled eccentric feel exactly the commanded weight (pure torque
   mode); only a released drum running faster than the reference eases off and, if allowed,
@@ -199,7 +199,7 @@ is tuned and tested; skim the `case` block there for the current set. Representa
 | `X` / `n` | save / erase the cogging map in flash |
 | `K` / `k`, `E<pct>` | anti-cogging FF on / off, amplitude |
 | `x`, `w` | toggle MCSDK-native FW / legacy FW |
-| `V<rpm>` | speed reference / cap (hard-clamped to 550) |
+| `V<rpm>` | speed reference / cap (hard-clamped to `g_spdcap_hard_rpm`, 800 since 2026-09-09) |
 | `#`, `$<rpm>`, `%<mA>` | toggle **and pin** speed-window vs legacy governor (otherwise the heartbeat picks); fade band; default brake-side limit |
 | `R` | acknowledge faults + restart at 0 A |
 

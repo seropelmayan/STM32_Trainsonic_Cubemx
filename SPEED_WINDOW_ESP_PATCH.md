@@ -36,7 +36,7 @@ SLIP-framed exactly as today; CRC16 over id..payload as today. `len` is 10 (was 
 | Field | Meaning in speed-window control | Legacy (`#` = torque governor) |
 |---|---|---|
 | `torque_mA` (signed) | **Drive-side torque limit.** Sign = direction of the speed reference: `< 0` inward (retract = the weight), `> 0` outward (push the cable out, home wall). `0` = no drive torque (slack zone). | plain torque setpoint, as before |
-| `speed_rpm` (magnitude) | **Speed reference.** The drive holds `|torque_mA|` until the drum reaches this speed *in the reference direction*, then eases the torque to 0 and holds the speed. `0` or above the STM32 hard ceiling (550) = the hard ceiling. | governor cap, as before |
+| `speed_rpm` (magnitude) | **Speed reference.** The drive holds `|torque_mA|` until the drum reaches this speed *in the reference direction*, then eases the torque to 0 and holds the speed. `0` or above the STM32 hard ceiling (800 since 2026-09-09, was 550) = the hard ceiling. | governor cap, as before |
 | `brake_mA` (>= 0, new) | **Brake-side torque limit.** Most torque the drive may apply *against* motion faster than the reference (a released handle overshooting the cap). `0` = never brake, only ease off. Its presence is also what selects this scheme; pinned to legacy with `#`, the console default `%<mA>` (2000) stands in. | absent, so the legacy scheme is what runs |
 
 `TSL_MSG_SETPOINT` (0x11) keeps its 4-byte payload and is treated like a v3 heartbeat: it
@@ -52,7 +52,7 @@ speed. During homing it doubles as a "leaning on the stop" signal.
 | Mode | `torque_mA` | `speed_rpm` | `brake_mA` |
 |---|---|---|---|
 | Homing (seek) | `-810` (3 kg stall force) | `150` | `0` |
-| Resistance, cable out | `-W` from the weight law (ramp 0->W over the first 20 mm, as now) | `800` (-> clamped to 550) | `2000` (soft catch) |
+| Resistance, cable out | `-W` from the weight law (ramp 0->W over the first 20 mm, as now) | `800` (now passes through: the ceiling is also 800) | `2000` (soft catch) |
 | Resistance, at home (slack) | `0` | `800` | `2000` |
 | Home wall, past home | `+K * overshoot_mm` (outward), capped at `wall_max` (1500) | `20`..`40` | `0` |
 | Calibration keep-alive | `0` | `0` | `0` |
@@ -107,7 +107,7 @@ staged and reverted freely.
 |---|---|
 | `#` | toggle speed-window / legacy torque governor **and pin the choice**, so the heartbeat stops selecting it. `[m]` shows `sch=S*` / `sch=T*` while pinned. Reset returns to legacy + wire-selected |
 | `t<mA>` | drive-side limit (signed), reference = `V` cap, brake = `%` default -- same as a heartbeat |
-| `V<rpm>` | speed reference magnitude (hard-clamped to 550) |
+| `V<rpm>` | speed reference magnitude (hard-clamped to `g_spdcap_hard_rpm`, 800) |
 | `$<rpm>` | fade band: speed error over which the torque swings from full drive to full brake (default 120; 0 = manual `p`) |
 | `%<mA>` | brake-side limit used when the heartbeat sends none (default 2000) |
 | `p<n>` / `i<n>` | speed PI gains; typing `p` switches the band off (manual Kp) |

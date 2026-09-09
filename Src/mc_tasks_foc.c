@@ -404,18 +404,42 @@ static   uint8_t  g_fw_engaged       = 0U;      /* latch: 1 once over thr, 0 onc
    is requested. Set the request live via CDC 'V<rpm>'. NOTE: governor braking
    regenerates into the DC bus; g_spdcap_brake_max_a bounds that current. */
 volatile float    g_spdcap_rpm       = 650.0f; /* REQUESTED cap, rpm (ESP link / CDC 'V'); 0 = no request */
-volatile float    g_spdcap_hard_rpm  = 550.0f; /* ABSOLUTE firmware ceiling: the governor always enforces
-                                                  min(requested, hard), and enforces hard even when the
-                                                  request is 0/absent. NOT writable from the ESP link --
-                                                  the STM32 has the last word on top speed. The ESP
-                                                  heartbeat asks for 800; it is clamped to this. 550 =
-                                                  the July value (73b017b). 2026-09-08: 800 / 700 / 650
-                                                  / 600 were all tried on the machine and all felt
-                                                  worse than 550 -- leave it. The modulation-ceiling /
-                                                  low-pack-taper experiments of the same day are
-                                                  reverted; the governor is the July one untouched. Only affects MOTOR-driven motion
-                                                  (q*spd > 0): the brake and roll-off never touch a
-                                                  pull. Keep < the 1150 rpm over-speed fault
+volatile float    g_spdcap_hard_rpm  = 800.0f; /* ABSOLUTE firmware ceiling: enforced as min(requested,
+                                                  hard), and enforced even when the request is 0/absent.
+                                                  NOT writable from the ESP link -- the STM32 has the
+                                                  last word on top speed.
+
+                                                  550 -> 800 on 2026-09-09 (Serop's call). 800 is what
+                                                  the ESP heartbeat already asks for, so the request now
+                                                  passes through instead of being overridden, and the
+                                                  ESP owns the return-speed limit.
+
+                                                  The comment here used to say 800 / 700 / 650 / 600
+                                                  were all tried on 2026-09-08 and all felt worse than
+                                                  550. TRUE, BUT ONLY OF THE LEGACY GOVERNOR: every one
+                                                  of those trials predates the speed-window commit
+                                                  (57e4f94, same evening) and so was measured against
+                                                  the relay-plus-~100ms-lag structure that limit-cycles
+                                                  at its cap BY CONSTRUCTION -- it oscillates worse the
+                                                  higher the cap, because the roll-off band sits in a
+                                                  faster part of the plant. Those results say nothing
+                                                  about a saturating PI. Re-measure before treating 800
+                                                  as settled; the July finding still stands for
+                                                  g_ctrl_scheme = 0.
+
+                                                  Voltage headroom is the thing to watch at 800: with
+                                                  lambda 0.0178 Wb and 20 pole pairs the BEMF is ~30 V
+                                                  peak per phase at 800 rpm, against ~32 V available
+                                                  from a 56 V bus, so ~92% modulation with no current
+                                                  yet. Flux weakening WILL be working on the return
+                                                  (watch avV climb toward its target and IdFW go
+                                                  non-zero on the [m] line). At 550 it was ~63% and FW
+                                                  was idle.
+
+                                                  Only affects MOTOR-driven motion (q*spd > 0): the
+                                                  brake and roll-off never touch a pull. Keep below
+                                                  MAX_APPLICATION_SPEED_RPM (1200, the reference bound)
+                                                  and the 1400 rpm over-speed fault
                                                   (mc_config_common.c). */
 #define SPDCAP_BAND_RPM   120.0f                /* roll-off band below the cap (rpm). Widened 40->120:
                                                    VESC-documented anti-limit-cycle rule is band >> speed
